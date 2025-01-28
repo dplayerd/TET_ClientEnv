@@ -1,0 +1,52 @@
+﻿@using Platform.Infra;
+@using Platform.WebSite.Helpers;
+@model Guid
+
+@{
+    ViewBag.Title = "選單角色管理";
+}
+
+
+<!--begin::Card-->
+<div class="card card-custom">
+    <div class="card-header flex-wrap py-5">
+        <div class="card-title">
+            <div class="card-label">
+                @*標題*@
+                <span class="display-4">@ViewBag.Title</span>
+                @*標題*@
+            </div>
+        </div>
+        <div class="card-toolbar">
+            @*工具列*@
+            @*工具列*@
+        </div>
+    </div>
+    <div class="card-body">
+        @*表格*@
+        <table class="table table-bordered table-hover table-checkable" id="dataGrid" style="margin-top: 13px !important">
+            <thead>
+                <tr>
+                    <th>名稱</th>
+                    <th>標題</th>
+                    <th>頁面種類</th>
+                    <th>設定</th>
+                </tr>
+            </thead>
+        </table>
+        @*表格*@
+    </div>
+</div>
+<!--end::Card-->
+@* --將 js 註冊至頁尾-- *@
+@Html.Resource(
+@<text>
+    <script>
+        var siteID = '@this.Model';
+    </script>
+
+    <script src="~/Content/assets/plugins/custom/datatables/datatables.bundle.js?v=@DateTimeExtensions.GetJS_V_Text()"></script>
+    <script src="~/ModuleResources/JavaScripts/Shared/FormHelper.js?v=@DateTimeExtensions.GetJS_V_Text()"></script>
+    <script src="~/ModuleResources/JavaScripts/PageRoleManagement/index.js?v=@DateTimeExtensions.GetJS_V_Text()"></script>
+</text>
+, "customScripts")

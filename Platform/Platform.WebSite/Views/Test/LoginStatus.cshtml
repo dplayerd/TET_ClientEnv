@@ -1,0 +1,84 @@
+﻿@using Platform.WebSite.Models;
+@{
+    Layout = null;
+
+    bool IsCookieLogined = this.ViewBag.IsCookieLogined;
+    bool IsSessionLogined = this.ViewBag.IsSessionLogined;
+
+    string sModel = this.ViewBag.SessionModel;
+    UserProfileViewModel cModel = this.ViewBag.CookieModel;
+
+    if (cModel == null)
+    {
+        cModel = UserProfileViewModel.GetDefault();
+    }
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>登入測試</title>
+</head>
+<body>
+    <div>
+        <table border="1" cellspacing="0">
+            <caption> FormsAuthentication </caption>
+            <tr>
+                <th> 已登入 </th>
+                <td>@IsCookieLogined</td>
+            </tr>
+            <tr>
+                <th> ID </th>
+                <td>@cModel.ID</td>
+            </tr>
+            <tr>
+                <th> Account </th>
+                <td>@cModel.Account</td>
+            </tr>
+            <tr>
+                <th> FirstNameCH </th>
+                <td>@cModel.FirstNameCH</td>
+            </tr>
+            <tr>
+                <th> LastNameCH </th>
+                <td>@cModel.LastNameCH</td>
+            </tr>
+            <tr>
+                <th> FirstNameEN </th>
+                <td>@cModel.FirstNameEN</td>
+            </tr>
+            <tr>
+                <th> LastNameEN </th>
+                <td>@cModel.LastNameEN</td>
+            </tr>
+            <tr>
+                <th> Email </th>
+                <td>@cModel.Email</td>
+            </tr>
+            <tr>
+                <th> UnitCode </th>
+                <td>@cModel.UnitCode</td>
+            </tr>
+            <tr>
+                <th> UnitName </th>
+                <td>@cModel.UnitName</td>
+            </tr>
+        </table>
+        <br/>
+        <table border="1" cellspacing="0">
+                <caption> Session </caption>
+                <tr>
+                    <th> 已登入 </th>
+                    <td>@IsSessionLogined</td>
+                </tr>
+                <tr>
+                    <th> sModel </th>
+                    <td>@sModel</td>
+                </tr>
+
+            </table>
+    </div>
+</body>
+</html>

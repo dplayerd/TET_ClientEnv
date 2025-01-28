@@ -1,0 +1,94 @@
+﻿@model IEnumerable<BI.SampleData.Models.SampleDataModel>
+
+@{
+    var ctlName = "SampleData";
+    ViewBag.Title = "Index";
+}
+
+<div class="row">
+    <div class="col-xl-12">
+        @*Notice 區僅用來說明，不需要就可以移除*@
+        <!--begin::Notice-->
+        <div class="alert alert-custom alert-white alert-shadow gutter-b" role="alert">
+            <div class="alert-icon">
+                <span class="svg-icon svg-icon-primary svg-icon-xl">
+                    <i class="icon-2x text-dark-50 flaticon2-information"></i>
+                </span>
+            </div>
+            <div class="alert-text">
+                本範例使用為基礎的 Http 管理模組。<br />
+                需要的人可將本範例作為基底，拷貝並完成其它模組。<br />
+            </div>
+        </div>
+        <!--end::Notice-->
+        <!--begin::Card-->
+        <div class="card card-custom gutter-b">
+            <div class="card-header">
+                <div class="card-title">
+                    <h3 class="card-label">
+                        @ViewBag.Title
+                    </h3>
+                </div>
+            </div>
+            <div class="card-body">
+                <p>
+                    <a href="@Url.Action("Create")" class="btn btn-primary">
+                        <i class="flaticon2-plus"></i> 新增
+                    </a>
+                </p>
+                <table class="table">
+                    @* 表頭 *@
+                    <thead class="thead-dark">
+                        <tr>
+                            <th scope="col" class="col-sm-1">#</th>
+                            <th scope="col" class="col-sm-4">@Html.DisplayNameFor(model => model.Name)</th>
+                            <th scope="col" class="col-sm-4">@Html.DisplayNameFor(model => model.Title)</th>
+                            <th scope="col" class="col-sm-3">Act</th>
+                        </tr>
+                    </thead>
+                    @* 表身 *@
+                    <tbody>
+                        @foreach (var item in this.Model)
+                        {
+                            <tr>
+                                <td scope="row">
+                                    @item.Id
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.Name)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.Title)
+                                </td>
+                                <td>
+
+                                    <div class="d-flex flex-row">
+                                        <a href="@Url.Action("Details", new { id = item.Id })" class="btn btn-primary">
+                                            <i class="flaticon-eye"></i> 內容
+                                        </a>
+                                        &nbsp;
+                                        <a href="@Url.Action("Edit", new { id = item.Id })" class="btn btn-warning">
+                                            <i class="flaticon2-pen"></i> 編輯
+                                        </a>
+                                        &nbsp;
+                                        @using (@Html.BeginForm("Delete", @ctlName, FormMethod.Post, new { @class = "form-column" }))
+                                        {
+                                            <button type="submit" class="btn btn-danger" name="BtnType" value="Delete" onclick="return confirm('您確定要刪除嗎?')">
+                                                <i class="flaticon2-delete"></i> 刪除
+                                                @Html.Hidden("id", item.Id)
+                                            </button>
+                                        }
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+
+                @Html.Partial("_pvPager")
+            </div>
+        </div>
+        <!--end::Card-->
+
+    </div>
+</div>

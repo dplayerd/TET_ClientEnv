@@ -1,0 +1,129 @@
+﻿@using Platform.AbstractionClass;
+@using Platform.WebSite.Helpers;
+@using Platform.WebSite.Models;
+@using Platform.Infra;
+
+@{
+    var masterInfo = (SiteViewModel)ViewBag.MasterInfo;
+    this.ViewBag.Title = masterInfo.CurrentPage.Name;
+    string controllerName = "SPA_CostService";
+    string apiControllerName = "api/SPA_CostServiceApi";
+    string editTemplateUrl = Url.Action("Edit", controllerName, new { ID = masterInfo.CurrentPage.ID, Spa_CostServiceID = "__ID__" });
+    string viewPageUrl = Url.Action("Detail", controllerName, new { ID = masterInfo.CurrentPage.ID, Spa_CostServiceID = "__ID__" });
+    string createPageUrl = Url.Action("Create", controllerName, new { ID = masterInfo.CurrentPage.ID, Spa_CostServiceID = string.Empty });
+
+    string exportExcelApiUrl = Url.Action("ExportExcel", apiControllerName);
+
+    // 其它值
+    var defaultPeriodText = this.ViewBag.Param_Period;
+
+    Uri hasSamePeriodApiUrl = new Uri("api/SPA_CostServiceApi/HasSamePeriod/" + defaultPeriodText, UriKind.Relative);
+
+    var paramList_ApproveStatus = this.ViewBag.ParamList_ApproveStatus as List<KeyTextModel>;
+    var cUser = this.ViewBag.CurrentUser;
+}
+
+
+<!--begin::Card-->
+<div class="card card-custom">
+    <div class="card-header flex-wrap py-5">
+        <div class="card-title">
+            <div class="card-label">
+                @*標題*@
+                @ViewBag.Title
+                @*標題*@
+            </div>
+        </div>
+        <div class="card-toolbar" id="toolbar">
+            @*工具列*@
+            <button type="button" id="btnCreate" class="btn btn-primary font-weight-bolder">
+                <i class="flaticon2-plus"></i>新增
+            </button>
+
+            @*工具列*@
+        </div>
+    </div>
+    <div class="card-body">
+        <div>
+            <span class="font-weight-bolder text-danger">
+            資料填入過程若有任何不清楚之處或系統異常，可下載<a href="~/ModuleResources/Other/SPA/SPA_SystemOperationManual.pdf" target="_blank" class="text-hover-success">使用手冊</a>，或與 Grace(ext. 2416) 或 Allen (ext.2711) 聯繫 
+            </span>
+        </div>
+
+        <div id="divSearchArea">
+            @*過濾條件*@
+            <div class="form-group row">
+
+                <div class="col-3">
+                    <label for="inpPeriod" class="col-form-label">評鑑期間</label>
+                    <input id="inpPeriod" name="inpPeriod" type="text" class="form-control form-control-sm" placeholder="" />
+                </div>
+
+                <div class="col-4">
+                    <label for="inpApproveStatus" class="col-form-label">審核狀態</label>
+                    <select id="inpApproveStatus" name="inpApproveStatus" class="form-control form-control-sm selectpicker" multiple data-live-search="true" title="請選擇">
+                        @foreach (var pair in paramList_ApproveStatus)
+                        {
+                            <option value="@pair.Key">@pair.Text</option>
+                        }
+                    </select>
+                </div>
+
+                <div class="col-4">
+                    <button type="button" id="btnSearch" class="btn btn-sm btn-success" style="margin-top: 3em;"> 查詢 </button>
+
+                    @*<a id="aExportExcel" href="~/api/SupplierApi/ExportSupplierExcel?isSS=true" target="_blank" class="btn btn-sm btn-success" style="margin-top: 3em;"> 匯出 Excel </a>*@
+                    <a id="aExportExcel" class="btn btn-sm btn-success" href="@exportExcelApiUrl" target="_blank" style="margin-top: 3em;"> 匯出 Excel </a>
+                </div>
+            </div>
+            @*過濾條件*@
+        </div>
+
+
+        <!--start: Datatable-->
+        @*表格*@
+        <div id="kt_datatable_wrapper" class="dataTables_wrapper dt-bootstrap4 no-footer">
+            <div class="row">
+                <div class="col-sm-12">
+                    <table class="table table-bordered table-hover table-checkable" id="dataGrid" style="margin-top: 13px !important">
+                    </table>
+                </div>
+            </div>
+            @*表格*@
+        </div>
+        <!--end: Datatable-->
+    </div>
+</div>
+<!--end::Card-->
+@* 要餵 SiteID、EditAction 給 js 用，為必要的隱藏欄位 *@
+<input type="hidden" id="EditAction" value="@editTemplateUrl" />
+
+@* --將 js 註冊至頁尾-- *@
+@Html.Resource(
+    @<text>
+        <script src="~/Content/assets/plugins/custom/datatables/datatables.bundle.js?v=@DateTimeExtensions.GetJS_V_Text()"></script>
+        <script src="~/ModuleResources/JavaScripts/Shared/FormHelper.js?v=@DateTimeExtensions.GetJS_V_Text()"></script>
+        <script src="~/ModuleResources/JavaScripts/SPA_CostService/index.js?v=@DateTimeExtensions.GetJS_V_Text()"></script>
+
+        <style>
+            .dataTables_wrapper table.dataTable thead tr th {
+                background-color: #00a9e0;
+                color: white;
+                font-weight: bold;
+            }
+
+            .columnHeaderWhite {
+                color: white;
+                font-weight: bold;
+            }
+        </style>
+
+        <script>
+            var cUser = '@cUser';
+            var viewPageUrl = "@viewPageUrl";
+            var createPageUrl = "@createPageUrl";
+            var exportExcelApiUrl = '@exportExcelApiUrl';
+            var hasSamePeriodApiUrl = platformEnvironment.hostUrl + "@hasSamePeriodApiUrl";
+        </script>
+    </text>
+, "customScripts")

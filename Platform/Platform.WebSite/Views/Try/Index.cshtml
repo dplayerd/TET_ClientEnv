@@ -1,0 +1,43 @@
+﻿@using Platform.WebSite.Services;
+@using Platform.WebSite.Models;
+@using Platform.Portal.Models;
+@{
+    var siteInfo = this.ViewBag.MasterInfo as SiteViewModel;
+    string pageID = (siteInfo.CurrentPage == null) ? null : siteInfo.CurrentPage.ID;
+}
+
+@if (PageRoleService.IsAuthorized(AllowActionEnum.ReadDetail))
+{
+    <a href="@Url.Action("Detail", new { PageID = pageID })">Detail</a>
+}
+
+@if (PageRoleService.IsAuthorized(AllowActionEnum.Create))
+{
+    <a href="@Url.Action("Create", new { PageID = pageID })">Create</a>
+}
+
+@if (PageRoleService.IsAuthorized(AllowActionEnum.Modify))
+{
+    <a href="@Url.Action("Update", new { PageID = pageID })">Update</a>
+}
+
+@if (PageRoleService.IsAuthorized(AllowActionEnum.Delete))
+{
+    <a href="@Url.Action("Delete", new { PageID = pageID })">Delete</a>
+}
+
+@if (PageRoleService.IsAuthorized(AllowActionEnum.Export))
+{
+    <a href="@Url.Action("Export", new { PageID = pageID })">Export</a>
+}
+
+@if (PageRoleService.IsAuthorized(AllowActionEnum.Admin))
+{
+    <a href="@Url.Action("Admin", new { PageID = pageID })">Admin</a>
+}
+
+<h2> @this.ViewBag.Title </h2>
+
+<a href="@Url.Action("Download", "FileDownload", new { ID = "9FE32329-5DA8-4F18-9821-F662A2F997DC" })">Download</a>
+
+@MediaFileHtmlFunctions.GetDownloadLink(new Guid("9FE32329-5DA8-4F18-9821-F662A2F997DC"), "Download", true, "OKOK")

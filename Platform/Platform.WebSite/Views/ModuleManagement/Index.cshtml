@@ -1,0 +1,139 @@
+﻿@using Platform.Infra;
+@using Platform.WebSite.Helpers;
+@using Platform.WebSite.Models;
+
+@{
+    var masterInfo = (SiteViewModel)ViewBag.MasterInfo;
+    ViewBag.Title = "模組管理";
+}
+
+<!--begin::Card-->
+<div class="card card-custom">
+    <div class="card-header flex-wrap py-5">
+        <div class="card-title">
+            <div class="card-label">
+                @*標題*@
+                @ViewBag.Title
+                @*標題*@
+            </div>
+        </div>
+        <div class="card-toolbar">
+            @*工具列*@
+            <button class="btn btn-primary font-weight-bolder" id="btnCreate">
+                <i class="flaticon2-plus"></i> 新增
+            </button>
+            @*工具列*@
+        </div>
+    </div>
+    <div class="card-body">
+        @*表格*@
+        <table class="table table-bordered table-hover table-checkable" id="dataGrid" style="margin-top: 13px !important">
+        </table>
+        @*表格*@
+    </div>
+</div>
+<!--end::Card-->
+@*編輯區*@
+<div class="modal fade bd-example-modal-xl" id="editorArea" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered  modal-xl" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalCenterTitle">
+                    @*編輯區標題*@
+                    <span class="display-4">@ViewBag.Title</span>
+                    @*編輯區標題*@
+                </h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <!-- 內容 -->
+                <form class="form">
+                    <div class="tab-content">
+                        <!--begin::Tab-->
+                        <div class="tab-pane show px-7 active" id="kt_user_edit_tab_1" role="tabpanel">
+                            <!--begin::Row-->
+                            <div class="row">
+                                <div class="col-xl-2"></div>
+                                <div class="col-xl-7 my-2">
+                                    <!--begin::Group-->
+                                    <div class="form-group row">
+                                        <label class="col-form-label col-3 text-lg-right text-left">名稱</label>
+                                        <div class="col-9">
+                                            @* Column: ID  *@
+                                            <input type="hidden" name="ID" value="" />
+
+                                            @* Column: Name  *@
+                                            <input class="form-control form-control-lg form-control-solid" type="text" name="Name" value="" placeholder="請輸入名稱" />
+
+
+                                            @* 提示文字範例 *@
+                                            <div class="d-block text-muted pt-2 font-size-sm">
+                                                <i class="icon-nm text-dark-50 flaticon2-information"></i> 注意：名稱必須是唯一
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <!--end::Group-->
+                                    <!--begin::Group-->
+                                    <div class="form-group row">
+                                        <label class="col-form-label col-3 text-lg-right text-left">Controller</label>
+                                        <div class="col-9">
+                                            @* Column: Title  *@
+                                            <input class="form-control form-control-lg form-control-solid" type="text" name="Controller" value="" placeholder="請輸入 Controller" />
+                                        </div>
+                                    </div>
+                                    <!--end::Group-->
+                                    <!--begin::Group-->
+                                    <div class="form-group row">
+                                        <label class="col-form-label col-3 text-lg-right text-left">Action</label>
+                                        <div class="col-9">
+                                            @* Column: ImageUrl  *@
+                                            <input class="form-control form-control-lg form-control-solid" type="text" name="Action" value="" placeholder="請輸入 Action" />
+                                        </div>
+                                    </div>
+                                    <!--end::Group-->
+                                    <!--begin::Group-->
+                                    <div class="form-group row" style="display:none;">
+                                        <label class="col-form-label col-3 text-lg-right text-left">管理用 Controller / Action</label>
+                                        <div class="col-9">
+                                            @* Column: IsEnable  *@
+                                            <span class="switch">
+                                                <label>
+                                                    <input type="text" checked="checked" name="AdminController" />
+                                                    <input type="text" checked="checked" name="AdminAction" />
+                                                    <span></span>
+                                                </label>
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <!--end::Group-->
+                                </div>
+                            </div>
+                            <!--end::Row-->
+                        </div>
+                        <!--end::Tab-->
+                    </div>
+                </form>
+                <!-- 內容 -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">關閉</button>
+                <button type="button" class="btn btn-primary" id="btnSave">儲存</button>
+            </div>
+        </div>
+    </div>
+</div>
+@*編輯區*@
+
+@* 要餵 SiteID 給 js 用，為必要的隱藏欄位 *@
+<input type="hidden" id="hfSiteID" value="@masterInfo.ID" />
+
+@* --將 js 註冊至頁尾-- *@
+@Html.Resource(
+@<text>
+    <script src="~/Content/assets/plugins/custom/datatables/datatables.bundle.js?v=@DateTimeExtensions.GetJS_V_Text()"></script>
+    <script src="~/ModuleResources/JavaScripts/Shared/FormHelper.js?v=@DateTimeExtensions.GetJS_V_Text()"></script>
+    <script src="~/ModuleResources/JavaScripts/ModuleManagement/index.js?v=@DateTimeExtensions.GetJS_V_Text()"></script>
+</text>
+, "customScripts")

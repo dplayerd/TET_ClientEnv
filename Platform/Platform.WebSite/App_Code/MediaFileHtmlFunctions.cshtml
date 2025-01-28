@@ -1,0 +1,37 @@
+﻿@using System.Web.Mvc;
+@using Platform.AbstractionClass;
+@using System.Web.Routing;
+
+@functions {
+    public static IHtmlString GetDownloadLink(Guid id, string innerText, bool openNewWindow = false, string title = "", string className = "")
+    {
+
+        string url = RouteTable.Routes.GetVirtualPath(
+           ((MvcHandler)HttpContext.Current.CurrentHandler).RequestContext,
+           new RouteValueDictionary(
+              new
+              {
+                  controller = "FileDownload",
+                  action = "Download",
+                  ID = id
+              }
+           )
+        ).VirtualPath;
+
+        string willOpenNewWindow = (openNewWindow) ? @"target=""_blank""" : "";
+        string classNameText = (string.IsNullOrEmpty(className)) ? string.Empty : @"class=""" + className + @"""";
+
+        string htmlText =
+        string.Format(
+            @"<a href=""{0}"" title=""{2}"" {3} {4}>{1}</a>",
+            url,
+            innerText,
+            title,
+            willOpenNewWindow,
+            classNameText
+        );
+
+        var result = new HtmlString(htmlText);
+        return result;
+    }
+}

@@ -1,0 +1,998 @@
+﻿@using Platform.WebSite.Helpers;
+@using Platform.AbstractionClass;
+@using Newtonsoft.Json;
+@using BI.SPA_ScoringInfo.Utils;
+@using BI.SPA_ScoringInfo.Models;
+@using Platform.WebSite.Models;
+@using Platform.Infra;
+
+@model Guid?
+
+@{
+    var masterInfo = (SiteViewModel)ViewBag.MasterInfo;
+    this.ViewBag.Title = masterInfo.CurrentPage.Name;
+    var ctlName = "SPA_ScoringInfo";
+
+    var mode = this.ViewBag.Mode;
+    var isCreateMode = this.ViewBag.IsCreateMode;
+    var isNewApply = true;
+    var postActionName = (isCreateMode) ? "Create" : "Edit";
+    var id = (this.Model.HasValue) ? this.Model.ToString() : string.Empty;
+
+    Uri readDetailApiUrl = new Uri("api/SPA_ScoringInfoApi/Detail/" + id, UriKind.Relative);
+    Uri submitApiUrl = new Uri("api/SPA_ScoringInfoApi/Submit/", UriKind.Relative);
+    Uri modify_tab1_ApiUrl = new Uri("api/SPA_ScoringInfoApi/Modify_Tab1/" + id, UriKind.Relative);
+    Uri modify_tab2_ApiUrl = new Uri("api/SPA_ScoringInfoApi/Modify_Tab2/" + id, UriKind.Relative);
+    Uri modify_tab3_ApiUrl = new Uri("api/SPA_ScoringInfoApi/Modify_Tab3/" + id, UriKind.Relative);
+    Uri modify_tab4_ApiUrl = new Uri("api/SPA_ScoringInfoApi/Modify_Tab4/" + id, UriKind.Relative);
+    Uri modify_tab5_ApiUrl = new Uri("api/SPA_ScoringInfoApi/Modify_Tab5/" + id, UriKind.Relative);
+    Uri modify_tab6_ApiUrl = new Uri("api/SPA_ScoringInfoApi/Modify_Tab6/" + id, UriKind.Relative);
+    Uri modify_tab7_ApiUrl = new Uri("api/SPA_ScoringInfoApi/Modify_Tab7/" + id, UriKind.Relative);
+    Uri abordApiUrl = new Uri("api/SPA_ScoringInfoApi/Abord/" + id, UriKind.Relative);
+
+    Uri listPageUrl = new Uri("SPA_ScoringInfo/Index/" + masterInfo.CurrentPage.ID, UriKind.Relative);
+    Uri readPrevPeriodDetailApiUrl = new Uri("api/SPA_ScoringInfoApi/ReadPrevPeriodDetail/", UriKind.Relative);
+    Uri downloadFileUrl = new Uri("SPA_ScoringInfo/Attachment/", UriKind.Relative);
+
+    // 下拉選單項目
+    var pairList_MajorJob = this.ViewBag.ParamList_MajorJob as List<KeyTextModel>;
+    var pairList_ServiceFor = this.ViewBag.ParamList_ServiceFor as List<KeyTextModel>;
+    var pairList_WorkItem = this.ViewBag.ParamList_WorkItem as List<KeyTextModel>;
+
+    // 各頁籤 ToolTip
+    var tab1ToolTips = ToolTipUtil.ReadTab1();
+    var tab2ToolTips = ToolTipUtil.ReadTab2();
+    var tab3ToolTips = ToolTipUtil.ReadTab3();
+    var tab4ToolTips = ToolTipUtil.ReadTab4();
+    var tab5ToolTips = ToolTipUtil.ReadTab5();
+    var tab6ToolTips = ToolTipUtil.ReadTab6();
+
+    // 頁籤可見
+    var TabVisiable = this.ViewBag.TabVisiable as TabVisiableModel;
+    var tabConfig = JsonConvert.SerializeObject(new
+    {
+        tab1 = TabVisiable.Tab1,
+        tab2 = TabVisiable.Tab2,
+        tab3 = TabVisiable.Tab3,
+        tab4 = TabVisiable.Tab4,
+        tab5 = TabVisiable.Tab5,
+        tab6 = TabVisiable.Tab6,
+        tab7 = TabVisiable.Tab7,
+    });
+
+    // 欄位顯示和編輯設定
+    var validConfig = JsonConvert.SerializeObject(BI.SPA_ScoringInfo.Validators.SPA_ScoringInfoValidator.GetValidConfigs());
+    var canSubmit = ((bool)this.ViewBag.CanSubmit) ? "true" : "false";
+    var allowButton = ((bool)this.ViewBag.AllowButton);
+}
+
+<style>
+    .SubArea {
+        background-color: #00A9E0;
+        font-size: 16pt;
+        color: white;
+        font-weight: bolder;
+    }
+</style>
+
+<div class="d-flex flex-column-fluid">
+    <!--begin::Container-->
+    <div class="container-fluid px-2">
+        <!--begin::Row-->
+        <div class="row">
+            <div class="col-lg-12">
+                <!--begin::Example-->
+                <!--begin::Card-->
+                <div class="card card-custom">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <h3 class="card-label">@this.ViewBag.Title - @ViewBag.Name</h3>
+                            @*<div class="d-block text-muted pt-2 font-size-sm">
+                                    <i class="icon-nm text-dark-50"></i>
+                                    (*)為必填選項
+                                </div>*@
+                        </div>
+                    </div>
+                    @using (Html.BeginForm(postActionName, ctlName, FormMethod.Post, new { @class = "form", id = "formMain" }))
+                    {
+                        <div class="card-body">
+                            <!-- 編輯區域 -->
+                            <div class="row">
+                                <div class="col-12">
+                                    <p class="text-danger"> 資料填入過程若有任何不清楚之處或系統異常，可至Share point查詢使用手冊，或與Grace(ext.2416) 或Allen(ext.2711)聯繫 </p>
+                                </div>
+                            </div>
+
+                            <div style="display: none;">
+                                <input type="text" name="Period" />
+                            </div>
+
+
+                            <div class="row">
+                                <!-- 上方無法編輯的區域 -->
+                                <div class="col-4">
+                                    <label for="Period" class="col-form-label">評鑑期間</label>
+                                    <input id="Period" class="form-control form-control-sm" type="text" name="PeriodDateText" value="" disabled />
+                                </div>
+
+                                <div class="col-2">
+                                    <label for="BU" class="col-form-label">評鑑單位</label>
+                                    <input id="BU" class="form-control form-control-sm" type="text" name="BU" value="" disabled />
+                                </div>
+
+                                <div class="col-2">
+                                    <label for="ServiceFor" class="col-form-label">服務對象</label>
+                                    <input id="ServiceFor" class="form-control form-control-sm" type="text" name="ServiceFor" value="" disabled />
+                                </div>
+
+                                <div class="col-2">
+                                    <label for="BelongTo" class="col-form-label">受評供應商</label>
+                                    <input id="BelongTo" class="form-control form-control-sm" type="text" name="BelongTo" value="" disabled />
+                                </div>
+
+                                <div class="col-2">
+                                    <label for="ServiceItem" class="col-form-label">評鑑項目</label>
+                                    <input id="ServiceItem" class="form-control form-control-sm" type="text" name="ServiceItem" value="" disabled />
+                                </div>
+                                <!-- 上方無法編輯的區域 -->
+                            </div>
+                            <br />
+
+
+                            <div>
+                                <!-- 頁籤區 -->
+                                <ul class="nav nav-tabs" role="tablist">
+
+
+                                    <li class="nav-item">
+                                        <a class="nav-link" data-toggle="tab" href="#tab1">
+                                            <span class="nav-text">人力盤點</span>
+                                        </a>
+                                    </li>
+
+                                    <li class="nav-item">
+                                        <a class="nav-link" data-toggle="tab" href="#tab2">
+                                            <span class="nav-text">施工達交狀況盤點</span>
+                                        </a>
+                                    </li>
+
+                                    <li class="nav-item">
+                                        <a class="nav-link" data-toggle="tab" href="#tab3">
+                                            <span class="nav-text">施工正確性</span>
+                                        </a>
+                                    </li>
+
+                                    <li class="nav-item">
+                                        <a class="nav-link" data-toggle="tab" href="#tab4">
+                                            <span class="nav-text">作業正確性 &amp; 人員備齊貢獻度頁簽 </span>
+                                        </a>
+                                    </li>
+
+                                    <li class="nav-item">
+                                        <a class="nav-link" data-toggle="tab" href="#tab5">
+                                            <span class="nav-text">自訓能力</span>
+                                        </a>
+                                    </li>
+
+                                    <li class="nav-item">
+                                        <a class="nav-link" data-toggle="tab" href="#tab6">
+                                            <span class="nav-text">服務</span>
+                                        </a>
+                                    </li>
+
+                                    <li class="nav-item">
+                                        <a class="nav-link" data-toggle="tab" href="#tab7">
+                                            <span class="nav-text">附件</span>
+                                        </a>
+                                    </li>
+                                </ul>
+                                <!-- 頁籤區 -->
+                                <div class="tab-content mt-5">
+                                    <!-- 頁籤內容區 -->
+
+                                    <div class="tab-pane fade show" id="tab1" role="tabpanel" aria-labelledby="home-tab">
+                                        <!-- 人力盤點 -->
+                                        <div id="divDetailEditor_Tab1">
+                                            <div style="display: none;">
+                                                <input type="text" name="Source" value="前期匯入" /><br />
+                                                <input type="text" name="DetailID" value="" /><br />
+                                                <input type="text" name="SIID" value="@id" /><br />
+                                                <input type="text" name="Index" value="0" /><br />
+                                                <input type="text" name="Mode" value="Create" />
+                                            </div>
+
+                                            <div class="row">
+
+                                                <div class="col-2">
+                                                    <label class="col-form-label" data-toggle="tooltip" data-html="true" title="@tab1ToolTips.Type"><span style="color:red">*</span>本社/協力廠商 </label>
+                                                    <!-- 本社/協力廠商 -->
+                                                    <select name="Type" class="form-control form-control-sm selectpicker" data-live-search="true" style="width: 5em;" title="請選擇">
+                                                        <option value="本社社員" selected="selected">本社社員</option>
+                                                        <option value="協力廠商">協力廠商</option>
+                                                    </select>
+                                                </div>
+
+                                                <div class="col-2">
+                                                    <label class="col-form-label" data-toggle="tooltip" data-html="true" title="@tab1ToolTips.Supplier"><span style="color:red">*</span>供應商名稱 </label>
+                                                    <!-- 供應商名稱 -->
+                                                    <input type="text" name="Supplier" class="form-control form-control-sm" value="" />
+                                                </div>
+
+                                                <div class="col-2">
+                                                    <label class="col-form-label" data-toggle="tooltip" data-html="true" title="@tab1ToolTips.EmpName"><span style="color:red">*</span>員工姓名 </label>
+                                                    <!-- 員工姓名 -->
+                                                    <input type="text" name="EmpName" class="form-control form-control-sm" value="" />
+                                                </div>
+
+
+                                                <div class="col-2">
+                                                    <label class="col-form-label" data-toggle="tooltip" data-html="true" title="@tab1ToolTips.MajorJob"><span style="color:red">*</span>主要負責作業 </label>
+                                                    <!-- 主要負責作業 -->
+                                                    <select name="MajorJob" class="form-control form-control-sm selectpicker" data-live-search="true" title="請選擇">
+                                                        @foreach (var pair in pairList_MajorJob)
+                                                        {
+                                                            <option value="@pair.Key">@pair.Text</option>
+                                                        }
+                                                    </select>
+                                                </div>
+
+                                                <div class="col-2">
+                                                    <label class="col-form-label" data-toggle="tooltip" data-html="true" title="@tab1ToolTips.IsIndependent"><span style="color:red">*</span>能否獨立作業 </label>
+                                                    <!-- 能否獨立作業 -->
+                                                    <select name="IsIndependent" class="form-control form-control-sm selectpicker" data-live-search="true" title="請選擇">
+                                                        <option value="O">O</option>
+                                                        <option value="X">X</option>
+                                                        <option value="NA">NA</option>
+                                                    </select>
+                                                </div>
+
+                                                <div class="col-2">
+                                                    <label class="col-form-label" data-toggle="tooltip" data-html="true" title="@tab1ToolTips.SkillLevel"><span style="color:red">*</span>Skill Level </label>
+                                                    <!-- Skill Level -->
+                                                    <input type="text" name="SkillLevel" class="form-control form-control-sm" value="" />
+                                                </div>
+
+                                                <div class="col-2">
+                                                    <label class="col-form-label" data-toggle="tooltip" data-html="true" title="@tab1ToolTips.EmpStatus"><span style="color:red">*</span>員工狀態 </label>
+                                                    <!-- 員工狀態 -->
+                                                    <select name="EmpStatus" class="form-control form-control-sm selectpicker" data-live-search="true" title="請選擇">
+                                                        <option value="新進">新進</option>
+                                                        <option value="在職">在職</option>
+                                                        <option value="離職">離職</option>
+                                                        <option value="其他">其他</option>
+                                                    </select>
+                                                </div>
+
+                                                <div class="col-2">
+                                                    <label class="col-form-label" data-toggle="tooltip" data-html="true" title="@tab1ToolTips.TELSeniority"><span style="color:red">*</span>派工至TEL的年資(年) </label>
+                                                    <!-- 派工至TEL的年資(年) -->
+                                                    <select name="TELSeniorityY" class="form-control form-control-sm selectpicker" data-live-search="true" title="請選擇">
+                                                        <option value="0">0</option>
+                                                        <option value="1">1</option>
+                                                        <option value="2">2</option>
+                                                        <option value="3">3</option>
+                                                        <option value="4">4</option>
+                                                        <option value="5">5</option>
+                                                        <option value="6">6</option>
+                                                        <option value="7">7</option>
+                                                        <option value="8">8</option>
+                                                        <option value="9">9</option>
+
+                                                        <option value="10">10</option>
+                                                        <option value="11">11</option>
+                                                        <option value="12">12</option>
+                                                        <option value="13">13</option>
+                                                        <option value="14">14</option>
+                                                        <option value="15">15</option>
+                                                        <option value="16">16</option>
+                                                        <option value="17">17</option>
+                                                        <option value="18">18</option>
+                                                        <option value="19">19</option>
+
+                                                        <option value="20">20</option>
+                                                        <option value="21">21</option>
+                                                        <option value="22">22</option>
+                                                        <option value="23">23</option>
+                                                        <option value="24">24</option>
+                                                        <option value="25">25</option>
+                                                        <option value="26">26</option>
+                                                        <option value="27">27</option>
+                                                        <option value="28">28</option>
+                                                        <option value="29">29</option>
+
+                                                        <option value="30">30</option>
+                                                        <option value="31">31</option>
+                                                        <option value="32">32</option>
+                                                        <option value="33">33</option>
+                                                        <option value="34">34</option>
+                                                        <option value="35">35</option>
+                                                        <option value="36">36</option>
+                                                        <option value="37">37</option>
+                                                        <option value="38">38</option>
+                                                        <option value="39">39</option>
+
+                                                        <option value="40">40</option>
+                                                    </select>
+                                                </div>
+
+
+                                                <div class="col-2">
+                                                    <label class="col-form-label" data-toggle="tooltip" data-html="true" title="@tab1ToolTips.TELSeniority"><span style="color:red">*</span>派工至TEL的年資(月) </label>
+                                                    <!-- 派工至TEL的年資(月) -->
+                                                    <select name="TELSeniorityM" class="form-control form-control-sm selectpicker" data-live-search="true" title="請選擇">
+                                                        <option value="0">0</option>
+                                                        <option value="1">1</option>
+                                                        <option value="2">2</option>
+                                                        <option value="3">3</option>
+                                                        <option value="4">4</option>
+                                                        <option value="5">5</option>
+                                                        <option value="6">6</option>
+                                                        <option value="7">7</option>
+                                                        <option value="8">8</option>
+                                                        <option value="9">9</option>
+                                                        <option value="10">10</option>
+                                                        <option value="11">11</option>
+                                                    </select>
+                                                </div>
+
+                                                <div class="col-6">
+                                                    <label class="col-form-label" data-toggle="tooltip" data-html="true" title="@tab1ToolTips.Remark">備註 </label>
+                                                    <!-- 備註 -->
+                                                    <textarea class="form-control form-control-sm" name="Remark_Tab1" rows="3" cols="20"></textarea>
+                                                </div>
+                                            </div>
+
+                                            <br />
+
+                                            <div class="row">
+                                                <div class="col-12">
+                                                    <div class="d-flex justify-content-between">
+                                                        <div>
+                                                            <!-- 儲存鈕 -->
+                                                            <button type="button" name="btnSave" class="btn btn-sm btn-success">儲存</button>
+                                                        </div>
+
+                                                        <div class="mr-2">
+                                                            <!-- 暫存明細鈕 -->
+                                                            <button type="button" name="btnSaveDetail" class="btn btn-sm btn-info">新增/更新明細資料</button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <br />
+
+                                        <div class="row" id="divDetailTable_Tab1">
+                                            <!-- 表格區 -->
+                                            <div class="col-12">
+                                                <table>
+                                                    <thead class="thead-dark">
+                                                    </thead>
+                                                </table>
+                                            </div>
+                                            <!-- 表格區 -->
+                                        </div>
+                                        <!-- 人力盤點 -->
+                                    </div>
+
+                                    <div class="tab-pane fade" id="tab2" role="tabpanel" aria-labelledby="profile-tab">
+                                        <!-- 施工達交狀況盤點 -->
+                                        <div id="divDetailEditor_Tab2">
+                                            <div style="display: none;">
+                                                <input type="text" name="DetailID" value="" /><br />
+                                                <input type="text" name="SIID" value="@id" /><br />
+                                                <input type="text" name="Index" value="0" /><br />
+                                                <input type="text" name="Mode" value="Create" />
+                                            </div>
+
+                                            <div class="row">
+
+                                                <div class="col-2">
+                                                    <label class="col-form-label" data-toggle="tooltip" data-html="true" title="@tab2ToolTips.ServiceFor"><span style="color:red">*</span>服務對象 </label>
+                                                    <!-- 服務對象 -->
+                                                    <select name="ServiceFor2" class="form-control form-control-sm selectpicker" data-live-search="true" style="width: 5em;" title="請選擇">
+                                                        @foreach (var pair in pairList_ServiceFor)
+                                                        {
+                                                            <option value="@pair.Key">@pair.Text</option>
+                                                        }
+                                                    </select>
+                                                </div>
+
+                                                <div class="col-2">
+                                                    <label class="col-form-label" data-toggle="tooltip" data-html="true" title="@tab2ToolTips.WorkItem"><span style="color:red">*</span>作業項目 </label>
+                                                    <!-- 作業項目 -->
+                                                    <select name="WorkItem" class="form-control form-control-sm selectpicker" data-live-search="true" style="width: 5em;" title="請選擇">
+                                                        @foreach (var pair in pairList_WorkItem)
+                                                        {
+                                                            <option value="@pair.Key">@pair.Text</option>
+                                                        }
+                                                    </select>
+                                                </div>
+
+                                                <div class="col-2">
+                                                    <label class="col-form-label" data-toggle="tooltip" data-html="true" title="@tab2ToolTips.MachineName"><span style="color:red">*</span>承攬機台名稱 </label>
+                                                    <!-- 承攬機台名稱 -->
+                                                    <input type="text" name="MachineName" class="form-control form-control-sm" value="" />
+                                                </div>
+
+
+                                                <div class="col-2">
+                                                    <label class="col-form-label" data-toggle="tooltip" data-html="true" title="@tab2ToolTips.MachineNo"><span style="color:red">*</span>機台Serial No. </label>
+                                                    <!-- 機台Serial No. -->
+                                                    <input type="text" name="MachineNo" class="form-control form-control-sm" value="" />
+                                                </div>
+
+                                                <div class="col-2">
+                                                    <label class="col-form-label" data-toggle="tooltip" data-html="true" title="@tab2ToolTips.OnTime"><span style="color:red">*</span>是否準時交付 </label>
+                                                    <!-- 是否準時交付 -->
+                                                    <select name="OnTime" class="form-control form-control-sm selectpicker" data-live-search="true" title="請選擇">
+                                                        <option value="Yes">Yes</option>
+                                                        <option value="No">No</option>
+                                                    </select>
+                                                </div>
+
+                                                <div class="col-12">
+                                                    <label class="col-form-label" data-toggle="tooltip" data-html="true" title="@tab2ToolTips.Remark">備註 </label>
+                                                    <!-- 備註 -->
+                                                    <textarea class="form-control form-control-sm" name="Remark_Tab2" rows="3" cols="20"></textarea>
+                                                </div>
+                                            </div>
+
+                                            <br />
+
+                                            <div class="row">
+                                                <div class="col-12">
+                                                    <div class="d-flex justify-content-between">
+                                                        <div>
+                                                            <!-- 儲存鈕 -->
+                                                            <button type="button" name="btnSave" class="btn btn-sm btn-success">儲存</button>
+                                                        </div>
+                                                        <div class="mr-2">
+                                                            <!-- 暫存明細鈕 -->
+                                                            <button type="button" name="btnSaveDetail" class="btn btn-sm btn-info">新增/更新明細資料</button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <br />
+
+                                        <div class="row" id="divDetailTable_Tab2">
+                                            <!-- 表格區 -->
+                                            <div class="col-12">
+                                                <table>
+                                                    <thead class="thead-dark">
+                                                    </thead>
+                                                </table>
+                                            </div>
+                                            <!-- 表格區 -->
+                                        </div>
+                                        <!-- 施工達交狀況盤點 -->
+                                    </div>
+
+                                    <div class="tab-pane fade" id="tab3" role="tabpanel" aria-labelledby="contact-tab">
+                                        <!-- 施工正確性 -->
+
+                                        <div class="row">
+                                            <div class="col-2">
+                                                <label for="MOCount" class="col-form-label">MO次數</label>
+                                                <!-- MO次數 -->
+                                                <input id="MOCount" class="form-control form-control-sm" type="text" name="MOCount" value="" disabled />
+                                            </div>
+
+                                            <div class="col-2">
+                                                <label for="TELLoss" class="col-form-label">TEL財損</label>
+                                                <!-- TEL財損 -->
+                                                <input id="TELLoss" class="form-control form-control-sm" type="text" name="TELLoss" value="" disabled />
+                                            </div>
+
+                                            <div class="col-2">
+                                                <label for="CustomerLoss" class="col-form-label">客戶財損</label>
+                                                <!-- 客戶財損 -->
+                                                <input id="CustomerLoss" class="form-control form-control-sm" type="text" name="CustomerLoss" value="" disabled />
+                                            </div>
+
+                                            <div class="col-2">
+                                                <label for="Accident" class="col-form-label">人身事故</label>
+                                                <!-- 人身事故 -->
+                                                <input id="Accident" class="form-control form-control-sm" type="text" name="Accident" value="" disabled />
+                                            </div>
+
+                                            <div class="col-2">
+                                                <label for="WorkerCount" class="col-form-label" data-toggle="tooltip" data-html="true" title="@tab3ToolTips.WorkerCount">出工人數</label>
+                                                <!-- 出工人數 -->
+                                                <input id="WorkerCount" class="form-control form-control-sm" type="number" min="0" step="1" name="WorkerCount" value="0" />
+                                            </div>
+                                        </div>
+
+                                        <br />
+
+                                        <div id="divDetailEditor_Tab3">
+                                            <div style="display: none;">
+                                                <input type="text" name="DetailID" value="" /><br />
+                                                <input type="text" name="SIID" value="@id" /><br />
+                                                <input type="text" name="Index" value="0" /><br />
+                                                <input type="text" name="Mode" value="Create" />
+                                            </div>
+
+                                            <div class="row">
+                                                <div class="col-2">
+                                                    <label class="col-form-label" data-toggle="tooltip" data-html="true" title="@tab3ToolTips.Date"><span style="color:red">*</span>時間 </label>
+                                                    <!-- 時間 -->
+                                                    <input type="date" name="Date" class="form-control form-control-sm" value="" />
+                                                </div>
+
+
+                                                <div class="col-2">
+                                                    <label class="col-form-label" data-toggle="tooltip" data-html="true" title="@tab3ToolTips.Location"><span style="color:red">*</span>地點 </label>
+                                                    <!-- 地點 -->
+                                                    <input type="text" name="Location" class="form-control form-control-sm" value="" />
+                                                </div>
+
+                                                <div class="col-2">
+                                                    <label class="col-form-label" data-toggle="tooltip" data-html="true" title="@tab3ToolTips.TELLoss"><span style="color:red">*</span>TEL財損 </label>
+                                                    <!-- TEL財損 -->
+                                                    <select name="TELLoss2" class="form-control form-control-sm selectpicker" data-live-search="true" title="請選擇">
+                                                        <option value="Yes">Yes</option>
+                                                        <option value="No">No</option>
+                                                    </select>
+                                                </div>
+
+                                                <div class="col-2">
+                                                    <label class="col-form-label" data-toggle="tooltip" data-html="true" title="@tab3ToolTips.CustomerLoss"><span style="color:red">*</span>客戶財損 </label>
+                                                    <!-- 是否準時交付 -->
+                                                    <select name="CustomerLoss2" class="form-control form-control-sm selectpicker" data-live-search="true" title="請選擇">
+                                                        <option value="Yes">Yes</option>
+                                                        <option value="No">No</option>
+                                                    </select>
+                                                </div>
+
+                                                <div class="col-2">
+                                                    <label class="col-form-label" data-toggle="tooltip" data-html="true" title="@tab3ToolTips.Accident"><span style="color:red">*</span>人身事故 </label>
+                                                    <!-- 人身事故 -->
+                                                    <select name="Accident2" class="form-control form-control-sm selectpicker" data-live-search="true" title="請選擇">
+                                                        <option value="Yes">Yes</option>
+                                                        <option value="No">No</option>
+                                                    </select>
+                                                </div>
+
+
+                                                <div class="col-12">
+                                                    <label class="col-form-label" data-toggle="tooltip" data-html="true" title="@tab3ToolTips.Description">事件說明 </label>
+                                                    <!-- 事件說明 -->
+                                                    <textarea class="form-control form-control-sm" name="Description" rows="3" cols="20"></textarea>
+                                                </div>
+                                            </div>
+
+                                            <br />
+
+                                            <div class="row">
+                                                <div class="col-12">
+                                                    <div class="d-flex justify-content-between">
+                                                        <div>
+                                                            <!-- 儲存鈕 -->
+                                                            <button type="button" name="btnSave" class="btn btn-sm btn-success">儲存</button>
+                                                        </div>
+                                                        <div class="mr-2">
+                                                            <!-- 暫存明細鈕 -->
+                                                            <button type="button" name="btnSaveDetail" class="btn btn-sm btn-info">新增/更新明細資料</button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <br />
+
+                                        <div class="row" id="divDetailTable_Tab3">
+                                            <!-- 表格區 -->
+                                            <div class="col-12">
+                                                <table>
+                                                    <thead class="thead-dark">
+                                                    </thead>
+                                                </table>
+                                            </div>
+                                            <!-- 表格區 -->
+                                        </div>
+                                        <!-- 施工正確性 -->
+                                    </div>
+
+                                    <div class="tab-pane fade" id="tab4" role="tabpanel" aria-labelledby="contact-tab">
+                                        <!-- 作業正確性 -->
+
+                                        <div class="row">
+                                            <div class="col-2">
+                                                <label class="col-form-label" data-toggle="tooltip" data-html="true" title="@tab4ToolTips.Correctness"><span style="color:red">*</span>作業正確性 </label>
+                                                <!-- 作業正確性 -->
+                                                <select name="Correctness" class="form-control form-control-sm selectpicker" data-live-search="true" title="請選擇">
+                                                    <option value="0">0</option>
+                                                    <option value="1">1</option>
+                                                    <option value="2">2</option>
+                                                    <option value="3">3</option>
+                                                    <option value="4">4</option>
+                                                </select>
+                                            </div>
+
+                                            <div class="col-2">
+                                                <label class="col-form-label" data-toggle="tooltip" data-html="true" title="@tab4ToolTips.Contribution"><span style="color:red">*</span>人員備齊貢獻度 </label>
+                                                <!-- 人員備齊貢獻度 -->
+                                                <select name="Contribution" class="form-control form-control-sm selectpicker" data-live-search="true" title="請選擇">
+                                                    <option value="4">4</option>
+                                                    <option value="3">3</option>
+                                                    <option value="2">2</option>
+                                                    <option value="1">1</option>
+                                                    <option value="0">0</option>
+                                                </select>
+                                            </div>
+                                        </div>
+
+                                        <div id="divDetailEditor_Tab4">
+
+                                            <br />
+
+                                            <div class="row">
+                                                <div class="col-12">
+                                                    <div class="d-flex justify-content-between">
+                                                        <div class="mr-2">
+
+                                                        </div>
+
+                                                        <div>
+                                                            <!-- 儲存鈕 -->
+                                                            <button type="button" name="btnSave" class="btn btn-sm btn-success">儲存</button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <!-- 作業正確性 -->
+                                    </div>
+
+                                    <div class="tab-pane fade" id="tab5" role="tabpanel" aria-labelledby="contact-tab">
+                                        <!-- 自訓能力 -->
+
+                                        <div class="row">
+                                            <div class="col-3">
+                                                <label class="col-form-label" data-toggle="tooltip" data-html="true" title="@tab5ToolTips.SelfTraining"><span style="color:red">*</span>供應商自訓程度 </label>
+                                                <!-- 供應商自訓程度 -->
+                                                <select name="SelfTraining" class="form-control form-control-sm selectpicker" data-live-search="true" title="請選擇">
+                                                    <option value="完全由供應商自行訓練">完全由供應商自行訓練</option>
+                                                    <option value="部分人員須由TEL代訓">部分人員須由TEL代訓</option>
+                                                    <option value="完全由TEL代訓">完全由TEL代訓</option>
+                                                </select>
+                                            </div>
+
+                                            <div class="col-9">
+                                                <label class="col-form-label" data-toggle="tooltip" data-html="true" title="@tab5ToolTips.SelfTrainingRemark">備註 </label>
+                                                <!-- 備註 -->
+                                                <textarea class="form-control form-control-sm" name="SelfTrainingRemark" rows="3" cols="20"></textarea>
+                                            </div>
+                                        </div>
+
+                                        <div id="divDetailEditor_Tab5">
+
+                                            <br />
+
+                                            <div class="row">
+                                                <div class="col-12">
+                                                    <div class="d-flex justify-content-between">
+                                                        <div class="mr-2">
+
+                                                        </div>
+
+                                                        <div>
+                                                            <!-- 儲存鈕 -->
+                                                            <button type="button" name="btnSave" class="btn btn-sm btn-success">儲存</button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <!-- 自訓能力 -->
+                                    </div>
+
+                                    <div class="tab-pane fade" id="tab6" role="tabpanel" aria-labelledby="contact-tab">
+                                        <!-- 服務 -->
+                                        <div class="row">
+
+                                            <div class="col-2">
+                                                <label for="Cooperation" class="col-form-label" data-toggle="tooltip" data-html="true" title="@tab6ToolTips.Cooperation"><span style="color:red">*</span>配合度</label>
+                                                <!-- 配合度 -->
+                                                <select name="Cooperation" class="form-control form-control-sm selectpicker" data-live-search="true" title="請選擇">
+                                                    <option value="很滿意">很滿意</option>
+                                                    <option value="滿意">滿意</option>
+                                                    <option value="普通">普通</option>
+                                                    <option value="不滿意">不滿意</option>
+                                                    <option value="很不滿意">很不滿意</option>
+                                                </select>
+                                            </div>
+                                        </div>
+
+                                        <div class="row">
+
+                                            <div class="col-4">
+                                                <label for="Advantage" class="col-form-label" data-toggle="tooltip" data-html="true" title="@tab6ToolTips.Advantage">優點、滿意、值得鼓勵之處</label>
+                                                <!-- 優點、滿意、值得鼓勵之處 -->
+                                                <textarea class="form-control form-control-sm" name="Advantage" rows="3" cols="20"></textarea>
+
+                                            </div>
+
+                                            <div class="col-4">
+                                                <label for="Improved" class="col-form-label" data-toggle="tooltip" data-html="true" title="@tab6ToolTips.Improved">不滿意、期望改善之處</label>
+                                                <!-- 不滿意、期望改善之處 -->
+                                                <textarea class="form-control form-control-sm" name="Improved" rows="3" cols="20"></textarea>
+
+                                            </div>
+
+                                            <div class="col-4">
+                                                <label for="Comment" class="col-form-label" data-toggle="tooltip" data-html="true" title="@tab6ToolTips.Comment">客戶評論與其他補充說明</label>
+                                                <!-- 客戶評論與其他補充說明 -->
+                                                <textarea class="form-control form-control-sm" name="Comment" rows="3" cols="20"></textarea>
+                                            </div>
+
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-6">
+                                                <label for="Complain" class="col-form-label">客戶抱怨</label>
+                                                <!-- 客戶抱怨 -->
+                                                <input id="Complain" class="form-control form-control-sm" type="text" name="Complain" value="" disabled />
+                                            </div>
+                                        </div>
+
+                                        <br />
+
+                                        <div id="divDetailEditor_Tab6">
+                                            <div style="display: none;">
+                                                <input type="text" name="DetailID" value="" /><br />
+                                                <input type="text" name="SIID" value="@id" /><br />
+                                                <input type="text" name="Index" value="0" /><br />
+                                                <input type="text" name="Mode" value="Create" />
+                                            </div>
+
+                                            <div class="row">
+                                                <div class="col-2">
+                                                    <label class="col-form-label" data-toggle="tooltip" data-html="true" title="@tab6ToolTips.Date">時間 </label>
+                                                    <!-- 時間 -->
+                                                    <input type="date" name="Date" class="form-control form-control-sm" value="" />
+                                                </div>
+
+
+                                                <div class="col-2">
+                                                    <label class="col-form-label" data-toggle="tooltip" data-html="true" title="@tab6ToolTips.Location">地點 </label>
+                                                    <!-- 地點 -->
+                                                    <input type="text" name="Location" class="form-control form-control-sm" value="" />
+                                                </div>
+
+                                                <div class="col-2">
+                                                    <label class="col-form-label" data-toggle="tooltip" data-html="true" title="@tab6ToolTips.IsDamage"><span style="color:red">*</span>造成財損 </label>
+                                                    <!-- 造成財損 -->
+                                                    <select name="IsDamage" class="form-control form-control-sm selectpicker" data-live-search="true" title="請選擇">
+                                                        <option value="Yes">Yes</option>
+                                                        <option value="No">No</option>
+                                                    </select>
+                                                </div>
+
+                                                <div class="col-12">
+                                                    <label class="col-form-label" data-toggle="tooltip" data-html="true" title="@tab6ToolTips.Description">事件說明 </label>
+                                                    <!-- 事件說明 -->
+                                                    <textarea class="form-control form-control-sm" name="Description" rows="3" cols="20"></textarea>
+                                                </div>
+                                            </div>
+
+                                            <br />
+
+                                            <div class="row">
+                                                <div class="col-12">
+                                                    <div class="d-flex justify-content-between">
+                                                        <div>
+                                                            <!-- 儲存鈕 -->
+                                                            <button type="button" name="btnSave" class="btn btn-sm btn-success">儲存</button>
+                                                        </div>
+                                                        <div class="mr-2">
+                                                            <!-- 暫存明細鈕 -->
+                                                            <button type="button" name="btnSaveDetail" class="btn btn-sm btn-info">新增/更新明細資料</button>
+                                                        </div>                                                       
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <br />
+
+                                        <div class="row" id="divDetailTable_Tab6">
+                                            <!-- 表格區 -->
+                                            <div class="col-12">
+                                                <table>
+                                                    <thead class="thead-dark">
+                                                    </thead>
+                                                </table>
+                                            </div>
+                                            <!-- 表格區 -->
+                                        </div>
+                                        <!-- 服務 -->
+                                    </div>
+
+                                    <div class="tab-pane fade" id="tab7" role="tabpanel" aria-labelledby="contact-tab">
+                                        <!-- 附件 -->
+                                        <div id="divDetailEditor_Tab7">
+                                            <div style="display: none;">
+                                                <input type="text" name="DetailID" value="" /><br />
+                                                <input type="text" name="SIID" value="@id" /><br />
+                                                <input type="text" name="Index" value="0" /><br />
+                                                <input type="text" name="Mode" value="Create" />
+                                            </div>
+
+
+                                            <div class="row">
+                                                <div class="col-12">
+                                                    <div class="d-flex justify-content-between">
+                                                        <div class="mr-2">
+                                                            <!-- 檔案上傳 -->
+                                                            <input type="file" name="Attachment" multiple style="display: none;" />
+                                                            <!-- 新增附件鈕 -->
+                                                            <button type="button" name="btnSaveDetail" class="btn btn-sm btn-info">新增附件</button>
+                                                        </div>
+
+                                                        <div>
+                                                            <!-- 儲存鈕 -->
+                                                            <button type="button" name="btnSave" class="btn btn-sm btn-success">儲存</button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <br />
+
+                                        <div class="row" id="divDetailTable_Tab7">
+                                            <!-- 表格區 -->
+                                            <div class="col-12">
+                                                <table>
+                                                    <thead class="thead-dark">
+                                                    </thead>
+                                                </table>
+                                            </div>
+                                            <!-- 表格區 -->
+                                        </div>
+                                        <!-- 附件 -->
+                                    </div>
+                                    <!-- 頁籤內容區 -->
+                                </div>
+
+                            </div>
+
+                            <!-- 編輯區域 -->
+                            <!-- 審核資訊 Approval Information -->
+                            <br />
+                            <br />
+                            <div id="divApproveTableTitle" class="alert alert-custom SubArea" role="alert">
+                                <div class="alert-text text-center">審核資訊 Approval Information</div>
+                            </div>
+
+                            <div class="row" id="divApproveTemplate" style="display: none;">
+                                <table class="table">
+                                    <tbody>
+                                        <tr>
+                                            <td scope="row">
+                                                <span class="Level_Text"></span>
+                                            </td>
+                                            <td>
+                                                <span class="Approver"></span>
+                                            </td>
+                                            <td>
+                                                <span class="Result"></span>
+                                            </td>
+                                            <td>
+                                                <span class="ModifyDate_Text"></span>
+                                            </td>
+                                            <td>
+                                                <span class="Comment"></span>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="row" id="divApproveTable">
+                                <div class="col-12">
+                                    <table class="table">
+                                        @* 表頭 *@
+                                        <thead class="thead-dark">
+                                            <tr>
+                                                <th scope="col" class="col-sm-2">審核關卡</th>
+                                                <th scope="col" class="col-sm-2">審核者</th>
+                                                <th scope="col" class="col-sm-2">審核結果</th>
+                                                <th scope="col" class="col-sm-2">審核時間</th>
+                                                <th scope="col" class="col-sm-2">審核意見</th>
+                                            </tr>
+                                        </thead>
+                                        @* 表身 *@
+                                        <tbody>  </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <!-- 審核資訊 Approval Information -->
+                            <!--btn-->
+                            <div class="my-5 col-12">
+                                <div class="d-flex justify-content-between border-top ">
+                                    <div class="mr-2">
+                                        @if (allowButton)
+                                        {
+                                            <a href="@Url.Action(ViewBag.ViewReturn, new { id = @ViewBag.ViewReturnID })" class="btn btn-secondary">
+                                                取消
+                                            </a>
+                                        }
+                                    </div>
+                                    <div>
+                                        <button type="button" id="btnSubmit" class="btn btn-primary mr-2">送出</button>
+                                        <button type="button" id="btnAbord" class="btn btn-danger mr-2">中止</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <!--btn-->
+                        </div>
+                        <!--end::Card-->
+                    }
+                </div>
+            </div>
+            <input type="hidden" name="EditType" id="EditType" value="" />
+            <input type="hidden" name="MainID" id="hdfMainID" value="@id" />
+            <!--end::Code example-->
+            <!--end::Example-->
+        </div>
+    </div>
+</div>
+
+<div id="divAbordReason" style="display: none;">
+    <p class="col-12 h6 text-danger">請填寫中止原因</p>
+    <textarea class="form-control" name="AbordReason" rows="3"></textarea>
+</div>
+
+@* --將 js 註冊至頁尾-- *@
+@Html.Resource(
+@<text>
+    <link href="~/Content/assets/plugins/custom/bootstrap-table/bootstrap-table.min.css" rel="stylesheet" />
+    <link href="~/Content/assets/plugins/custom/bootstrap-table/extensions/fixed-columns/bootstrap-table-fixed-columns.min.css" rel="stylesheet" />
+
+    <script src="~/Content/assets/plugins/custom/bootstrap-table/bootstrap-table.min.js"></script>
+    <script src="~/Content/assets/plugins/custom/bootstrap-table/extensions/fixed-columns/bootstrap-table-fixed-columns.min.js"></script>
+
+    <script>
+        var viewMode = '@mode';
+        var isCreateMode = @isCreateMode.ToString().ToLower();
+        var isNewApply = @isNewApply.ToString().ToLower();
+        var id = '@id';
+
+        var submitApiUrl = platformEnvironment.hostUrl + '@submitApiUrl';
+        var modify_tab1_ApiUrl = platformEnvironment.hostUrl + '@modify_tab1_ApiUrl';
+        var modify_tab2_ApiUrl = platformEnvironment.hostUrl + '@modify_tab2_ApiUrl';
+        var modify_tab3_ApiUrl = platformEnvironment.hostUrl + '@modify_tab3_ApiUrl';
+        var modify_tab4_ApiUrl = platformEnvironment.hostUrl + '@modify_tab4_ApiUrl';
+        var modify_tab5_ApiUrl = platformEnvironment.hostUrl + '@modify_tab5_ApiUrl';
+        var modify_tab6_ApiUrl = platformEnvironment.hostUrl + '@modify_tab6_ApiUrl';
+        var modify_tab7_ApiUrl = platformEnvironment.hostUrl + '@modify_tab7_ApiUrl';
+        var abordApiUrl = platformEnvironment.hostUrl + '@abordApiUrl';
+        var readDetailApiUrl = platformEnvironment.hostUrl + '@readDetailApiUrl';
+
+        var listPageUrl = platformEnvironment.hostUrl + '@listPageUrl';
+        var readPrevPeriodDetailApiUrl = platformEnvironment.hostUrl + '@readPrevPeriodDetailApiUrl';
+        var downloadFileUrl = platformEnvironment.hostUrl + '@downloadFileUrl';
+
+        var validConfig = @Html.Raw(validConfig);
+
+        var tabConfig = @Html.Raw(tabConfig);
+        var canSubmit = @canSubmit;
+    </script>
+
+    <script src="~/ModuleResources/JavaScripts/Shared/TET_FormHelper.js?v=@DateTimeExtensions.GetJS_V_Text()"></script>
+    <script src="~/ModuleResources/JavaScripts/SPA_ScoringInfo/edit.js?v=@DateTimeExtensions.GetJS_V_Text()"></script>
+    <script src="~/ModuleResources/JavaScripts/SPA_ScoringInfo/editTab1.js?v=@DateTimeExtensions.GetJS_V_Text()"></script>
+    <script src="~/ModuleResources/JavaScripts/SPA_ScoringInfo/editTab2.js?v=@DateTimeExtensions.GetJS_V_Text()"></script>
+    <script src="~/ModuleResources/JavaScripts/SPA_ScoringInfo/editTab3.js?v=@DateTimeExtensions.GetJS_V_Text()"></script>
+    <script src="~/ModuleResources/JavaScripts/SPA_ScoringInfo/editTab4.js?v=@DateTimeExtensions.GetJS_V_Text()"></script>
+    <script src="~/ModuleResources/JavaScripts/SPA_ScoringInfo/editTab5.js?v=@DateTimeExtensions.GetJS_V_Text()"></script>
+    <script src="~/ModuleResources/JavaScripts/SPA_ScoringInfo/editTab6.js?v=@DateTimeExtensions.GetJS_V_Text()"></script>
+    <script src="~/ModuleResources/JavaScripts/SPA_ScoringInfo/editTab7.js?v=@DateTimeExtensions.GetJS_V_Text()"></script>
+</text>
+, "customScripts")

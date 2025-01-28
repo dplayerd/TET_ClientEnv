@@ -1,0 +1,257 @@
+﻿@using Platform.AbstractionClass;
+@using Platform.WebSite.Helpers;
+@using Platform.WebSite.Models;
+@using Platform.Infra;
+
+@{
+    var masterInfo = (SiteViewModel)ViewBag.MasterInfo;
+    this.ViewBag.Title = masterInfo.CurrentPage.Name;
+    string controllerName = "SPA_ScoringRatio";
+
+
+    Uri readListApiUrl = new Uri("api/SPA_ScoringRatioApi/List", UriKind.Relative);
+    Uri submitApiUrl = new Uri("api/SPA_ScoringRatioApi/Save", UriKind.Relative);
+}
+
+<!--begin::Card-->
+<div class="card card-custom">
+    <div class="card-header flex-wrap py-5">
+        <div class="card-title">
+            <div class="card-label">
+                @*標題*@
+                @ViewBag.Title
+                @*標題*@
+            </div>
+        </div>
+        <div class="card-toolbar" id="toolbar">
+        </div>
+    </div>
+    <div class="card-body">
+        <!--start: Datatable-->
+        @*表格*@
+        <div style="display:none;">
+            <div class="row" id="divEditTableTemplate">
+                <table class="table">
+                    <tbody>
+                        <tr>
+
+                            <td>
+                                <input class="form-control form-control-sm" type="hidden" name="ServiceItemID">
+                                <input class="form-control form-control-sm" type="text" disabled name="ServiceItem">
+                            </td>
+                            <td>
+                                <input class="form-control form-control-sm" type="text" disabled name="POSource">
+                            </td>
+
+                            <!-- TRatio -->
+                            <td>
+                                <input class="form-control form-control-sm" type="number" placeholder="請輸入 TRatio" name="TRatio1" max="100" min="0" step="1">
+                            </td>
+                            <td>
+                                <input class="form-control form-control-sm" type="number" placeholder="請輸入 TRatio" name="TRatio2" max="100" min="0" step="1">
+                            </td>
+
+                            <!-- DRatio -->
+                            <td>
+                                <input class="form-control form-control-sm" type="number" placeholder="請輸入 DRatio" name="DRatio1" max="100" min="0" step="1">
+                            </td>
+                            <td>
+                                <input class="form-control form-control-sm" type="number" placeholder="請輸入 DRatio" name="DRatio2" max="100" min="0" step="1">
+                            </td>
+
+                            <!-- QRatio -->
+                            <td>
+                                <input class="form-control form-control-sm" type="number" placeholder="請輸入 QRatio" name="QRatio1" max="100" min="0" step="1">
+                            </td>
+                            <td>
+                                <input class="form-control form-control-sm" type="number" placeholder="請輸入 QRatio" name="QRatio2" max="100" min="0" step="1">
+                            </td>
+
+                            <!-- CRatio -->
+                            <td>
+                                <input class="form-control form-control-sm" type="number" placeholder="請輸入 CRatio" name="CRatio1" max="100" min="0" step="1">
+                            </td>
+                            <td>
+                                <input class="form-control form-control-sm" type="number" placeholder="請輸入 CRatio" name="CRatio2" max="100" min="0" step="1">
+                            </td>
+
+                            <!-- SRatio -->
+                            <td>
+                                <input class="form-control form-control-sm" type="number" placeholder="請輸入 SRatio" name="SRatio1" max="100" min="0" step="1">
+                            </td>
+                            <td>
+                                <input class="form-control form-control-sm" type="number" placeholder="請輸入 SRatio2" name="SRatio2" max="100" min="0" step="1">
+                            </td>
+
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="row" id="divEditTable">
+            <div class="col-sm-12">
+
+                <div class="d-block pt-2 font-size-sm text-danger">
+                    <i class="icon-nm text-dark-50 flaticon2-information"></i>
+                    <span style="font-weight: bolder">注意：每行資料總合必須為 0 或 100 ，且個別值的小數位數最高 4 位。</span>
+                </div>
+
+                <table class="table">
+                    @* 表頭 *@
+                    <thead>
+                        <tr>
+                            <th colspan="2">&nbsp;</th>
+                            <th scope="col" class="col-sm-2" colspan="2" style="text-align: center;">T Score</th>
+                            <th scope="col" class="col-sm-2" colspan="2" style="text-align: center;">D Score</th>
+                            <th scope="col" class="col-sm-2" colspan="2" style="text-align: center;">Q Scroe</th>
+                            <th scope="col" class="col-sm-2" colspan="2" style="text-align: center;">C Score</th>
+                            <th scope="col" class="col-sm-2" colspan="2" style="text-align: center;">S Score</th>
+                        </tr>
+
+                        <tr>
+                            <th scope="col" class="col-sm-1">評鑑項目</th>
+                            <th scope="col" class="col-sm-1">PO Source</th>
+                            <!-- TRatio -->
+                            <th scope="col" class="col-sm-1">
+                                施工正確性<br />
+                                (Startup、FE、DSS(startup)、DSS(non-startup))<br />
+                                作業正確性<br />
+                                (Safety)
+                            </th>
+                            <th scope="col" class="col-sm-1">
+                                施工技術水平<br />
+                                (StartUP、FE)
+                            </th>
+
+                            <!-- DRatio -->
+                            <th scope="col" class="col-sm-1">
+                                人員穩定度<br />
+                                (StartUP、FE、Safety)
+                            </th>
+                            <th scope="col" class="col-sm-1">
+                                準時完工交付<br />
+                                (Startup、DSS(startup)、DSS(non-startup))<br />
+                                人員備齊貢獻度<br />
+                                (Safety)
+                            </th>
+
+                            <!-- QRatio -->
+                            <th scope="col" class="col-sm-1">
+                                守規性<br />
+                                (Startup、FE、Safety、DSS(startup)、DSS(non-startup))
+                            </th>
+                            <th scope="col" class="col-sm-1">
+                                自訓能力<br />
+                                (StartUP、Safety)
+                            </th>
+
+                            <!-- CRatio -->
+                            <th scope="col" class="col-sm-1">
+                                價格競爭力<br />
+                                (Startup、FE、Safety、DSS(startup)、DSS(non-startup))
+                            </th>
+                            <th scope="col" class="col-sm-1">
+                                付款條件<br />
+                                (Startup、FE、Safety、DSS(startup)、DSS(non-startup))
+                            </th>
+
+                            <!-- SRatio -->
+                            <th scope="col" class="col-sm-1">
+                                客戶抱怨<br />
+                                (Startup、FE、Safety、DSS(startup)、DSS(non-startup))
+                            </th>
+                            <th scope="col" class="col-sm-1">
+                                配合度<br />
+                                (Startup、FE、Safety、DSS(startup)、DSS(non-startup))
+                            </th>
+                        </tr>
+                    </thead>
+                    @* 表身 *@
+                    <tbody>  </tbody>
+                </table>
+
+
+            </div>
+            @*表格*@
+
+            <!--btn-->
+            <div class="my-5 col-12">
+                <div class="d-flex justify-content-between border-top ">
+                    <div></div>
+                    <div>
+                        <button type="button" id="btnSave" class="btn btn-success mr-2">儲存</button>
+                    </div>
+                </div>
+            </div>
+            <!--btn-->
+        </div>
+        <!--end: Datatable-->
+    </div>
+</div>
+<!--end::Card-->
+@* 要餵 SiteID、EditAction 給 js 用，為必要的隱藏欄位 *@
+@*<input type="hidden" id="EditAction" value="@editTemplateUrl" />*@
+
+@* --將 js 註冊至頁尾-- *@
+@Html.Resource(
+    @<text>
+        @*<script src="~/Content/assets/plugins/custom/datatables/datatables.bundle.js"></script>*@
+        <script src="~/ModuleResources/JavaScripts/Shared/FormHelper.js?v=@DateTimeExtensions.GetJS_V_Text()"></script>
+        <script src="~/ModuleResources/JavaScripts/SPA_ScoringRatio/index.js?v=@DateTimeExtensions.GetJS_V_Text()"></script>
+
+        <style>
+            .error {
+                border: red 1px solid;
+            }
+
+            .table thead {
+                background-color: blue;
+            }
+
+                .table thead th {
+                    color: white;
+                    border: 0;
+                }
+
+                .table thead th {
+                    vertical-align: top;
+                }
+
+            .table tbody td {
+                padding: 0;
+            }
+
+            .table {
+                /*border-collapse: collapse;*/
+                width: 100%;
+            }
+
+            tbody {
+                width: 100%;
+                display: block;
+            }
+
+            thead {
+                display: table;
+                width: 100%;
+                /*table-layout: fixed;*/
+            }
+
+            tbody tr {
+                table-layout: fixed;
+                display: table;
+                width: 100%;
+            }
+        </style>
+
+        <script>
+            @*
+                var viewPageUrl = "@viewPageUrl";
+            *@
+            var submitApiUrl = platformEnvironment.hostUrl + '@submitApiUrl';
+            var readListApiUrl = platformEnvironment.hostUrl + '@readListApiUrl';
+        </script>
+    </text>
+, "customScripts")
+

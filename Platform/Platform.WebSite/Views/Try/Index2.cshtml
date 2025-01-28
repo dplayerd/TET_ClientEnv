@@ -1,0 +1,166 @@
+﻿@using Platform.AbstractionClass;
+@using Platform.WebSite.Helpers;
+@model Guid?
+
+@{
+    ViewBag.Title = "測試用";
+    string controllerName = "Try";
+
+
+}
+
+<!--begin::Card-->
+<div class="card card-custom">
+    <div class="card-header flex-wrap py-5">
+        <div class="card-title">
+            <div class="card-label">
+                @*標題*@
+                @ViewBag.Title
+                @*標題*@
+            </div>
+        </div>
+        <div class="card-toolbar" id="toolbar">
+            @*工具列*@
+            @*<a href="@createPageUrl" class="btn btn-primary font-weight-bolder">
+                <i class="flaticon2-plus"></i>新增
+            </a>*@
+            @*工具列*@
+        </div>
+    </div>
+    <div class="card-body">
+        <div id="divSearchArea">
+            <div class="form-group row">
+
+                @*<div class="col-3">
+                    <label for="inpPeriod" class="col-form-label">評鑑期間</label>
+                    <select id="inpPeriod" name="Period" class="form-control form-control-sm selectpicker" multiple data-live-search="true" title="請選擇">
+                        @foreach (var pair in paramList_Period)
+                        {
+                            <option value="@pair.Key">@pair.Text</option>
+                        }
+                    </select>
+                </div>
+
+                <div class="col-3">
+                    <label for="inpAssessmentItem" class="col-form-label">評鑑項目</label>
+                    <select id="inpAssessmentItem" name="AssessmentItem" class="form-control form-control-sm selectpicker" multiple data-live-search="true" title="請選擇">
+                        @foreach (var pair in paramList_AssessmentItem)
+                        {
+                            <option value="@pair.Key">@pair.Text</option>
+                        }
+                    </select>
+                </div>
+
+                <div class="col-2">
+                    <label for="inpBelongTo" class="col-form-label">供應商</label>
+                    <select id="inpBelongTo" name="BelongTo" class="form-control form-control-sm selectpicker" multiple data-live-search="true" title="請選擇">
+                        <option value="">請選擇</option>
+                        @foreach (var pair in paramList_BelongTo)
+                        {
+                            <option value="@pair.Key">@pair.Text</option>
+                        }
+                    </select>
+                </div>
+
+                <div class="col-2">
+                    <label for="inpBU" class="col-form-label">評鑑單位</label>
+                    <select id="inpBU" name="BU" class="form-control form-control-sm selectpicker" multiple data-live-search="true" title="請選擇">
+                        <option value="">請選擇</option>
+                        @foreach (var pair in paramList_BU)
+                        {
+                            <option value="@pair.Key">@pair.Text</option>
+                        }
+                    </select>
+                </div>*@
+
+                <div class="col-2">
+                    <button type="button" id="btnToastr" class="btn btn-success" style="margin-top: 3em;"> Toastr </button>
+
+
+                    <button type="button" id="btnModal" class="btn btn-success" style="margin-top: 3em;"> Modal </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--end::Card-->
+@* --將 js 註冊至頁尾-- *@
+@Html.Resource(
+    @<text>
+        <script>
+            $(document).ready(function () {
+                $("#btnToastr").click(function () {
+                    //openToastUI({
+                    //    title: "OKOK",
+                    //    bodyHtml: "<div>123</div><div>567</div>",
+                    //    autohide: false,
+                    //    delay: 1000
+                    //});
+
+                    //showBlockUI("處理中，請稍候。");
+
+                    //toastr.options = {
+                    //    "closeButton": false,
+                    //    "debug": false,
+                    //    "newestOnTop": false,
+                    //    "progressBar": true,
+                    //    "positionClass": "toast-bottom-right",
+                    //    "preventDuplicates": false,
+                    //    "showDuration": "300",
+                    //    "hideDuration": "1000",
+                    //    "timeOut": "5000",
+                    //    "extendedTimeOut": "1000",
+                    //    "showEasing": "swing",
+                    //    "hideEasing": "linear",
+                    //    "showMethod": "fadeIn",
+                    //    "hideMethod": "fadeOut"
+                    //};
+
+                    var opt = {
+                        "closeButton": false,
+                        "debug": false,
+                        "newestOnTop": false,
+                        "progressBar": true,
+                        "positionClass": "toast-bottom-right",
+                        "preventDuplicates": false,
+                        "showDuration": "300",
+                        "hideDuration": "1000",
+                        "timeOut": "5000",
+                        "extendedTimeOut": "1000",
+                        "showEasing": "swing",
+                        "hideEasing": "linear",
+                        "showMethod": "fadeIn",
+                        "hideMethod": "fadeOut"
+                    };
+
+                    //toastr.error("Info text");
+                    //toastr.info("Info text");
+                    //toastr.warning("Warning text.");
+                    toastr.success("Success text.", "123", opt);
+                });
+
+
+                // 注意 funcCallback 會需要傳入 true 或 false
+                $("#btnModal").click(function () {
+                    var modal1 =
+                    showModalUI({
+                        bodyHtml: "<p>測試內容</p>",
+                        title: "測試標題",
+                        buttons: [
+                            { style: "btn-sm btn-outline-info", text: "儲存", onclick: function (funcCallback) { console.log("儲存"); funcCallback(true); } },
+                            { style: "btn-sm btn-outline-danger", text: "刪除", onclick: function (funcCallback) { console.log("刪除"); funcCallback(); } },
+                            { onclick: function (funcCallback) { console.log("不會自動關閉"); funcCallback(false); } },
+                            { style: "btn-sm btn-outline-dark", text: "不會自動關閉", onclick: function (funcCallback) { console.log("不會自動關閉"); } },
+                            { style: "btn-sm btn-outline-warning", text: "自動關閉" },
+                        ]
+                    });
+
+
+                    
+                });
+            });
+        </script>
+    </text>
+, "customScripts")
+

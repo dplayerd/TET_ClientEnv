@@ -1,0 +1,23 @@
+﻿UPDATE TET_Supplier_Menu
+SET 
+	SiteID = '15E34669-CC25-48C5-85C6-6AF49252CBFE',
+	MenuType = 2,
+	CreateUser = 'Admin',
+	ModifyUser = 'Admin',
+	CreateDate = '2024/1/1',
+	ModifyDate = '2024/1/1',
+    IsEnable = 'true',
+    PageIcon = 'flaticon-app'
+
+
+UPDATE [TET_Supplier_Menu] SET ModuleID = '3228BE98-F7DC-450B-B7A2-0ED8B45F9EA1' WHERE ID = 'C7382BAC-DD1A-4D36-B10E-11DAF6596B7B'
+UPDATE [TET_Supplier_Menu] SET ModuleID = '7D6C4746-3AD5-4675-B941-4334C871125D' WHERE ID = '5D3B1B6E-9D90-4537-8F0F-6F674A1450A7'
+UPDATE [TET_Supplier_Menu] SET ModuleID = '004037A6-2729-41DD-B0BF-98D3FC0655F7' WHERE ID = '499203A3-C34A-459C-BE34-FE1AF586CA73'
+UPDATE [TET_Supplier_Menu] SET ModuleID = 'D025D8B1-200C-4FFD-B7B5-A1B43BE61D7F' WHERE ID = '7D90D8F0-9D1A-4029-A86E-D10A2007FD3D'
+
+
+UPDATE TET_Supplier_RoleMenu
+SET 
+    ModifyDate = CreateDate,
+    ModifyUser = CreateUser,
+    AllowActs = 127

@@ -1,0 +1,339 @@
+﻿@using Platform.WebSite.Helpers;
+@using Platform.AbstractionClass;
+@using Newtonsoft.Json;
+@using BI.SPA_Violation;
+@using BI.SPA_Violation.Utils;
+@using Platform.WebSite.Models;
+@using BI.SPA_Violation;
+@using Platform.Infra;
+
+@model Guid?
+
+@{
+    var masterInfo = (SiteViewModel)ViewBag.MasterInfo;
+    this.ViewBag.Title = masterInfo.CurrentPage.Name;
+    var ctlName = "SPA_Violation";
+
+    var mode = this.ViewBag.Mode;
+    var isCreateMode = this.ViewBag.IsCreateMode;
+    var isNewApply = true;
+    var postActionName = (isCreateMode) ? "Create" : "Edit";
+    var id = (this.Model.HasValue) ? this.Model.ToString() : string.Empty;
+
+    Uri readDetailApiUrl = new Uri("api/SPA_ViolationApi/Detail/" + id, UriKind.Relative);
+    Uri createApiUrl = new Uri("api/SPA_ViolationApi/Create/", UriKind.Relative);
+    Uri submitApiUrl = new Uri("api/SPA_ViolationApi/Submit/", UriKind.Relative);
+    Uri modifyApiUrl = new Uri("api/SPA_ViolationApi/Modify/" + id, UriKind.Relative);
+    Uri abordApiUrl = new Uri("api/SPA_ViolationApi/Abord/" + id, UriKind.Relative);
+
+    Uri listPageUrl = new Uri("SPA_Violation/Index/" + masterInfo.CurrentPage.ID, UriKind.Relative);
+    Uri downloadFileUrl = new Uri("SPA_Violation/Attachment/", UriKind.Relative);
+
+    // 下拉選單項目
+    var pairList_BelongTo = this.ViewBag.ParamList_BelongTo as List<KeyTextModel>;
+    var pairList_BU = this.ViewBag.ParamList_BU as List<KeyTextModel>;
+    var pairList_AssessmentItem = this.ViewBag.ParamList_AssessmentItem as List<KeyTextModel>;
+    var PairList_ViolationMiddleCategory = this.ViewBag.ParamList_ViolationMiddleCategory as List<KeyTextModel>;
+    var pairList_ViolationSmallCategory = this.ViewBag.ParamList_ViolationSmallCategory as List<KeyTextModel>;
+
+    // 其它值
+    var defaultPeriodText = this.ViewBag.Param_Period;
+    var periodStartText = this.ViewBag.Param_PeriodStart;
+    var periodEndText = this.ViewBag.Param_PeriodEnd;
+
+    // ToolTip
+    var ToolTips = ToolTipUtil.ReadTab();
+
+    // 欄位顯示和編輯設定
+    var validConfig = JsonConvert.SerializeObject(BI.SPA_Violation.Validators.SPA_ViolationValidator.GetValidConfigs());
+    var allowButton = ((bool)this.ViewBag.AllowButton);
+}
+
+<style>
+    .SubArea {
+        background-color: #00A9E0;
+        font-size: 16pt;
+        color: white;
+        font-weight: bolder;
+    }
+</style>
+
+<div class="d-flex flex-column-fluid">
+    <!--begin::Container-->
+    <div class="container-fluid px-2">
+        <!--begin::Row-->
+        <div class="row">
+            <div class="col-lg-12">
+                <!--begin::Example-->
+                <!--begin::Card-->
+                <div class="card card-custom">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <h3 class="card-label">@this.ViewBag.Title - @ViewBag.Name</h3>
+                        </div>
+                    </div>
+                    @using (Html.BeginForm(postActionName, ctlName, FormMethod.Post, new { @class = "form", id = "formMain" }))
+                    {
+                        <div class="card-body">
+                            <!-- 編輯區域 -->
+                            <div class="row">
+                                <div class="col-1">
+                                    <label for="period" class="col-form-label">評鑑期間</label>
+                                </div>
+                                <div class="col-2" style="display:none;">
+                                    <input id="Period" class="form-control form-control-sm" type="text" name="Period" value="@defaultPeriodText" disabled />
+                                </div>
+
+                                <div class="col-4">
+                                    <label class="col-form-label PeriodDateText">
+                                        @defaultPeriodText (@periodStartText ~ @periodEndText)
+                                    </label>
+                                </div>
+                            </div>
+                            <br />
+                            <div id="divDetailEditor">
+                                <div style="display: none;">
+                                    <input type="text" name="DetailID" value="" /><br />
+                                    <input type="text" name="ViolationID" value="@id" /><br />
+                                    <input type="text" name="Index" value="0" /><br />
+                                    <input type="text" name="Mode" value="Create" />
+                                </div>
+
+                                <div class="row">
+
+                                    <div class="col-2">
+                                        <label class="col-form-label" data-toggle="tooltip" data-html="true" title="@ToolTips.Date"><span style="color:red">*</span>日期 </label>
+                                        <input class="form-control form-control-sm" type="date" placeholder="請輸入日期" name="Date">
+                                    </div>
+
+                                    <div class="col-6">
+                                        <label class="col-form-label" name="lb_BelongTo" data-toggle="tooltip" data-html="true" title="@ToolTips.BelongTo"><span style="color:red">*</span>受評供應商 </label>
+                                        <!-- 受評供應商 -->
+                                        <select name="BelongTo" class="form-control form-control-sm selectpicker" data-live-search="true" style="width: 20em;" title="請選擇">
+                                            @foreach (var pair in pairList_BelongTo)
+                                            {
+                                                <option value="@pair.Key">@pair.Text</option>
+                                            }
+                                        </select>
+                                    </div>
+
+                                    <div class="col-2">
+                                        <label class="col-form-label" name="lb_BU" data-toggle="tooltip" data-html="true" title="@ToolTips.BU"><span style="color:red">*</span>評鑑單位 </label>
+                                        <!-- 評鑑單位 -->
+                                        <select name="BU" class="form-control form-control-sm selectpicker" data-live-search="true" style="width: 5em;" title="請選擇">
+                                            @foreach (var pair in pairList_BU)
+                                            {
+                                                <option value="@pair.Key">@pair.Text</option>
+                                            }
+                                        </select>
+                                    </div>
+
+                                    <div class="col-2">
+                                        <label class="col-form-label" name="lb_AssessmentItem" data-toggle="tooltip" data-html="true" title="@ToolTips.AssessmentItem"><span style="color:red">*</span>評鑑項目 </label>
+                                        <!-- 評鑑項目 -->
+                                        <select name="AssessmentItem" class="form-control form-control-sm selectpicker" data-live-search="true" style="width: 10em;" title="請選擇">
+                                            @foreach (var pair in pairList_AssessmentItem)
+                                            {
+                                                <option value="@pair.Key">@pair.Text</option>
+                                            }
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-2">
+                                        <label class="col-form-label" name="lb_MiddleCategory" data-toggle="tooltip" data-html="true" title="@ToolTips.MiddleCategory"><span style="color:red">*</span>中分類 </label>
+                                        <!-- 中分類 -->
+                                        <select name="MiddleCategory" class="form-control form-control-sm selectpicker" data-live-search="true" style="width: 10em;" title="請選擇">
+                                            @foreach (var pair in PairList_ViolationMiddleCategory)
+                                            {
+                                                <option value="@pair.Key">@pair.Text</option>
+                                            }
+                                        </select>
+                                    </div>
+
+                                    <div class="col-2">
+                                        <label class="col-form-label" name="lb_SmallCategory" data-toggle="tooltip" data-html="true" title="@ToolTips.SmallCategory"><span style="color:red">*</span>小分類 </label>
+                                        <!-- 小分類 -->
+                                        <select name="SmallCategory" class="form-control form-control-sm selectpicker" data-live-search="true" style="width: 10em;" title="請選擇">
+                                            @foreach (var pair in pairList_ViolationSmallCategory)
+                                            {
+                                                <option value="@pair.Key">@pair.Text</option>
+                                            }
+                                        </select>
+                                    </div>
+
+                                    <div class="col-4">
+                                        <label class="col-form-label" name="lb_CustomerName" data-toggle="tooltip" data-html="true" title="@ToolTips.CustomerName"><span style="color:red">*</span>客戶名稱 </label>
+                                        <input class="form-control form-control-sm" type="text" placeholder="請輸入客戶名稱" name="CustomerName">
+                                    </div>
+
+                                    <div class="col-4">
+                                        <label class="col-form-label" name="lb_CustomerPlant" data-toggle="tooltip" data-html="true" title="@ToolTips.CustomerPlant"><span style="color:red">*</span>客戶廠別 </label>
+                                        <input class="form-control form-control-sm" type="text" placeholder="請輸入客戶廠別" name="CustomerPlant">
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-4">
+                                        <label class="col-form-label" name="lb_CustomerDetail" data-toggle="tooltip" data-html="true" title="@ToolTips.CustomerDetail">客戶細分 </label>
+                                        <input class="form-control form-control-sm" type="text" placeholder="請輸入客戶細分" name="CustomerDetail">
+                                    </div>
+
+                                    <div class="col-4">
+                                        <label class="col-form-label" name="lb_CustomerDetail" data-toggle="tooltip" data-html="true" title="@ToolTips.Description"><span style="color:red">*</span>違規事件說明 </label>
+                                        <textarea class="form-control form-control-sm" name="Description" rows="3" cols="20"></textarea>
+                                    </div>
+                                </div>
+                                <br />
+                                <div class="row">
+                                    <!-- 加入新檔案 -->
+                                    <div class="col-12" id="divAddFileArea">
+                                        <input type="file" name="Attachment" multiple style="display: none;" />
+                                        <!-- 附件 -->
+                                        <button type="button" id="btnAddFile" class="btn btn-sm btn-info mr-2">上傳附件</button>
+                                        <div class="AttachmentFileName"></div>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-2" style="padding-top: 3em;">
+                                        <button type="button" id="btnSaveDetail" class="btn btn-sm btn-info">新增/更新違規資料</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <br />
+                            <div class="row" id="divDetailTable">
+                                <!-- 表格區 -->
+                                <div class="col-12">
+                                    <table>
+                                        @* 表頭 *@
+                                        <thead class="thead-dark">
+                                        </thead>
+                                        @* 表身 *@
+                                    </table>
+                                </div>
+                                <!-- 表格區 -->
+                            </div>
+                            <div class="row">
+                                <div class="col-12">
+                                    <table></table>
+                                </div>
+                            </div>
+                            <!-- 編輯區域 -->
+                            <!-- 審核資訊 Approval Information -->
+                            <br />
+                            <br />
+                            <div id="divApproveTableTitle" class="alert alert-custom SubArea" role="alert">
+                                <div class="alert-text text-center">審核資訊 Approval Information</div>
+                            </div>
+
+                            <div class="row" id="divApproveTemplate" style="display: none;">
+                                <table class="table">
+                                    <tbody>
+                                        <tr>
+                                            <td scope="row">
+                                                <span class="Level_Text"></span>
+                                            </td>
+                                            <td>
+                                                <span class="Approver"></span>
+                                            </td>
+                                            <td>
+                                                <span class="Result"></span>
+                                            </td>
+                                            <td>
+                                                <span class="ModifyDate_Text"></span>
+                                            </td>
+                                            <td>
+                                                <span class="Comment"></span>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="row" id="divApproveTable">
+                                <div class="col-12">
+                                    <table class="table">
+                                        @* 表頭 *@
+                                        <thead class="thead-dark">
+                                            <tr>
+                                                <th scope="col" class="col-sm-2">審核關卡</th>
+                                                <th scope="col" class="col-sm-2">審核者</th>
+                                                <th scope="col" class="col-sm-2">審核結果</th>
+                                                <th scope="col" class="col-sm-2">審核時間</th>
+                                                <th scope="col" class="col-sm-2">審核意見</th>
+                                            </tr>
+                                        </thead>
+                                        @* 表身 *@
+                                        <tbody>  </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <!-- 審核資訊 Approval Information -->
+                            <!--btn-->
+                            <div class="my-5 col-12">
+                                <div class="d-flex justify-content-between border-top ">
+                                    <div class="mr-2">
+                                        @if (allowButton)
+                                        {
+                                            <a href="@Url.Action(ViewBag.ViewReturn, new { id = @ViewBag.ViewReturnID })" class="btn btn-secondary">
+                                                取消
+                                            </a>
+                                        }
+                                    </div>
+                                    <div>
+                                        <button type="button" id="btnSave" class="btn btn-success mr-2">儲存</button>
+                                        <button type="button" id="btnSubmit" class="btn btn-primary mr-2">送出</button>
+                                        <button type="button" id="btnAbord" class="btn btn-danger mr-2">中止</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <!--btn-->
+                        </div>
+                        <!--end::Card-->
+                    }
+                </div>
+            </div>
+            <input type="hidden" name="EditType" id="EditType" value="" />
+            <input type="hidden" name="MainID" id="hdfMainID" value="@id" />
+            <!--end::Code example-->
+            <!--end::Example-->
+        </div>
+    </div>
+</div>
+
+<div id="divAbordReason" style="display: none;">
+    <p class="col-12 h6 text-danger">請填寫中止原因</p>
+    <textarea class="form-control" name="AbordReason" rows="3"></textarea>
+</div>
+
+@* --將 js 註冊至頁尾-- *@
+@Html.Resource(
+    @<text>
+        <link href="~/Content/assets/plugins/custom/bootstrap-table/bootstrap-table.min.css?v=@DateTimeExtensions.GetJS_V_Text()" rel="stylesheet" />
+        <link href="~/Content/assets/plugins/custom/bootstrap-table/extensions/fixed-columns/bootstrap-table-fixed-columns.min.css?v=@DateTimeExtensions.GetJS_V_Text()" rel="stylesheet" />
+
+        <script src="~/Content/assets/plugins/custom/bootstrap-table/bootstrap-table.min.js?v=@DateTimeExtensions.GetJS_V_Text()"></script>
+        <script src="~/Content/assets/plugins/custom/bootstrap-table/extensions/fixed-columns/bootstrap-table-fixed-columns.min.js?v=@DateTimeExtensions.GetJS_V_Text()"></script>
+
+        <script src="~/ModuleResources/JavaScripts/Shared/TET_FormHelper.js?v=@DateTimeExtensions.GetJS_V_Text()"></script>
+        <script src="~/ModuleResources/JavaScripts/SPA_Violation/edit.js?v=@DateTimeExtensions.GetJS_V_Text()"></script>
+        <script>
+            var viewMode = '@mode';
+            var isCreateMode = @isCreateMode.ToString().ToLower();
+            var isNewApply = @isNewApply.ToString().ToLower();
+            var id = '@id';
+
+            var createApiUrl = platformEnvironment.hostUrl + '@createApiUrl';
+            var submitApiUrl = platformEnvironment.hostUrl + '@submitApiUrl';
+            var modifyApiUrl = platformEnvironment.hostUrl + '@modifyApiUrl';
+            var abordApiUrl = platformEnvironment.hostUrl + '@abordApiUrl';
+            var readDetailApiUrl = platformEnvironment.hostUrl + '@readDetailApiUrl';
+
+            var listPageUrl = platformEnvironment.hostUrl + '@listPageUrl';
+            var downloadFileUrl = platformEnvironment.hostUrl + '@downloadFileUrl';
+
+            var validConfig = @Html.Raw(validConfig);
+        </script>
+    </text>
+, "customScripts")

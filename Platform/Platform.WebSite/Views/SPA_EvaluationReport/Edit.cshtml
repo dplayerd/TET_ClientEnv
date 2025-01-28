@@ -1,0 +1,186 @@
+﻿@using Platform.Infra;
+@using Platform.WebSite.Helpers;
+@using Platform.AbstractionClass;
+@using Newtonsoft.Json;
+@using BI.SPA_Evaluation;
+@using BI.SPA_Evaluation.Models;
+@using BI.SPA_Evaluation.Utils;
+@using Platform.WebSite.Models;
+
+@model Guid?
+
+@{
+    var masterInfo = (SiteViewModel)ViewBag.MasterInfo;
+    this.ViewBag.Title = masterInfo.CurrentPage.Name;
+    var ctlName = "SPA_Evaluation";
+
+    var mode = this.ViewBag.Mode;
+    var isCreateMode = this.ViewBag.IsCreateMode;
+    var isNewApply = true;
+    var postActionName = (isCreateMode) ? "Create" : "Edit";
+    var id = (this.Model.HasValue) ? this.Model.ToString() : string.Empty;
+
+    Uri readDetailApiUrl = new Uri("api/SPA_EvaluationReportApi/Detail/" + id, UriKind.Relative);
+    Uri modifyApiUrl = new Uri("api/SPA_EvaluationReportApi/Modify/" + id, UriKind.Relative);
+    Uri sendMessageApiUrl = new Uri("api/SPA_EvaluationReportApi/SendMessage/" + id, UriKind.Relative);
+
+    Uri uploadQSMApiUrl = new Uri("api/SPA_EvaluationReportApi/UploadQSM/" + id, UriKind.Relative);
+    Uri uploadAllApiUrl = new Uri("api/SPA_EvaluationReportApi/UploadAll/" + id, UriKind.Relative);
+
+
+    Uri listPageUrl = new Uri("SPA_EvaluationReport/Index/" + masterInfo.CurrentPage.ID, UriKind.Relative);
+    Uri downloadFileUrl = new Uri("SPA_EvaluationReport/Attachment/", UriKind.Relative);
+
+    // 其它值
+    var defaultPeriodText = this.ViewBag.Param_Period;
+    var periodStartText = this.ViewBag.Param_PeriodStart;
+    var periodEndText = this.ViewBag.Param_PeriodEnd;
+
+    // 欄位顯示和編輯設定
+    var validConfig = JsonConvert.SerializeObject(BI.SPA_Evaluation.Validators.SPA_EvaluationValidator.GetValidConfigs());
+}
+
+<style>
+    .SubArea {
+        background-color: #00A9E0;
+        font-size: 16pt;
+        color: white;
+        font-weight: bolder;
+    }
+</style>
+
+<div class="d-flex flex-column-fluid">
+    <!--begin::Container-->
+    <div class="container-fluid px-2">
+        <!--begin::Row-->
+        <div class="row">
+            <div class="col-lg-12">
+                <!--begin::Example-->
+                <!--begin::Card-->
+                <div class="card card-custom">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <h3 class="card-label">@this.ViewBag.Title - @ViewBag.Name</h3>
+                            @*<div class="d-block text-muted pt-2 font-size-sm">
+                                    <i class="icon-nm text-dark-50"></i>
+                                    (*)為必填選項
+                                </div>*@
+                        </div>
+                    </div>
+                    @using (Html.BeginForm(postActionName, ctlName, FormMethod.Post, new { @class = "form", id = "formMain" }))
+                    {
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-1">
+                                    <label for="period" class="col-form-label">評鑑期間</label>
+                                </div>
+                                <div class="col-4">
+                                    <label class="col-form-label PeriodDateText">
+                                        @defaultPeriodText (@periodStartText ~ @periodEndText)
+                                    </label>
+                                </div>
+
+                                <div class="col-1">
+                                    <label for="period" class="col-form-label">評鑑單位</label>
+                                </div>
+                                <div class="col-4">
+                                    <label class="col-form-label BU">
+                                    </label>
+                                </div>
+
+                            </div>
+
+                            <!-- SPA 評鑑計分資料資訊 -->
+                            <br />
+                            <br />
+                            <div class="alert alert-custom SubArea" role="alert">
+                                <div class="alert-text text-center">績效評鑑報告附件</div>
+                            </div>
+
+                            <div class="row">
+
+                                <div class="col-8">
+                                    &nbsp;
+                                </div>
+
+                                <div class="col-4">
+                                    <!-- 檔案上傳 -->
+                                    <input type="file" name="AttachmentAll" multiple style="display: none;" />
+                                    <input type="file" name="AttachmentQSM" multiple style="display: none;" />
+
+                                    <button type="button" id="btnUploadAll" class="btn btn-sm btn-success" title="新增 (All)"> 新增 (All) </button>
+                                    <button type="button" id="btnUploadQSM" class="btn btn-sm btn-success" title="新增 (QSM)"> 新增 (QSM) </button>
+                                </div>
+                            </div>
+
+                            <br />
+                            <div class="row" id="divAttachmentTable">
+                                <!-- 表格區 -->
+                                <div class="col-12">
+                                    <table>
+                                        <thead class="thead-dark">
+                                        </thead>
+                                    </table>
+                                </div>
+                                <!-- 表格區 -->
+                            </div>
+                            <!-- SPA 評鑑計分資料資訊 -->
+                            <!--btn-->
+                            <div class="my-5 col-12">
+                                <div class="d-flex justify-content-between border-top ">
+                                    <div class="mr-2">
+                                        <a href="@Url.Action(ViewBag.ViewReturn, new { id = @ViewBag.ViewReturnID })" class="btn btn-secondary">
+                                            取消
+                                        </a>
+                                    </div>
+                                    <div>
+                                        <button type="button" id="btnSave" class="btn btn-success mr-2">儲存</button>
+                                        <button type="button" id="btnSendMessage" class="btn btn-primary mr-2">通知</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <!--btn-->
+                        </div>
+                        <!--end::Card-->
+                    }
+                </div>
+            </div>
+            <input type="hidden" name="EditType" id="EditType" value="" />
+            <input type="hidden" name="MainID" id="hdfMainID" value="@id" />
+            <!--end::Code example-->
+            <!--end::Example-->
+        </div>
+    </div>
+</div>
+
+@* --將 js 註冊至頁尾-- *@
+@Html.Resource(
+    @<text>
+        <link href="~/Content/assets/plugins/custom/bootstrap-table/bootstrap-table.min.css?v=@DateTimeExtensions.GetJS_V_Text()" rel="stylesheet" />
+        <link href="~/Content/assets/plugins/custom/bootstrap-table/extensions/fixed-columns/bootstrap-table-fixed-columns.min.css?v=@DateTimeExtensions.GetJS_V_Text()" rel="stylesheet" />
+
+        <script src="~/Content/assets/plugins/custom/bootstrap-table/bootstrap-table.min.js?v=@DateTimeExtensions.GetJS_V_Text()"></script>
+        <script src="~/Content/assets/plugins/custom/bootstrap-table/extensions/fixed-columns/bootstrap-table-fixed-columns.min.js?v=@DateTimeExtensions.GetJS_V_Text()"></script>
+
+        <script src="~/ModuleResources/JavaScripts/Shared/TET_FormHelper.js?v=@DateTimeExtensions.GetJS_V_Text()"></script>
+        <script src="~/ModuleResources/JavaScripts/SPA_EvaluationReport/edit.js?v=@DateTimeExtensions.GetJS_V_Text()"></script>
+        <script>
+            var viewMode = '@mode';
+            var isCreateMode = @isCreateMode.ToString().ToLower();
+            var isNewApply = @isNewApply.ToString().ToLower();
+            var id = '@id';
+
+            var readDetailApiUrl = platformEnvironment.hostUrl + '@readDetailApiUrl';
+            var modifyApiUrl = platformEnvironment.hostUrl + '@modifyApiUrl';
+
+            var uploadQSMApiUrl = platformEnvironment.hostUrl + '@uploadQSMApiUrl';
+            var uploadAllApiUrl = platformEnvironment.hostUrl + '@uploadAllApiUrl';
+            var sendMessageApiUrl = platformEnvironment.hostUrl + '@sendMessageApiUrl';
+
+            var listPageUrl = platformEnvironment.hostUrl + '@listPageUrl';
+            var downloadFileUrl = platformEnvironment.hostUrl + '@downloadFileUrl';
+
+            var validConfig = @Html.Raw(validConfig);
+        </script>
+    </text>
+, "customScripts")

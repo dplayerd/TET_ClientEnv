@@ -1,0 +1,89 @@
+﻿@using Platform.WebSite.Helpers;
+@using Platform.AbstractionClass;
+@using Platform.WebSite.Models;
+@using Platform.Infra;
+
+@{
+    var masterInfo = (SiteViewModel)ViewBag.MasterInfo;
+    this.ViewBag.Title = masterInfo.CurrentPage.Name;
+    string controllerName = "SupplierApproverChange";
+
+    string editTemplateUrl = Url.Action("Edit", controllerName, new { ID = masterInfo.CurrentPage.ID, ApprovalID = "__ID__" });
+
+    // 下拉選單項目
+    var pairList_UserList = this.ViewBag.ParamList_UserList as List<KeyTextModel>;
+
+}
+
+<!--begin::Card-->
+<div class="card card-custom">
+    <div class="card-header flex-wrap py-5">
+        <div class="card-title">
+            <div class="card-label">
+                @*標題*@
+                @ViewBag.Title
+                @*標題*@
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <div id="divSearchArea">
+            @*過濾條件*@
+            <div class="form-group row">
+                <div class="col-4">
+                    <label for="inpApprover" class="col-form-label">審核人</label>
+                    <select id="inpApprover" name="Approver" class="form-control form-control-sm selectpicker" data-live-search="true" title="請選擇">
+                        <option value="@string.Empty">請選擇</option>
+                        @foreach (var pair in pairList_UserList)
+                        {
+                            <option value="@pair.Key">@pair.Text</option>
+                        }
+                    </select>
+                </div>
+
+                <div class="col-2">
+                    <button type="button" id="btnSearch" class="btn btn-success" style="margin-top: 3em;"> 查詢 </button>
+                </div>
+            </div>
+            @*過濾條件*@
+        </div>
+        <!--start: Datatable-->
+        @*表格*@
+        <div id="kt_datatable_wrapper" class="dataTables_wrapper dt-bootstrap4 no-footer">
+            <div class="row">
+                <div class="col-sm-12">
+                    <table class="table table-bordered table-hover table-checkable" id="dataGrid" style="margin-top: 13px !important">
+                    </table>
+                </div>
+            </div>
+            @*表格*@
+        </div>
+        <!--end: Datatable-->
+    </div>
+</div>
+<!--end::Card-->
+@* 要餵 SiteID、EditAction 給 js 用，為必要的隱藏欄位 *@
+<input type="hidden" id="EditAction" value="@editTemplateUrl" />
+
+@* --將 js 註冊至頁尾-- *@
+@Html.Resource(
+    @<text>
+        <script src="~/Content/assets/plugins/custom/datatables/datatables.bundle.js?v=@DateTimeExtensions.GetJS_V_Text()"></script>
+        <script src="~/ModuleResources/JavaScripts/Shared/FormHelper.js?v=@DateTimeExtensions.GetJS_V_Text()"></script>
+        <script src="~/ModuleResources/JavaScripts/SupplierApproverChange/index.js?v=@DateTimeExtensions.GetJS_V_Text()"></script>
+
+        <style>
+            .dataTables_wrapper table.dataTable thead tr th {
+                background-color: #00a9e0;
+                color: white;
+                font-weight: bold;
+            }
+
+            .columnHeaderWhite {
+                color: white;
+                font-weight: bold;
+            }
+        </style>
+    </text>
+, "customScripts")
+

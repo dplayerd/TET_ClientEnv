@@ -1,0 +1,171 @@
+﻿@using Platform.WebSite.Helpers;
+@using Platform.WebSite.Models;
+@using Platform.Infra;
+
+@{
+    var masterInfo = (SiteViewModel)ViewBag.MasterInfo;
+    ViewBag.Title = masterInfo.CurrentPage.Name;
+}
+
+
+<!--begin::Card-->
+<div class="card card-custom">
+    <div class="card-header flex-wrap py-5">
+        <div class="card-title">
+            <div class="card-label">
+                @*標題*@
+                @ViewBag.Title
+                @*標題*@
+            </div>
+        </div>
+        <div class="card-toolbar">
+            @*工具列*@
+            <button class="btn btn-primary font-weight-bolder" id="btnCreate">
+                <i class="flaticon2-plus"></i> 新增
+            </button>
+            @*工具列*@
+        </div>
+    </div>
+    <div class="card-body">
+        @*表格*@
+        <table class="table table-bordered table-hover table-checkable" id="dataGrid" style="margin-top: 13px !important"></table>
+        @*表格*@
+    </div>
+</div>
+<!--end::Card-->
+@*編輯區*@
+<div class="modal fade bd-example-modal-xl" id="editorArea" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered  modal-xl" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalCenterTitle">
+                    @*編輯區標題*@
+                    <span class="display-4">@ViewBag.Title</span>
+                    @*編輯區標題*@
+                </h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <!-- 內容 -->
+                <form class="form">
+                    <div class="tab-content">
+                        <!--begin::Tab-->
+                        <div class="tab-pane show px-7 active" id="kt_user_edit_tab_1" role="tabpanel">
+                            <!--begin::Row-->
+                            <div class="row">
+                                <div class="col-xl-2"></div>
+                                <div class="col-xl-7 my-2">
+                                    <input type="hidden" name="ID" value="" />
+                                    <!--begin::Group-->
+                                    <div class="form-group row">
+                                        <label class="col-form-label col-3 text-lg-right text-left">名稱</label>
+                                        <div class="col-9">
+                                            <input class="form-control form-control-lg form-control-solid" type="text" name="Name" value="" placeholder="請輸入名稱" />
+
+                                            <div class="d-block text-muted pt-2 font-size-sm">
+                                                <i class="icon-nm text-dark-50 flaticon2-information"></i>
+                                                注意：名稱必須為唯一
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <!--end::Group-->
+                                    <!--begin::Group-->
+                                    <div class="form-group row">
+                                        <label class="col-form-label col-3 text-lg-right text-left">標題</label>
+                                        <div class="col-9">
+                                            <input class="form-control form-control-lg form-control-solid" type="text" name="PageTitle" value="" placeholder="請輸入標題" />
+                                        </div>
+                                    </div>
+                                    <!--end::Group-->
+                                    <!--begin::Group-->
+                                    <div class="form-group row" style="display: none;">
+                                        <label class="col-form-label col-3 text-lg-right text-left">上層資料夾</label>
+                                        <div class="col-9">
+                                            <select class="form-control form-control-lg form-control-solid" name="ParentID">
+                                                <option value="">根節點</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <!--end::Group-->
+                                    <!--begin::Group-->
+                                    <div class="form-group row">
+                                        <label class="col-form-label col-3 text-lg-right text-left">圖示</label>
+                                        <div class="col-9">
+                                            <input class="form-control form-control-lg form-control-solid" type="text" name="PageIcon" value="" placeholder="設定圖示" />
+                                            <div class="d-block text-muted pt-2 font-size-sm">
+                                                <i class="icon-nm text-dark-50 flaticon2-information"></i>
+                                                圖示請參考以下範例：
+                                                <a href="https://preview.keenthemes.com/metronic/demo1/features/icons/flaticon.html" target="_blank" title="官方圖示範例 (另開新視窗)">flaticon</a><br />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <!--end::Group-->
+                                    <!--begin::Group-->
+                                    <div class="form-group row" style="display: none;">
+                                        <label class="col-form-label col-3 text-lg-right text-left">頁面種類</label>
+                                        <div class="col-9">
+                                            <select class="form-control form-control-lg form-control-solid" name="MenuType" id="MenuMapping">
+                                                <option value="0">HTML</option>
+                                                <option value="1">資料夾</option>
+                                                <option value="2">系統模組</option>
+                                                <option value="3">外連結</option>
+                                                <option value="4">檔案下載</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <!--end::Group-->
+                                    <!--begin::Group-->
+                                    <div class="form-group row" id="ModuleSelector" style="display: none;">
+                                        <label class="col-form-label col-3 text-lg-right text-left">模組選擇</label>
+                                        <div class="col-9">
+                                            <select class="form-control form-control-lg form-control-solid" name="ModuleID" id="ModuleID">
+                                                <option value=""></option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <!--end::Group-->
+                                    <!--begin::Group-->
+                                    <div class="form-group row">
+                                        <label class="col-form-label col-3 text-lg-right text-left">排序值</label>
+                                        <div class="col-9">
+                                            <input class="form-control form-control-lg form-control-solid" type="text" name="SortNo" value="" placeholder="設定排序值" />
+                                            <div class="d-block text-muted pt-2 font-size-sm">
+                                                <i class="icon-nm text-dark-50 flaticon2-information"></i>
+                                                排序值需介於 1~9999 ，由大至小排序。
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <!--end::Group-->
+
+                                </div>
+                            </div>
+                            <!--end::Row-->
+                        </div>
+                        <!--end::Tab-->
+                    </div>
+                </form>
+                <!-- 內容 -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">關閉</button>
+                <button type="button" class="btn btn-primary" id="btnSave">儲存</button>
+            </div>
+        </div>
+    </div>
+</div>
+@*編輯區*@
+
+@* --將 js 註冊至頁尾-- *@
+@Html.Resource(
+@<text>
+    <script>
+        var siteID = '@masterInfo.ID';
+    </script>
+
+    <script src="~/Content/assets/plugins/custom/datatables/datatables.bundle.js?v=@DateTimeExtensions.GetJS_V_Text()"></script>
+    <script src="~/ModuleResources/JavaScripts/Shared/FormHelper.js?v=@DateTimeExtensions.GetJS_V_Text()"></script>
+    <script src="~/ModuleResources/JavaScripts/PageManagement/index.js?v=@DateTimeExtensions.GetJS_V_Text()"></script>
+</text>
+, "customScripts")

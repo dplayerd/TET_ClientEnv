@@ -1,0 +1,700 @@
+﻿@using Platform.WebSite.Helpers;
+@using Platform.AbstractionClass;
+@using Newtonsoft.Json;
+@using BI.Suppliers;
+@using BI.Suppliers.Models;
+@using BI.Suppliers.Enums;
+@using Platform.WebSite.Models;
+@using Platform.Infra;
+@model Guid?
+
+@{
+    var masterInfo = (SiteViewModel)ViewBag.MasterInfo;
+    this.ViewBag.Title = masterInfo.CurrentPage.Name;
+    var pageID = masterInfo.CurrentPage.ID;
+    var ctlName = "Supplier";
+
+    var mode = this.ViewBag.Mode;
+    var isCreateMode = this.ViewBag.IsCreateMode;
+    var isNewApply = true;
+    var postActionName = (isCreateMode) ? "Create" : "Edit";
+    var id = (this.Model.HasValue) ? this.Model.ToString() : string.Empty;
+    var supplierID = this.ViewBag.SupplierID;
+    var levelName = this.ViewBag.CurrentLevelName;
+
+    Uri readDetailApiUrl = new Uri("api/SupplierApi/Detail/" + id, UriKind.Relative);
+    Uri submitApiUrl = new Uri("api/SupplierRevisionApi/Submit/", UriKind.Relative);
+    Uri modifyApiUrl = new Uri("api/SupplierRevisionApi/Modify/" + id, UriKind.Relative);
+    Uri abordApiUrl = new Uri("api/SupplierApi/Abord/", UriKind.Relative);
+    Uri deleteApiUrl = new Uri("api/SupplierApi/Delete/" + id, UriKind.Relative);
+
+    Uri listPageUrl = new Uri("SupplierRevision/Index/" + pageID, UriKind.Relative);
+
+    // 下拉選單項目
+    var pairList_SupplierCategory = this.ViewBag.ParamList_SupplierCategory as List<KeyTextModel>;
+    var pairList_BusinessCategory = this.ViewBag.ParamList_BusinessCategory as List<KeyTextModel>;
+    var pairList_BusinessAttribute = this.ViewBag.ParamList_BusinessAttribute as List<KeyTextModel>;
+    var pairList_Country = this.ViewBag.ParamList_Country as List<KeyTextModel>;
+    var pairList_PaymentTerm = this.ViewBag.ParamList_PaymentTerm as List<KeyTextModel>;
+    var pairList_Incoterms = this.ViewBag.ParamList_Incoterms as List<KeyTextModel>;
+    var pairList_BillingDocument = this.ViewBag.ParamList_BillingDocument as List<KeyTextModel>;
+    var pairList_Currency = this.ViewBag.ParamList_Currency as List<KeyTextModel>;
+    var pairList_BankCountry = this.ViewBag.ParamList_BankCountry as List<KeyTextModel>;
+    var ParamList_RelatedDept = this.ViewBag.ParamList_RelatedDept as List<KeyTextModel>;
+    var ParamList_Buyer = this.ViewBag.ParamList_Buyer as List<KeyTextModel>;
+
+    // 欄位顯示和編輯設定
+    var validConfig = JsonConvert.SerializeObject(BI.Suppliers.Validators.RevisionValidator.GetValidConfigs());
+}
+
+<style>
+    .SubArea {
+        background-color: #00A9E0;
+        font-size: 16pt;
+        color: white;
+        font-weight: bolder;
+    }
+</style>
+
+<div class="d-flex flex-column-fluid">
+    <!--begin::Container-->
+    <div class="container-fluid px-2">
+        <!--begin::Row-->
+        <div class="row">
+            <div class="col-lg-12">
+                <!--begin::Example-->
+                <!--begin::Card-->
+                <div class="card card-custom">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <h3 class="card-label">@this.ViewBag.Title - @ViewBag.Name</h3>
+                            @*<div class="d-block text-muted pt-2 font-size-sm">
+                                    <i class="icon-nm text-dark-50"></i>
+                                    (*)為必填選項
+                                </div>*@
+                        </div>
+                    </div>
+                    @using (Html.BeginForm(postActionName, ctlName, FormMethod.Post, new { @class = "form", id = "formMain" }))
+                    {
+                        <div class="card-body">
+                            <!-- 確認事宜 -->
+                            <div class="row">
+                                <div class="col-12">
+                                    <div class="form-group row mb-2">
+                                        <label for="ApplyReason" class="col-12 col-form-label" title="請輸入申請原因&#10&#13 1.簡述該廠商主要的營業項目&#10 2.簡述申請該廠商主要運用在那類型的請購案&#10&#13 Sample1:&#10 1.AA公司主要業務為機器手臂維修&#10 2.因現有XX型機器手臂維修廠商交期過長,需找現地AA廠商進行維修&#10&#13 Sample2:&#10 1.Bb公司主要業務為化學液&#10 2.因客戶端XX機種裝機需求,需更換XY型化學液,故需向Bb公司現地採購">
+                                            申請原因<br />
+                                            Reason for Application
+                                        </label>
+                                        <div class="col-12">
+                                            <textarea id="ApplyReason" class="form-control form-control-sm" placeholder="請輸入申請原因" name="ApplyReason" rows="5"></textarea>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- 確認事宜 -->
+                            <!-- 供應商資訊 -->
+                            <br />
+                            <br />
+                            <div class="alert alert-custom SubArea" role="alert">
+                                <div class="alert-text text-center">供應商資訊 Supplier Profile</div>
+                            </div>
+
+
+                            <div class="row">
+                                <div class="col-2">
+                                    <label class="col-form-label">登錄日期<br />Registration Date </label>
+                                    <input class="form-control form-control-sm" type="date" placeholder="請輸入登錄日期" name="RegisterDate">
+                                </div>
+
+                                <div class="col-2">
+                                    <label class="col-form-label">供應商代碼<br />ERP Supplier No. </label>
+                                    <input class="form-control form-control-sm" type="text" placeholder="請輸入供應商代碼" name="VenderCode">
+                                </div>
+
+                                <!-- <div class="col-2" style="display: none;">
+                                        <label class="col-form-label">歸屬公司名稱<br />Supplier Parent Company</label>
+                                        <input class="form-control form-control-sm" type="text" placeholder="請輸入歸屬公司名稱" name="BelongTo">
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-2">
+                                        <label class="col-form-label">廠商類別<br />Supplier Category </label>
+                                        <select name="SupplierCategory" class="form-control form-control-sm selectpicker" multiple data-live-search="true" title="請選擇">
+                                            @foreach (var pair in pairList_SupplierCategory)
+                                            {
+                                                <option value="@pair.Key">@pair.Text</option>
+                                            }
+                                        </select>
+                                    </div>
+
+                                    <div class="col-2">
+                                        <label class="col-form-label"> 交易主類別<br />Business Category </label>
+                                        <select name="BusinessCategory" class="form-control form-control-sm selectpicker" multiple data-live-search="true" title="請選擇">
+                                            @foreach (var pair in pairList_BusinessCategory)
+                                            {
+                                                <option value="@pair.Key">@pair.Text</option>
+                                            }
+                                        </select>
+                                    </div>
+
+                                    <div class="col-2">
+                                        <label class="col-form-label"> 交易子類別<br />Business Category </label>
+                                        <select name="BusinessAttribute" class="form-control form-control-sm selectpicker" multiple data-live-search="true" title="請選擇">
+                                            @foreach (var pair in pairList_BusinessAttribute)
+                                            {
+                                                <option value="@pair.Key">@pair.Text</option>
+                                            }
+                                        </select>
+                                    </div>
+
+                                    <div class="col-2">
+                                        <label class="col-form-label"> 相關 BU<br />Related Department </label>
+                                        <select name="RelatedDept" class="form-control form-control-sm selectpicker" multiple data-live-search="true" title="請選擇">
+                                            @foreach (var pair in ParamList_RelatedDept)
+                                            {
+                                                <option value="@pair.Key">@pair.Text</option>
+                                            }
+                                        </select>
+                                    </div>-->
+
+                                <div class="col-6">
+                                    <label class="col-form-label"> 採購擔當<br />Buyer </label>
+                                    <select name="Buyer" class="form-control form-control-sm select2" multiple title="請選擇">
+                                        @foreach (var pair in ParamList_Buyer)
+                                        {
+                                            <option value="@pair.Key">@pair.Text</option>
+                                        }
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-4">
+                                    <label class="col-form-label">中文名稱<br />Chinese Name </label>
+                                    <input class="form-control form-control-sm" type="text" placeholder="請輸入中文名稱" name="CName">
+                                </div>
+
+                                <div class="col-4">
+                                    <label class="col-form-label"> 英文名稱<br />English Name </label>
+                                    <input class="form-control form-control-sm" type="text" placeholder="請輸入英文名稱" name="EName">
+                                </div>
+
+                                <div class="col-4">
+                                    <label class="col-form-label"> 國家別<br />Country </label>
+                                    <select name="Country" class="form-control form-control-sm select2" title="請選擇">
+                                        @foreach (var pair in pairList_Country)
+                                        {
+                                            <option value="@pair.Key">@pair.Text</option>
+                                        }
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-4">
+                                    <label class="col-form-label">公司地址<br />Address </label>
+                                    <input class="form-control form-control-sm" type="text" placeholder="請輸入公司地址" name="Address">
+                                </div>
+
+                                <div class="col-4">
+                                    <label class="col-form-label"> 公司電話<br />OfficeTel </label>
+                                    <input class="form-control form-control-sm" type="text" placeholder="請輸入公司電話" name="OfficeTel">
+                                </div>
+
+                                <div class="col-4">
+                                    <label class="col-form-label"> 統一編號<br />Tax ID Number </label>
+                                    <input class="form-control form-control-sm" type="text" placeholder="請輸入統一編號" name="TaxNo">
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-4">
+                                    <label class="col-form-label">公司E-mail<br />Office E-mail </label>
+                                    <input class="form-control form-control-sm" type="text" placeholder="請輸入公司E-mail" name="Email">
+                                </div>
+
+                                <div class="col-4">
+                                    <label class="col-form-label"> 公司網站<br />Official Website </label>
+                                    <input class="form-control form-control-sm" type="text" placeholder="請輸入公司網站" name="Website">
+                                </div>
+
+                                <div class="col-4">
+                                    <label class="col-form-label"> ISO 認證<br />ISO Accreditation </label>
+                                    <input class="form-control form-control-sm" type="text" placeholder="請輸入ISO 認證" name="ISO">
+                                </div>
+                            </div>
+                            <!--
+                                <div class="row">
+                                    <div class="col-2">
+                                        <label class="col-form-label">資本額<br />Capital Amount </label>
+                                        <input class="form-control form-control-sm" type="text" placeholder="請輸入資本額" name="CapitalAmount">
+                                    </div>
+
+                                    <div class="col-2">
+                                        <label class="col-form-label"> 公司負責人<br />Person In Charge </label>
+                                        <input class="form-control form-control-sm" type="text" placeholder="請輸入公司負責人" name="Charge">
+                                    </div>
+
+                                    <div class="col-2">
+                                        <label class="col-form-label"> 員工人數<br />Number of employees </label>
+                                        <input class="form-control form-control-sm" type="text" placeholder="請輸入員工人數" name="Employees">
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-2">
+                                        <label class="col-form-label">付款條件<br />Payment Term </label>
+                                        <select name="PaymentTerm" class="form-control form-control-sm selectpicker" data-live-search="true" title="請選擇">
+                                            @foreach (var pair in pairList_PaymentTerm)
+                                            {
+                                                <option value="@pair.Key">@pair.Text</option>
+                                            }
+                                        </select>
+                                    </div>
+
+                                    <div class="col-2">
+                                        <label class="col-form-label"> 交易條件<br />Incoterms </label>
+                                        <select name="Incoterms" class="form-control form-control-sm selectpicker" data-live-search="true" title="請選擇">
+                                            @foreach (var pair in pairList_Incoterms)
+                                            {
+                                                <option value="@pair.Key">@pair.Text</option>
+                                            }
+                                        </select>
+                                    </div>
+
+                                    <div class="col-2">
+                                        <label class="col-form-label"> 請款憑證<br />Billing Document </label>
+                                        <select name="BillingDocument" class="form-control form-control-sm selectpicker" data-live-search="true" title="請選擇">
+                                            @foreach (var pair in pairList_BillingDocument)
+                                            {
+                                                <option value="@pair.Key">@pair.Text</option>
+                                            }
+                                        </select>
+                                    </div>
+                                </div>
+                            -->
+                            <div class="row">
+                                <div class="col-4">
+                                    <label for="MainProduct" class="col-form-label">
+                                        主要產品/服務項目<br />
+                                        Main Product / Service
+                                    </label>
+                                    <textarea id="MainProduct" class="form-control form-control-sm" placeholder="請輸入主要產品/服務項目" name="MainProduct" rows="5"></textarea>
+                                </div>
+                                <!--
+                                <div class="col-4">
+                                    <label for="Remark" class="col-form-label">
+                                        供應商相關備註<br />
+                                        Remark
+                                    </label>
+                                    <textarea id="Remark" class="form-control form-control-sm" placeholder="請輸入供應商相關備註" name="Remark" rows="5"></textarea>
+                                </div>
+                                -->
+                            </div>
+                            <!-- 供應商資訊 -->
+                            <!-- 供應商聯絡人資訊 -->
+                            <br />
+                            <br />
+                            <div class="alert alert-custom SubArea" role="alert">
+                                <div class="alert-text text-center">供應商聯絡人資訊 Contact Person Information</div>
+                            </div>
+
+                            <div class="row" id="divContactTableTemplate" style="display: none;">
+                                <table class="table">
+                                    <tbody>
+                                        <tr>
+                                            <td scope="row">
+                                                <input class="form-control form-control-sm" type="text" placeholder="請輸入姓名" disabled name="ContactName">
+                                            </td>
+                                            <td>
+                                                <input class="form-control form-control-sm" type="text" placeholder="請輸入電話" disabled name="ContactTel">
+                                            </td>
+                                            <td>
+                                                <input class="form-control form-control-sm" type="text" placeholder="請輸入職稱" disabled name="ContactTitle">
+                                            </td>
+                                            <td>
+                                                <input class="form-control form-control-sm" type="text" placeholder="請輸入Email" disabled name="ContactEmail">
+                                            </td>
+                                            <td>
+                                                <input class="form-control form-control-sm" type="text" placeholder="請輸入備註" disabled name="ContactRemark">
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <div class="row" id="divContactTable">
+                                <div class="col-12">
+                                    <table class="table">
+                                        @* 表頭 *@
+                                        <thead class="thead-dark">
+                                            <tr>
+                                                <th scope="col" class="col-sm-2">姓名 Name</th>
+                                                <th scope="col" class="col-sm-2">電話 Telephone</th>
+                                                <th scope="col" class="col-sm-2">職稱 Title</th>
+                                                <th scope="col" class="col-sm-2">Email</th>
+                                                <th scope="col" class="col-sm-2">備註 Remark</th>
+                                            </tr>
+                                        </thead>
+                                        @* 表身 *@
+                                        <tbody>  </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <!-- 供應商聯絡人資訊 -->
+                            <!-- 供應商相關檔案 -->
+                            <br />
+                            <br />
+                            <div class="alert alert-custom SubArea" role="alert">
+                                <div class="alert-text text-center">供應商相關檔案 Attachments </div>
+                            </div>
+
+                            <div class="row" id="divAttachmentTemplate" style="display: none;">
+                                <table class="table">
+                                    <tbody>
+                                        <tr>
+                                            <td scope="row">
+                                                <input type="hidden" name="SupplierAttachmentID" />
+                                                <input type="file" name="SupplierAttachmentFileUpload" style="display:none;" />
+                                                <a href="#" class="FileDownload">
+                                                    <span class="SupplierAttachmentFileName"></span>
+                                                </a>
+                                            </td>
+                                            <td>
+                                                <span class="SupplierAttachmentCreateDate"></span>
+                                            </td>
+                                            <td>
+                                                <button type="button" name="btnRemoveAttachment" class="btn btn-danger">刪除</button>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-10" id="divAttachmentTable">
+                                    <table class="table">
+                                        @* 表頭 *@
+                                        <thead class="thead-dark">
+                                            <tr>
+                                                <th scope="col" class="col-sm-5">檔案名稱 File Name</th>
+                                                <th scope="col" class="col-sm-5">上傳時間 Upload Time</th>
+                                                <th scope="col" class="col-sm-2"></th>
+                                            </tr>
+                                        </thead>
+                                        @* 表身 *@
+                                        <tbody>  </tbody>
+                                    </table>
+                                </div>
+                                <div class="col-2">
+                                    <input type="file" name="SupplierAttachments" multiple style="display: none;" />
+                                    <button type="button" id="btnAddFile" class="btn btn btn-info mr-2">新增</button>
+                                </div>
+                            </div>
+                            <!-- 供應商相關檔案 -->
+                            <!-- 銀行匯款帳號資訊 -->
+                            <br />
+                            <br />
+                            <div class="alert alert-custom SubArea" role="alert">
+                                <div class="alert-text text-center">銀行匯款帳號資訊 Bank Information </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-4">
+                                    <label class="col-form-label">銀行名稱 <br />Bank Name </label>
+                                    <input class="form-control form-control-sm" type="text" placeholder="請輸入銀行名稱" name="BankName">
+                                </div>
+
+                                <div class="col-3">
+                                    <label class="col-form-label">銀行代碼(台灣的銀行為3碼) <br />Bank Code </label>
+                                    <input class="form-control form-control-sm" type="text" placeholder="請輸入銀行代碼" name="BankCode">
+                                </div>
+
+                                <div class="col-2">
+                                    <label class="col-form-label">分行名稱 <br />Bank Branch Name </label>
+                                    <input class="form-control form-control-sm" type="text" placeholder="請輸入分行名稱" name="BankBranchName">
+                                </div>
+
+                                <div class="col-3">
+                                    <label class="col-form-label">分行代碼(台灣的銀行為4碼) <br /> Bank Branch Code </label>
+                                    <input class="form-control form-control-sm" type="text" placeholder="請輸入分行代碼" name="BankBranchCode">
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-4">
+                                    <label class="col-form-label">帳號(請勿輸入"-") <br /> Account No. </label>
+                                    <input class="form-control form-control-sm" type="text" placeholder="請輸入帳號" name="BankAccountNo">
+                                </div>
+
+                                <div class="col-3">
+                                    <label class="col-form-label">帳戶名稱 <br />Account Name </label>
+                                    <input class="form-control form-control-sm" type="text" placeholder="請輸入帳戶名稱" name="BankAccountName">
+                                </div>
+
+                                <div class="col-2">
+                                    <label class="col-form-label">匯款幣別 <br />Account Currency </label>
+                                    <select name="Currency" class="form-control form-control-sm select2" title="請選擇">
+                                        @foreach (var pair in pairList_Currency)
+                                        {
+                                            <option value="@pair.Key">@pair.Text</option>
+                                        }
+                                    </select>
+                                </div>
+
+                                <div class="col-3">
+                                    <label class="col-form-label">銀行國別 <br />Bank's Country </label>
+                                    <select name="BankCountry" class="form-control form-control-sm select2" title="請選擇">
+                                        @foreach (var pair in pairList_BankCountry)
+                                        {
+                                            <option value="@pair.Key">@pair.Text</option>
+                                        }
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-4">
+                                    <label class="col-form-label">銀行地址 <br /> Bank's Address </label>
+                                    <input class="form-control form-control-sm" type="text" placeholder="請輸入銀行地址" name="BankAddress">
+                                </div>
+
+                                <div class="col-3">
+                                    <label class="col-form-label">SWIFT CODE<br />&nbsp; </label>
+                                    <input class="form-control form-control-sm" type="text" placeholder="請輸入 SWIFT CODE" name="SwiftCode">
+                                </div>
+
+                                <div class="col-2">
+                                    <label class="col-form-label">公司註冊地城市 <br />Company Reg. City </label>
+                                    <input class="form-control form-control-sm" type="text" placeholder="請輸入公司註冊地城市" name="CompanyCity">
+                                </div>
+                            </div>
+                            <!-- 銀行匯款帳號資訊 -->
+                            <!-- 供應商文件 &amp; TET 交易資訊 -->
+                            <br />
+                            <br />
+                            <div class="alert alert-custom SubArea" role="alert">
+                                <div class="alert-text text-center">供應商文件 &amp; TET 交易資訊</div>
+                            </div>
+
+                            <div class="row">
+                                <!--
+                                <div class="col-2">
+                                    <label class="col-form-label">NDA審查書號碼 <br /> NDA Document No. </label>
+                                    <input class="form-control form-control-sm" type="text" placeholder="請輸入NDA審查書號碼" name="NDANo" />
+                                </div>
+
+                                <div class="col-2">
+                                    <label class="col-form-label">合約 (Y/N) <br /> Contract (Y/N) </label>
+                                    <select name="Contract" class="form-control form-control-sm selectpicker" data-live-search="true" title="請選擇">
+                                        <option value="Y">Y</option>
+                                        <option value="N">N</option>
+                                    </select>
+                                </div>
+                                -->
+                                <div class="col-2">
+                                    <label class="col-form-label">行為準則承諾書簽屬日期 <br /> Letter of Undertaking for Code of Conduct Signing date </label>
+                                    <input class="form-control form-control-sm" type="date" placeholder="請輸入行為準則承諾書簽屬日期" name="SignDate1">
+                                </div>
+
+                                <div class="col-2">
+                                    <label class="col-form-label">承攬商安全衛生環保承諾書簽屬日期 <br /> Letter of Undertaking for Safety, Health and Environmental protection Signing date </label>
+                                    <input class="form-control form-control-sm" type="date" placeholder="請輸入行為準則承諾書簽屬日期" name="SignDate2">
+                                </div>
+                                <!--
+                                <div class="col-2">
+                                    <label class="col-form-label">主要供應商 <br /> Key Supplier (Y/N) </label>
+                                    <select name="KeySupplier" class="form-control form-control-sm selectpicker" data-live-search="true" title="請選擇">
+                                        <option value="Y">Y</option>
+                                        <option value="N">N</option>
+                                    </select>
+                                </div>
+                                -->
+                            </div>
+                            <!-- 供應商文件 &amp; TET 交易資訊 -->
+                            <!-- 此處放不需要編輯，但為 DB 必填的欄位 -->
+                            <div style="display: none;">
+                                <label class="col-form-label">歸屬公司名稱<br />Supplier Parent Company</label>
+                                <input class="form-control form-control-sm" type="text" placeholder="請輸入歸屬公司名稱" name="BelongTo">
+
+                                <label class="col-form-label">廠商類別<br />Supplier Category </label>
+                                <select name="SupplierCategory" class="form-control form-control-sm selectpicker" multiple data-live-search="true" title="請選擇">
+                                    @foreach (var pair in pairList_SupplierCategory)
+                                    {
+                                        <option value="@pair.Key">@pair.Text</option>
+                                    }
+                                </select>
+
+                                <label class="col-form-label"> 交易主類別<br />Business Category </label>
+                                <select name="BusinessCategory" class="form-control form-control-sm selectpicker" multiple data-live-search="true" title="請選擇">
+                                    @foreach (var pair in pairList_BusinessCategory)
+                                    {
+                                        <option value="@pair.Key">@pair.Text</option>
+                                    }
+                                </select>
+
+                                <label class="col-form-label"> 交易子類別<br />Business Category </label>
+                                <select name="BusinessAttribute" class="form-control form-control-sm selectpicker" multiple data-live-search="true" title="請選擇">
+                                    @foreach (var pair in pairList_BusinessAttribute)
+                                    {
+                                        <option value="@pair.Key">@pair.Text</option>
+                                    }
+                                </select>
+
+                                <label class="col-form-label"> 相關 BU<br />Related Department </label>
+                                <select name="RelatedDept" class="form-control form-control-sm selectpicker" multiple data-live-search="true" title="請選擇">
+                                    @foreach (var pair in ParamList_RelatedDept)
+                                    {
+                                        <option value="@pair.Key">@pair.Text</option>
+                                    }
+                                </select>
+
+                                <label class="col-form-label">資本額<br />Capital Amount </label>
+                                <input class="form-control form-control-sm" type="text" placeholder="請輸入資本額" name="CapitalAmount">
+
+                                <label class="col-form-label"> 公司負責人<br />Person In Charge </label>
+                                <input class="form-control form-control-sm" type="text" placeholder="請輸入公司負責人" name="Charge">
+
+                                <label class="col-form-label"> 員工人數<br />Number of employees </label>
+                                <input class="form-control form-control-sm" type="text" placeholder="請輸入員工人數" name="Employees">
+
+                                <label class="col-form-label">付款條件<br />Payment Term </label>
+                                <select name="PaymentTerm" class="form-control form-control-sm selectpicker" data-live-search="true" title="請選擇">
+                                    @foreach (var pair in pairList_PaymentTerm)
+                                    {
+                                        <option value="@pair.Key">@pair.Text</option>
+                                    }
+                                </select>
+
+                                <label class="col-form-label"> 交易條件<br />Incoterms </label>
+                                <select name="Incoterms" class="form-control form-control-sm selectpicker" data-live-search="true" title="請選擇">
+                                    @foreach (var pair in pairList_Incoterms)
+                                    {
+                                        <option value="@pair.Key">@pair.Text</option>
+                                    }
+                                </select>
+
+                                <label class="col-form-label"> 請款憑證<br />Billing Document </label>
+                                <select name="BillingDocument" class="form-control form-control-sm selectpicker" data-live-search="true" title="請選擇">
+                                    @foreach (var pair in pairList_BillingDocument)
+                                    {
+                                        <option value="@pair.Key">@pair.Text</option>
+                                    }
+                                </select>
+
+                                <label for="Remark" class="col-form-label">供應商相關備註<br />Remark</label>
+                                <textarea id="Remark" class="form-control form-control-sm" placeholder="請輸入供應商相關備註" name="Remark" rows="5"></textarea>
+                            </div>
+                            <!-- 此處放不需要編輯，但為 DB 必填的欄位 -->
+                            <!-- 審核資訊 Approval Information -->
+                            <br />
+                            <br />
+                            <div class="alert alert-custom SubArea" role="alert">
+                                <div class="alert-text text-center">審核資訊 Approval Information</div>
+                            </div>
+
+                            <div class="row" id="divApproveTemplate" style="display: none;">
+                                <table class="table">
+                                    <tbody>
+                                        <tr>
+                                            <td scope="row">
+                                                <span class="Level_Text"></span>
+                                            </td>
+                                            <td>
+                                                <span class="Approver"></span>
+                                            </td>
+                                            <td>
+                                                <span class="Result"></span>
+                                            </td>
+                                            <td>
+                                                <span class="ModifyDate_Text"></span>
+                                            </td>
+                                            <td>
+                                                <span class="Comment"></span>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="row" id="divApproveTable">
+                                <div class="col-12">
+                                    <table class="table">
+                                        @* 表頭 *@
+                                        <thead class="thead-dark">
+                                            <tr>
+                                                <th scope="col" class="col-sm-2">審核關卡</th>
+                                                <th scope="col" class="col-sm-2">審核者</th>
+                                                <th scope="col" class="col-sm-2">審核結果</th>
+                                                <th scope="col" class="col-sm-2">審核時間</th>
+                                                <th scope="col" class="col-sm-2">審核意見</th>
+                                            </tr>
+                                        </thead>
+                                        @* 表身 *@
+                                        <tbody>  </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <!-- 審核資訊 Approval Information -->
+                            <!--btn-->
+                            <div class="my-5 col-12">
+                                <div class="d-flex justify-content-between border-top ">
+                                    <div class="mr-2">
+                                        <a href="@Url.Action(ViewBag.ViewReturn, new { id = @ViewBag.ViewReturnID })" class="btn btn-secondary">
+                                            取消
+                                        </a>
+                                    </div>
+                                    <div>
+                                        <button type="button" id="btnSave" class="btn btn-success mr-2">儲存</button>
+                                        <button type="button" id="btnSubmit" class="btn btn-primary mr-2">送出</button>
+                                        <button type="button" id="btnAbord" class="btn btn-danger mr-2">中止</button>
+                                        <button type="button" id="btnDelete" class="btn btn-danger mr-2">刪除</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <!--btn-->
+
+                        </div>
+                        <!--end::Card-->
+                    }
+                </div>
+            </div>
+            <input type="hidden" name="EditType" id="EditType" value="" />
+            <input type="hidden" name="MainID" id="hdfMainID" value="@id" />
+            <!--end::Code example-->
+            <!--end::Example-->
+        </div>
+    </div>
+</div>
+
+
+<div id="divAbordReason" style="display: none;">
+    <p class="col-12 h6 text-danger">請填寫中止原因</p>
+    <textarea class="form-control" name="AbordReason" rows="3"></textarea>
+</div>
+
+@* --將 js 註冊至頁尾-- *@
+@Html.Resource(
+    @<text>
+        <script src="~/ModuleResources/JavaScripts/Shared/TET_FormHelper.js?v=@DateTimeExtensions.GetJS_V_Text()"></script>
+        <script src="~/ModuleResources/JavaScripts/SupplierRevision/edit.js?v=@DateTimeExtensions.GetJS_V_Text()"></script>
+        <script src="~/ModuleResources/JavaScripts/Shared/initStyle.js?v=@DateTimeExtensions.GetJS_V_Text()"></script>
+        <script>
+            var viewMode = '@mode';
+            var isCreateMode = @isCreateMode.ToString().ToLower();
+            var isNewApply = @isNewApply.ToString().ToLower();
+            var id = '@id';
+            var supplierID = '@supplierID';
+            var levelName = '@levelName';
+
+            var submitApiUrl = platformEnvironment.hostUrl + '@submitApiUrl';
+            var modifyApiUrl = platformEnvironment.hostUrl + '@modifyApiUrl';
+            var readDetailApiUrl = platformEnvironment.hostUrl + '@readDetailApiUrl';
+            var abordApiUrl = platformEnvironment.hostUrl + '@abordApiUrl';
+            var deleteApiUrl = platformEnvironment.hostUrl + '@deleteApiUrl';
+
+            var listPageUrl = platformEnvironment.hostUrl + '@listPageUrl';
+
+            var validConfig = @Html.Raw(validConfig);
+        </script>
+    </text>
+, "customScripts")

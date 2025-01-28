@@ -1,0 +1,287 @@
+﻿@using Platform.WebSite.Helpers;
+@using Platform.AbstractionClass;
+@using Newtonsoft.Json;
+@using BI.Suppliers;
+@using BI.Suppliers.Models;
+@using Platform.WebSite.Models;
+@using Platform.Infra;
+
+@model Guid?
+
+@{
+    var masterInfo = (SiteViewModel)ViewBag.MasterInfo;
+    this.ViewBag.Title = masterInfo.CurrentPage.Name;
+    var ctlName = "SPA";
+
+    var mode = this.ViewBag.Mode;
+    var isCreateMode = this.ViewBag.IsCreateMode;
+    var isNewApply = true;
+    var postActionName = (isCreateMode) ? "Create" : "Edit";
+    var id = (this.Model.HasValue) ? this.Model.ToString() : string.Empty;
+
+    Uri readDetailApiUrl = new Uri("api/SPAApi/Detail/" + id, UriKind.Relative);
+    Uri createApiUrl = new Uri("api/SPAApi/Create/", UriKind.Relative);
+    Uri submitApiUrl = new Uri("api/SPAApi/Submit/", UriKind.Relative);
+    Uri modifyApiUrl = new Uri("api/SPAApi/Modify/" + id, UriKind.Relative);
+    Uri revisionApiUrl = new Uri("api/SPAApi/Revision/" + id, UriKind.Relative);
+    Uri deleteApiUrl = new Uri("api/SPAApi/Delete/" + id, UriKind.Relative);
+    Uri abordApiUrl = new Uri("api/SPAApi/Abord/" + id, UriKind.Relative);
+
+    Uri listPageUrl = new Uri("SPA/Index/" + masterInfo.CurrentPage.ID, UriKind.Relative);
+
+    // 下拉選單項目
+    var pairList_BelongTo = this.ViewBag.ParamList_BelongTo as List<KeyTextModel>;
+    var pairList_BU = this.ViewBag.ParamList_BU as List<KeyTextModel>;
+    var pairList_AssessmentItem = this.ViewBag.ParamList_AssessmentItem as List<KeyTextModel>;
+    var pairList_ServiceFor = this.ViewBag.ParamList_ServiceFor as List<KeyTextModel>;
+    var pairList_PerformanceLevel = this.ViewBag.ParamList_PerformanceLevel as List<KeyTextModel>;
+
+
+    // 欄位顯示和編輯設定
+    var validConfig = JsonConvert.SerializeObject(BI.SPA.Validators.SupplierSPAValidator.GetValidConfigs());
+}
+
+<style>
+    .SubArea {
+        background-color: #00A9E0;
+        font-size: 16pt;
+        color: white;
+        font-weight: bolder;
+    }
+</style>
+
+<div class="d-flex flex-column-fluid">
+    <!--begin::Container-->
+    <div class="container-fluid px-2">
+        <!--begin::Row-->
+        <div class="row">
+            <div class="col-lg-12">
+                <!--begin::Example-->
+                <!--begin::Card-->
+                <div class="card card-custom">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <h3 class="card-label">@this.ViewBag.Title - @ViewBag.Name</h3>
+                            @*<div class="d-block text-muted pt-2 font-size-sm">
+                                    <i class="icon-nm text-dark-50"></i>
+                                    (*)為必填選項
+                                </div>*@
+                        </div>
+                    </div>
+                    @using (Html.BeginForm(postActionName, ctlName, FormMethod.Post, new { @class = "form", id = "formMain" }))
+                    {
+                        <div class="card-body">
+                            <!-- 編輯區域 -->
+                            <div class="row">
+                                <div class="col-6">
+                                    <label class="col-form-label"><span style="color:red">*</span>供應商<br />&nbsp;&nbsp;Supplier </label>
+                                    <select name="BelongTo" class="form-control form-control-sm select2" title="請選擇">
+                                        <option value="" disabled selected>請選擇</option>
+                                        @foreach (var pair in pairList_BelongTo)
+                                        {
+                                            <option value="@pair.Key">@pair.Text</option>
+                                        }
+                                    </select>
+                                </div>
+
+                                <div class="col-2">
+                                    <label class="col-form-label"><span style="color:red">*</span>評鑑期間<br />&nbsp;&nbsp;Period </label>
+                                    <input name="Period" type="text" class="form-control form-control-sm" placeholder="請輸入評鑑期間">
+                                </div>
+
+                                <div class="col-4">
+                                    <label class="col-form-label"><span style="color:red">*</span>評鑑單位<br />&nbsp;&nbsp;BU </label>
+                                    <select name="BU" class="form-control form-control-sm select2" title="請選擇">
+                                        <option value="" disabled selected>請選擇</option>
+                                        @foreach (var pair in pairList_BU)
+                                        {
+                                            <option value="@pair.Key">@pair.Text</option>
+                                        }
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-2">
+                                    <label class="col-form-label"><span style="color:red">*</span>服務對象<br />&nbsp;&nbsp;Service for </label>
+                                    <select name="ServiceFor" class="form-control form-control-sm select2" title="請選擇">
+                                        <option value="" disabled selected>請選擇</option>
+                                        @foreach (var pair in pairList_ServiceFor)
+                                        {
+                                            <option value="@pair.Key">@pair.Text</option>
+                                        }
+                                    </select>
+                                </div>
+
+                                <div class="col-2">
+                                    <label class="col-form-label"><span style="color:red">*</span>評鑑項目<br />&nbsp;&nbsp;Assessment Item </label>
+                                    <select name="AssessmentItem" class="form-control form-control-sm select2" title="請選擇">
+                                        <option value="" disabled selected>請選擇</option>
+                                        @foreach (var pair in pairList_AssessmentItem)
+                                        {
+                                            <option value="@pair.Key">@pair.Text</option>
+                                        }
+                                    </select>
+                                </div>
+
+                                <div class="col-2">
+                                    <label class="col-form-label"> &nbsp;<br /><span style="color:red">*</span>Performance Level </label>
+                                    <select name="PerformanceLevel" class="form-control form-control-sm select2" title="請選擇">
+                                        <option value="" disabled selected>請選擇</option>
+                                        @foreach (var pair in pairList_PerformanceLevel)
+                                        {
+                                            <option value="@pair.Key">@pair.Text</option>
+                                        }
+                                    </select>
+                                </div>
+
+                                <div class="col-2">
+                                    <label class="col-form-label"> &nbsp;<br /><span style="color:red">*</span>Total Score </label>
+                                    <input name="TotalScore" type="text" class="form-control form-control-sm" placeholder="請輸入 Total Score">
+                                </div>
+                            </div>
+
+
+                            <div class="row">
+                                <div class="col-2">
+                                    <label class="col-form-label"><span style="color:red">*</span>Technology Score </label>
+                                    <input name="TScore" type="text" class="form-control form-control-sm" placeholder="請輸入 Technology Score">
+                                </div>
+
+                                <div class="col-2">
+                                    <label class="col-form-label"><span style="color:red">*</span>Delivery Score </label>
+                                    <input name="DScore" type="text" class="form-control form-control-sm" placeholder="請輸入 Delivery Score">
+                                </div>
+
+                                <div class="col-2">
+                                    <label class="col-form-label"><span style="color:red">*</span>Quality Score </label>
+                                    <input name="QScore" type="text" class="form-control form-control-sm" placeholder="請輸入 Quality Score">
+                                </div>
+
+                                <div class="col-2">
+                                    <label class="col-form-label"><span style="color:red">*</span>Cost Score </label>
+                                    <input name="CScore" type="text" class="form-control form-control-sm" placeholder="請輸入 Cost Score">
+                                </div>
+
+                                <div class="col-2">
+                                    <label class="col-form-label"><span style="color:red">*</span>Service Score </label>
+                                    <input name="SScore" type="text" class="form-control form-control-sm" placeholder="請輸入 Service Score">
+                                </div>
+                            </div>
+
+
+                            <div class="row">
+                                <div class="col-12">
+                                    <label for="SPAComment" class="col-form-label">
+                                        備註<br />
+                                        Comment
+                                    </label>
+                                    <textarea id="SPAComment" name="SPAComment" class="form-control form-control-sm" placeholder="請輸入備註" rows="5"></textarea>
+                                </div>
+                            </div>
+                            <!-- 編輯區域 -->
+                            <!-- 審核資訊 Approval Information -->
+                            <br />
+                            <br />
+                            <div id="divApproveTableTitle" class="alert alert-custom SubArea" role="alert">
+                                <div class="alert-text text-center">審核資訊 Approval Information</div>
+                            </div>
+
+                            <div class="row" id="divApproveTemplate" style="display: none;">
+                                <table class="table">
+                                    <tbody>
+                                        <tr>
+                                            <td scope="row">
+                                                <span class="Level_Text"></span>
+                                            </td>
+                                            <td>
+                                                <span class="Approver"></span>
+                                            </td>
+                                            <td>
+                                                <span class="Result"></span>
+                                            </td>
+                                            <td>
+                                                <span class="ModifyDate_Text"></span>
+                                            </td>
+                                            <td>
+                                                <span class="Comment"></span>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="row" id="divApproveTable">
+                                <div class="col-12">
+                                    <table class="table">
+                                        @* 表頭 *@
+                                        <thead class="thead-dark">
+                                            <tr>
+                                                <th scope="col" class="col-sm-2">審核關卡</th>
+                                                <th scope="col" class="col-sm-2">審核者</th>
+                                                <th scope="col" class="col-sm-2">審核結果</th>
+                                                <th scope="col" class="col-sm-2">審核時間</th>
+                                                <th scope="col" class="col-sm-2">審核意見</th>
+                                            </tr>
+                                        </thead>
+                                        @* 表身 *@
+                                        <tbody>  </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <!-- 審核資訊 Approval Information -->
+                            <!--btn-->
+                            <div class="my-5 col-12">
+                                <div class="d-flex justify-content-between border-top ">
+                                    <div class="mr-2">
+                                        <a href="@Url.Action(ViewBag.ViewReturn, new { id = @ViewBag.ViewReturnID })" class="btn btn-secondary">
+                                            取消
+                                        </a>
+                                    </div>
+                                    <div>
+                                        <button type="button" id="btnSave" class="btn btn-success mr-2">儲存</button>
+                                        <button type="button" id="btnSubmit" class="btn btn-primary mr-2">送出</button>
+                                        <button type="button" id="btnAbord" class="btn btn-danger mr-2">中止</button>
+                                        <button type="button" id="btnDelete" class="btn btn-danger mr-2">刪除</button>
+                                        <button type="button" id="btnRevision" class="btn btn-danger mr-2">改版</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <!--btn-->
+                        </div>
+                        <!--end::Card-->
+                    }
+                </div>
+            </div>
+            <input type="hidden" name="EditType" id="EditType" value="" />
+            <input type="hidden" name="MainID" id="hdfMainID" value="@id" />
+            <!--end::Code example-->
+            <!--end::Example-->
+        </div>
+    </div>
+</div>
+
+@* --將 js 註冊至頁尾-- *@
+@Html.Resource(
+    @<text>
+        <script src="~/ModuleResources/JavaScripts/Shared/TET_FormHelper.js?v=@DateTimeExtensions.GetJS_V_Text()"></script>
+        <script src="~/ModuleResources/JavaScripts/SPA/edit.js?v=@DateTimeExtensions.GetJS_V_Text()"></script>
+        <script>
+            var viewMode = '@mode';
+            var isCreateMode = @isCreateMode.ToString().ToLower();
+            var isNewApply = @isNewApply.ToString().ToLower();
+            var id = '@id';
+
+            var createApiUrl = platformEnvironment.hostUrl + '@createApiUrl';
+            var submitApiUrl = platformEnvironment.hostUrl + '@submitApiUrl';
+            var modifyApiUrl = platformEnvironment.hostUrl + '@modifyApiUrl';
+            var revisionApiUrl = platformEnvironment.hostUrl + '@revisionApiUrl';
+            var deleteApiUrl = platformEnvironment.hostUrl + '@deleteApiUrl';
+            var abordApiUrl = platformEnvironment.hostUrl + '@abordApiUrl';
+            var readDetailApiUrl = platformEnvironment.hostUrl + '@readDetailApiUrl';
+
+            var listPageUrl = platformEnvironment.hostUrl + '@listPageUrl';
+
+            var validConfig = @Html.Raw(validConfig);
+        </script>
+    </text>
+, "customScripts")

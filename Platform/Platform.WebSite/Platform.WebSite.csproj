@@ -1,0 +1,657 @@
+﻿<Project ToolsVersion="15.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="..\packages\EntityFramework.6.5.1\build\EntityFramework.props" Condition="Exists('..\packages\EntityFramework.6.5.1\build\EntityFramework.props')" />
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>
+    </ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{F4B7A23E-4772-4EE8-B702-FA120848110C}</ProjectGuid>
+    <ProjectTypeGuids>{349c5851-65df-11da-9384-00065b846f21};{fae04ec0-301f-11d3-bf4b-00c04f79efbc}</ProjectTypeGuids>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Platform.WebSite</RootNamespace>
+    <AssemblyName>Platform.WebSite</AssemblyName>
+    <TargetFrameworkVersion>v4.6.2</TargetFrameworkVersion>
+    <UseIISExpress>true</UseIISExpress>
+    <Use64BitIISExpress />
+    <IISExpressSSLPort />
+    <IISExpressAnonymousAuthentication />
+    <IISExpressWindowsAuthentication />
+    <IISExpressUseClassicPipelineMode />
+    <UseGlobalApplicationHostFile />
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="BouncyCastle.Cryptography, Version=2.0.0.0, Culture=neutral, PublicKeyToken=072edcf4a5328938, processorArchitecture=MSIL">
+      <HintPath>..\packages\BouncyCastle.Cryptography.2.2.1\lib\net461\BouncyCastle.Cryptography.dll</HintPath>
+    </Reference>
+    <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <HintPath>..\packages\EntityFramework.6.5.1\lib\net45\EntityFramework.dll</HintPath>
+    </Reference>
+    <Reference Include="EntityFramework.SqlServer, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <HintPath>..\packages\EntityFramework.6.5.1\lib\net45\EntityFramework.SqlServer.dll</HintPath>
+    </Reference>
+    <Reference Include="Enums.NET, Version=4.0.0.0, Culture=neutral, PublicKeyToken=7ea1c1650d506225, processorArchitecture=MSIL">
+      <HintPath>..\packages\Enums.NET.4.0.1\lib\net45\Enums.NET.dll</HintPath>
+    </Reference>
+    <Reference Include="ICSharpCode.SharpZipLib, Version=1.3.3.11, Culture=neutral, PublicKeyToken=1b03e6acf1164f73, processorArchitecture=MSIL">
+      <HintPath>..\packages\SharpZipLib.1.3.3\lib\net45\ICSharpCode.SharpZipLib.dll</HintPath>
+    </Reference>
+    <Reference Include="MathNet.Numerics, Version=4.15.0.0, Culture=neutral, PublicKeyToken=cd8b63ad3d691a37, processorArchitecture=MSIL">
+      <HintPath>..\packages\MathNet.Numerics.Signed.4.15.0\lib\net461\MathNet.Numerics.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="Microsoft.IO.RecyclableMemoryStream, Version=2.3.2.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.IO.RecyclableMemoryStream.2.3.2\lib\net462\Microsoft.IO.RecyclableMemoryStream.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=13.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.13.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="NPOI.Core, Version=2.6.2.0, Culture=neutral, PublicKeyToken=0df73ec7942b34e1, processorArchitecture=MSIL">
+      <HintPath>..\packages\NPOI.2.6.2\lib\netstandard2.0\NPOI.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="NPOI.OOXML, Version=2.6.2.0, Culture=neutral, PublicKeyToken=0df73ec7942b34e1, processorArchitecture=MSIL">
+      <HintPath>..\packages\NPOI.2.6.2\lib\netstandard2.0\NPOI.OOXML.dll</HintPath>
+    </Reference>
+    <Reference Include="NPOI.OpenXml4Net, Version=2.6.2.0, Culture=neutral, PublicKeyToken=0df73ec7942b34e1, processorArchitecture=MSIL">
+      <HintPath>..\packages\NPOI.2.6.2\lib\netstandard2.0\NPOI.OpenXml4Net.dll</HintPath>
+    </Reference>
+    <Reference Include="NPOI.OpenXmlFormats, Version=2.6.2.0, Culture=neutral, PublicKeyToken=0df73ec7942b34e1, processorArchitecture=MSIL">
+      <HintPath>..\packages\NPOI.2.6.2\lib\netstandard2.0\NPOI.OpenXmlFormats.dll</HintPath>
+    </Reference>
+    <Reference Include="SixLabors.Fonts, Version=1.0.0.0, Culture=neutral, PublicKeyToken=d998eea7b14cab13, processorArchitecture=MSIL">
+      <HintPath>..\packages\SixLabors.Fonts.1.0.0\lib\netstandard2.0\SixLabors.Fonts.dll</HintPath>
+    </Reference>
+    <Reference Include="SixLabors.ImageSharp, Version=2.0.0.0, Culture=neutral, PublicKeyToken=d998eea7b14cab13, processorArchitecture=MSIL">
+      <HintPath>..\packages\SixLabors.ImageSharp.2.1.4\lib\netstandard2.0\SixLabors.ImageSharp.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Buffers, Version=4.0.3.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Buffers.4.5.1\lib\net461\System.Buffers.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Configuration.ConfigurationManager, Version=6.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Configuration.ConfigurationManager.6.0.0\lib\net461\System.Configuration.ConfigurationManager.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Data.OracleClient" />
+    <Reference Include="System.Memory, Version=4.0.1.2, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Memory.4.5.5\lib\net461\System.Memory.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Net" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Numerics" />
+    <Reference Include="System.Numerics.Vectors, Version=4.1.4.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Numerics.Vectors.4.5.0\lib\net46\System.Numerics.Vectors.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Runtime.CompilerServices.Unsafe, Version=5.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Runtime.CompilerServices.Unsafe.5.0.0\lib\net45\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.Security" />
+    <Reference Include="System.Security.AccessControl, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Security.AccessControl.6.0.0\lib\net461\System.Security.AccessControl.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Security.Cryptography.Xml, Version=6.0.0.1, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Security.Cryptography.Xml.6.0.1\lib\net461\System.Security.Cryptography.Xml.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Security.Permissions, Version=6.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Security.Permissions.6.0.0\lib\net461\System.Security.Permissions.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Security.Principal.Windows, Version=5.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Security.Principal.Windows.5.0.0\lib\net461\System.Security.Principal.Windows.dll</HintPath>
+    </Reference>
+    <Reference Include="System.ServiceProcess" />
+    <Reference Include="System.Text.Encoding.CodePages, Version=5.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Text.Encoding.CodePages.5.0.0\lib\net461\System.Text.Encoding.CodePages.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Transactions" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Web.DynamicData" />
+    <Reference Include="System.Web.Entity" />
+    <Reference Include="System.Web.ApplicationServices" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Web.Extensions" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Web.Services" />
+    <Reference Include="System.EnterpriseServices" />
+    <Reference Include="Thinktecture.Abstractions, Version=2.5.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Thinktecture.Abstractions.2.5.0\lib\net46\Thinktecture.Abstractions.dll</HintPath>
+    </Reference>
+    <Reference Include="Thinktecture.IO.Abstractions, Version=2.5.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Thinktecture.IO.Abstractions.2.5.0\lib\net462\Thinktecture.IO.Abstractions.dll</HintPath>
+    </Reference>
+    <Reference Include="Thinktecture.Net.Http.Abstractions, Version=2.5.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Thinktecture.Net.Http.Abstractions.2.5.0\lib\net46\Thinktecture.Net.Http.Abstractions.dll</HintPath>
+    </Reference>
+    <Reference Include="Thinktecture.Net.Primitives.Abstractions, Version=2.5.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Thinktecture.Net.Primitives.Abstractions.2.5.0\lib\net45\Thinktecture.Net.Primitives.Abstractions.dll</HintPath>
+    </Reference>
+    <Reference Include="Thinktecture.Runtime.Abstractions, Version=2.5.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Thinktecture.Runtime.Abstractions.2.5.0\lib\net462\Thinktecture.Runtime.Abstractions.dll</HintPath>
+    </Reference>
+    <Reference Include="Thinktecture.Text.Encoding.Abstractions, Version=2.5.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Thinktecture.Text.Encoding.Abstractions.2.5.0\lib\net45\Thinktecture.Text.Encoding.Abstractions.dll</HintPath>
+    </Reference>
+    <Reference Include="WindowsBase" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="System.Web.Razor">
+      <HintPath>..\packages\Microsoft.AspNet.Razor.3.2.7\lib\net45\System.Web.Razor.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.Webpages">
+      <HintPath>..\packages\Microsoft.AspNet.Webpages.3.2.7\lib\net45\System.Web.Webpages.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.Webpages.Deployment">
+      <HintPath>..\packages\Microsoft.AspNet.Webpages.3.2.7\lib\net45\System.Web.Webpages.Deployment.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.Webpages.Razor">
+      <HintPath>..\packages\Microsoft.AspNet.Webpages.3.2.7\lib\net45\System.Web.Webpages.Razor.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.Helpers">
+      <HintPath>..\packages\Microsoft.AspNet.Webpages.3.2.7\lib\net45\System.Web.Helpers.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Web.Infrastructure">
+      <HintPath>..\packages\Microsoft.Web.Infrastructure.1.0.0.0\lib\net40\Microsoft.Web.Infrastructure.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.Mvc">
+      <HintPath>..\packages\Microsoft.AspNet.Mvc.5.2.7\lib\net45\System.Web.Mvc.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Net.Http.Formatting">
+      <HintPath>..\packages\Microsoft.AspNet.WebApi.Client.5.2.7\lib\net45\System.Net.Http.Formatting.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.Http">
+      <HintPath>..\packages\Microsoft.AspNet.WebApi.Core.5.2.7\lib\net45\System.Web.Http.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.Http.WebHost">
+      <HintPath>..\packages\Microsoft.AspNet.WebApi.WebHost.5.2.7\lib\net45\System.Web.Http.WebHost.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="App_Data\Site.json" />
+    <Content Include="App_Code\MediaFileHtmlFunctions.cshtml" />
+    <None Include="App_Data\Menus.json" />
+    <Content Include="Content\Site.css" />
+    <Content Include="FileDownload\SupplierAttachments\20240306_211614_048191503.jpg" />
+    <Content Include="FileDownload\SupplierAttachments\20240418_090259_007738760.jpg" />
+    <Content Include="FileDownload\SupplierAttachments\20241231_175352_804264497.txt" />
+    <Content Include="FileDownload\SupplierAttachments\20250115_074855_402324812.png" />
+    <Content Include="Global.asax" />
+    <Content Include="ModuleResources\JavaScripts\ModuleManagement\index.js" />
+    <Content Include="ModuleResources\JavaScripts\Parameters\index.js" />
+    <Content Include="ModuleResources\JavaScripts\PaymentSupplierRevision\edit.js" />
+    <Content Include="ModuleResources\JavaScripts\PaymentSupplierRevision\index.js" />
+    <Content Include="ModuleResources\JavaScripts\PaymentSupplier\edit.js" />
+    <Content Include="ModuleResources\JavaScripts\PaymentSupplier\index.js" />
+    <Content Include="ModuleResources\JavaScripts\PaymentSupplier\query.js" />
+    <Content Include="ModuleResources\JavaScripts\PaymentSupplier\queryEdit.js" />
+    <Content Include="ModuleResources\JavaScripts\PaymentSupplier\queryView.js" />
+    <Content Include="ModuleResources\JavaScripts\RoleManagement\roleMenu.js" />
+    <Content Include="ModuleResources\JavaScripts\PageManagement\index.js" />
+    <Content Include="ModuleResources\JavaScripts\PageRoleManagement\edit.js" />
+    <Content Include="ModuleResources\JavaScripts\PageRoleManagement\index.js" />
+    <Content Include="ModuleResources\JavaScripts\RoleManagement\roleUser.js" />
+    <Content Include="ModuleResources\JavaScripts\RoleManagement\index.js" />
+    <Content Include="ModuleResources\JavaScripts\SampleDataAjax\index.js" />
+    <Content Include="ModuleResources\JavaScripts\Shared\initStyle.js" />
+    <Content Include="ModuleResources\JavaScripts\Shared\site.js" />
+    <Content Include="ModuleResources\JavaScripts\Shared\Environment.js" />
+    <Content Include="ModuleResources\JavaScripts\Shared\AutoCompletePlugin.js" />
+    <Content Include="ModuleResources\JavaScripts\Shared\FormHelper2.js" />
+    <Content Include="ModuleResources\JavaScripts\Shared\FormHelper.js" />
+    <Content Include="ModuleResources\JavaScripts\Shared\TET_FormHelper.js" />
+    <Content Include="ModuleResources\JavaScripts\SPA\edit.js" />
+    <Content Include="ModuleResources\JavaScripts\SPA\index.js" />
+    <Content Include="ModuleResources\JavaScripts\SPA\multiQuery.js" />
+    <Content Include="ModuleResources\JavaScripts\SPA\singleQuery.js" />
+    <Content Include="ModuleResources\JavaScripts\SPA_ApproverSetup\edit.js" />
+    <Content Include="ModuleResources\JavaScripts\SPA_CostService\edit.js" />
+    <Content Include="ModuleResources\JavaScripts\SPA_CostService\index.js" />
+    <Content Include="ModuleResources\JavaScripts\SPA_EvaluationReport\edit.js" />
+    <Content Include="ModuleResources\JavaScripts\SPA_EvaluationReport\index.js" />
+    <Content Include="ModuleResources\JavaScripts\SPA_Evaluation\edit.js" />
+    <Content Include="ModuleResources\JavaScripts\SPA_Evaluation\index.js" />
+    <Content Include="ModuleResources\JavaScripts\SPA_Period\edit.js" />
+    <Content Include="ModuleResources\JavaScripts\SPA_Period\index.js" />
+    <Content Include="ModuleResources\JavaScripts\SPA_ApproverSetup\index.js" />
+    <Content Include="ModuleResources\JavaScripts\SPA_ScoringInfo\edit.js" />
+    <Content Include="ModuleResources\JavaScripts\SPA_ScoringInfo\editTab1.js" />
+    <Content Include="ModuleResources\JavaScripts\SPA_ScoringInfo\editTab2.js" />
+    <Content Include="ModuleResources\JavaScripts\SPA_ScoringInfo\editTab3.js" />
+    <Content Include="ModuleResources\JavaScripts\SPA_ScoringInfo\editTab4.js" />
+    <Content Include="ModuleResources\JavaScripts\SPA_ScoringInfo\editTab5.js" />
+    <Content Include="ModuleResources\JavaScripts\SPA_ScoringInfo\editTab6.js" />
+    <Content Include="ModuleResources\JavaScripts\SPA_ScoringInfo\editTab7.js" />
+    <Content Include="ModuleResources\JavaScripts\SPA_ScoringInfo\index.js" />
+    <Content Include="ModuleResources\JavaScripts\SPA_ScoringRatio\index.js" />
+    <Content Include="ModuleResources\JavaScripts\SPA_Violation\edit.js" />
+    <Content Include="ModuleResources\JavaScripts\SPA_Violation\index.js" />
+    <Content Include="ModuleResources\JavaScripts\STQA\edit.js" />
+    <Content Include="ModuleResources\JavaScripts\STQA\index.js" />
+    <Content Include="ModuleResources\JavaScripts\SupplierApproval\PaymentSupplierRevisionApproval.js" />
+    <Content Include="ModuleResources\JavaScripts\SupplierApproval\SPAApproval.js" />
+    <Content Include="ModuleResources\JavaScripts\SupplierApproval\SPA_CostServiceApproval.js" />
+    <Content Include="ModuleResources\JavaScripts\SupplierApproval\SPA_ScoringInfoApproval\editTab1.js" />
+    <Content Include="ModuleResources\JavaScripts\SupplierApproval\SPA_ScoringInfoApproval\editTab2.js" />
+    <Content Include="ModuleResources\JavaScripts\SupplierApproval\SPA_ScoringInfoApproval\editTab3.js" />
+    <Content Include="ModuleResources\JavaScripts\SupplierApproval\SPA_ScoringInfoApproval\editTab4.js" />
+    <Content Include="ModuleResources\JavaScripts\SupplierApproval\SPA_ScoringInfoApproval\editTab5.js" />
+    <Content Include="ModuleResources\JavaScripts\SupplierApproval\SPA_ScoringInfoApproval\editTab6.js" />
+    <Content Include="ModuleResources\JavaScripts\SupplierApproval\SPA_ScoringInfoApproval\editTab7.js" />
+    <Content Include="ModuleResources\JavaScripts\SupplierApproval\SPA_ScoringInfoApproval\SPA_ScoringInfoApproval.js" />
+    <Content Include="ModuleResources\JavaScripts\SupplierApproval\SPA_VIolationApproval.js" />
+    <Content Include="ModuleResources\JavaScripts\SupplierApproval\STQAApproval.js" />
+    <Content Include="ModuleResources\JavaScripts\SupplierApproval\RevisionApproval.js" />
+    <Content Include="ModuleResources\JavaScripts\SupplierApproval\PaymentSupplierApproval.js" />
+    <Content Include="ModuleResources\JavaScripts\SupplierApproverChange\edit.js" />
+    <Content Include="ModuleResources\JavaScripts\SupplierApproverChange\index.js" />
+    <Content Include="ModuleResources\JavaScripts\SupplierRevision\index.js" />
+    <Content Include="ModuleResources\JavaScripts\SupplierRevision\edit.js" />
+    <Content Include="ModuleResources\JavaScripts\SupplierApproval\SupplierApproval.js" />
+    <Content Include="ModuleResources\JavaScripts\SupplierApproval\index.js" />
+    <Content Include="ModuleResources\JavaScripts\Supplier\edit.js" />
+    <Content Include="ModuleResources\JavaScripts\Supplier\querySSView.js" />
+    <Content Include="ModuleResources\JavaScripts\Supplier\queryView.js" />
+    <Content Include="ModuleResources\JavaScripts\Supplier\querySS.js" />
+    <Content Include="ModuleResources\JavaScripts\Supplier\query.js" />
+    <Content Include="ModuleResources\JavaScripts\Supplier\index.js" />
+    <Content Include="ModuleResources\JavaScripts\Supplier\queryEdit.js" />
+    <Content Include="ModuleResources\JavaScripts\UserRoleManagement\edit.js" />
+    <Content Include="ModuleResources\JavaScripts\UserRoleManagement\index.js" />
+    <Content Include="Views\SPA\MultiQuery.cshtml" />
+    <Content Include="Web.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="App_Start\RouteConfig.cs" />
+    <Compile Include="App_Start\WebApiConfig.cs" />
+    <Compile Include="Controllers\AccountController.cs" />
+    <Compile Include="Controllers\BaseMVCController.cs" />
+    <Compile Include="Controllers\ErrorController.cs" />
+    <Compile Include="Controllers\FileDownloadController.cs" />
+    <Compile Include="Controllers\HomeController.cs" />
+    <Compile Include="Controllers\MasterPageController.cs" />
+    <Compile Include="Controllers\ModuleManagementController.cs" />
+    <Compile Include="Controllers\ModuleManagementApiController.cs" />
+    <Compile Include="Controllers\NavigateApiController.cs" />
+    <Compile Include="Controllers\NavigateController.cs" />
+    <Compile Include="Controllers\ParametersApiController.cs" />
+    <Compile Include="Controllers\PageApiController.cs" />
+    <Compile Include="Controllers\PageManagementController.cs" />
+    <Compile Include="Controllers\PageRoleManagementApiController.cs" />
+    <Compile Include="Controllers\PageRoleManagementController.cs" />
+    <Compile Include="Controllers\RoleManagementController.cs" />
+    <Compile Include="Controllers\SampleDataAjaxController.cs" />
+    <Compile Include="Controllers\RoleManagementApiController.cs" />
+    <Compile Include="Controllers\SampleDataApiController.cs" />
+    <Compile Include="Controllers\SampleDataController.cs" />
+    <Compile Include="Controllers\SiteController.cs" />
+    <Compile Include="Controllers\ParametersController.cs" />
+    <Compile Include="Controllers\SPAController.cs" />
+    <Compile Include="Controllers\SPAApiController.cs" />
+    <Compile Include="Controllers\SPAApprovalApiController.cs" />
+    <Compile Include="Controllers\SPA_ApproverSetupApiController.cs" />
+    <Compile Include="Controllers\SPA_ApproverSetupController.cs" />
+    <Compile Include="Controllers\SPA_CostServiceApiController.cs" />
+    <Compile Include="Controllers\SPA_CostServiceApprovalApiController.cs" />
+    <Compile Include="Controllers\SPA_CostServiceController.cs" />
+    <Compile Include="Controllers\SPA_EvaluationApiController.cs" />
+    <Compile Include="Controllers\SPA_EvaluationController.cs" />
+    <Compile Include="Controllers\SPA_EvaluationReportApiController.cs" />
+    <Compile Include="Controllers\SPA_EvaluationReportController.cs" />
+    <Compile Include="Controllers\SPA_PeriodApiController.cs" />
+    <Compile Include="Controllers\SPA_PeriodController.cs" />
+    <Compile Include="Controllers\SPA_ScoringInfoApiController.cs" />
+    <Compile Include="Controllers\SPA_ScoringInfoApprovalApiController.cs" />
+    <Compile Include="Controllers\SPA_ScoringInfoController.cs" />
+    <Compile Include="Controllers\SPA_ScoringRatioApiController.cs" />
+    <Compile Include="Controllers\SPA_ScoringRatioController.cs" />
+    <Compile Include="Controllers\SPA_ViolationApiController.cs" />
+    <Compile Include="Controllers\SPA_ViolationApprovalApiController.cs" />
+    <Compile Include="Controllers\SPA_ViolationController.cs" />
+    <Compile Include="Controllers\STQAController.cs" />
+    <Compile Include="Controllers\STQAApiController.cs" />
+    <Compile Include="Controllers\PaymentSupplierApiController.cs" />
+    <Compile Include="Controllers\SupplierApiController.cs" />
+    <Compile Include="Controllers\STQAApprovalApiController.cs" />
+    <Compile Include="Controllers\PaymentSupplierApprovalApiController.cs" />
+    <Compile Include="Controllers\SupplierApproverChangeApiController.cs" />
+    <Compile Include="Controllers\SupplierApproverChangeController.cs" />
+    <Compile Include="Controllers\PaymentSupplierController.cs" />
+    <Compile Include="Controllers\PaymentSupplierRevisionApiController.cs" />
+    <Compile Include="Controllers\SupplierRevisionApiController.cs" />
+    <Compile Include="Controllers\SupplierApprovalApiController.cs" />
+    <Compile Include="Controllers\SupplierApprovalController.cs" />
+    <Compile Include="Controllers\SupplierController.cs" />
+    <Compile Include="Controllers\PaymentSupplierRevisionController.cs" />
+    <Compile Include="Controllers\SupplierRevisionController.cs" />
+    <Compile Include="Controllers\TestController.cs" />
+    <Compile Include="Controllers\TryController.cs" />
+    <Compile Include="Controllers\UserManagerController.cs" />
+    <Compile Include="Controllers\UserRoleManagementApiController.cs" />
+    <Compile Include="Controllers\UserRoleManagementController.cs" />
+    <Compile Include="Filters\WebApiAuthorizeCoreAttribute.cs" />
+    <Compile Include="Models\MediaFileViewModel.cs" />
+    <Compile Include="Models\PageRoleMappingInputModel.cs" />
+    <Compile Include="Models\PageRoleUpdateModel.cs" />
+    <Compile Include="Models\SampleDataRequestParameter.cs" />
+    <Compile Include="Models\UserRoleMappingInputModel.cs" />
+    <Compile Include="Filters\PermissionFilter.cs" />
+    <Compile Include="Filters\AuthorizeCoreAttribute.cs" />
+    <Compile Include="Global.asax.cs">
+      <DependentUpon>Global.asax</DependentUpon>
+    </Compile>
+    <Compile Include="Helpers\HtmlExtensions.cs" />
+    <Compile Include="Models\DataTablePager.cs" />
+    <Compile Include="Models\NavigateItemType.cs" />
+    <Compile Include="Models\NavigateItemViewModel.cs" />
+    <Compile Include="Models\PagerItemViewModel.cs" />
+    <Compile Include="Models\SiteViewModel.cs" />
+    <Compile Include="Models\UserProfileViewModel.cs" />
+    <Compile Include="Models\WebApiDataContainer.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Services\MediaFileSampleDataService.cs" />
+    <Compile Include="Services\ModuleService.cs" />
+    <Compile Include="Services\NavigationService.cs" />
+    <Compile Include="Services\PageRoleService.cs" />
+    <Compile Include="Services\PageService.cs" />
+    <Compile Include="Services\RoleService.cs" />
+    <Compile Include="Services\SiteService.cs" />
+    <Compile Include="Services\TET_ParameterService.cs" />
+    <Compile Include="Services\TET_UserService.cs" />
+    <Compile Include="Services\UserProfileService.cs" />
+    <Compile Include="Services\UserRoleService.cs" />
+    <Compile Include="Util\ConfigLoader.cs" />
+    <Compile Include="Util\NPOIExtension.cs" />
+    <Compile Include="Util\PagerUtil.cs" />
+    <Compile Include="Util\UploadUtil.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Views\web.config" />
+    <Content Include="ModuleResources\Other\Supplier\新增供應商匯入範本.xlsx" />
+    <Content Include="ModuleResources\Other\SupplierTrade\供應商交易資料匯入範本.xlsx" />
+    <Content Include="ModuleResources\Other\Supplier\供應商資料匯出範本.xlsx" />
+    <Content Include="ModuleResources\Other\Supplier\供應商資料匯出範本%28採購%29.xlsx" />
+    <Content Include="ModuleResources\Other\PaymentSupplier\一般付款對象資料匯出範本.xlsx" />
+    <Content Include="ModuleResources\Other\PaymentSupplier\一般付款對象匯入範本.xlsx">
+      <BrowseToURL>一般付款對象匯入範本</BrowseToURL>
+    </Content>
+    <Content Include="FileDownload\PaymentSuppliersAttachments\20241016_200642_855639429.pdf" />
+    <Content Include="FileDownload\PaymentSuppliersAttachments\20241019_191412_283816090.xlsx" />
+    <Content Include="FileDownload\SupplierAttachments\20240306_205245_539845782.docx" />
+    <Content Include="FileDownload\SupplierAttachments\20240307_074949_975453851.xlsx" />
+    <Content Include="FileDownload\SupplierAttachments\20240307_075629_738606608.xlsx" />
+    <Content Include="FileDownload\SupplierAttachments\20240411_113610_175259980.pdf" />
+    <Content Include="FileDownload\SupplierAttachments\20240411_113610_177366987.pdf" />
+    <Content Include="FileDownload\SupplierAttachments\20240411_113610_178648371.pdf" />
+    <Content Include="FileDownload\SupplierAttachments\20240411_114910_70478311.pdf" />
+    <Content Include="FileDownload\SupplierAttachments\20240411_151242_220182159.pdf" />
+    <Content Include="FileDownload\SupplierAttachments\20240411_151242_227395286.pdf" />
+    <Content Include="FileDownload\SupplierAttachments\20240411_154230_136259165.pdf" />
+    <Content Include="FileDownload\SupplierAttachments\20240411_154357_262322743.pdf" />
+    <Content Include="FileDownload\SupplierAttachments\20240712_142504_349406012.pdf" />
+    <Content Include="FileDownload\SupplierAttachments\20240712_142504_364895437.pdf" />
+    <Content Include="FileDownload\SupplierAttachments\20240712_142504_364895636.pdf" />
+    <Content Include="FileDownload\SupplierAttachments\20240712_142804_544176161.pdf" />
+    <Content Include="FileDownload\SupplierAttachments\20240712_142804_548182244.pdf" />
+    <Content Include="FileDownload\SupplierAttachments\20240712_142804_549721714.pdf" />
+    <Content Include="FileDownload\SupplierAttachments\20240712_142821_30718454.pdf" />
+    <Content Include="FileDownload\SupplierAttachments\20240712_142821_309782989.pdf" />
+    <Content Include="FileDownload\SupplierAttachments\20240830_154320_023333183.docx" />
+    <Content Include="FileDownload\SupplierAttachments\20241231_175239_461744124.xlsx" />
+    <Content Include="ModuleResources\Other\SPA\SPA_SystemOperationManual.pdf" />
+    <Content Include="ModuleResources\Other\SPA_CostService\供應商CostService資料匯出範本.xlsx" />
+    <Content Include="ModuleResources\Other\SPA_Evaluation\供應商SPA評鑑資料匯出範本.xlsx" />
+    <Content Include="ModuleResources\Other\SPA_ScoringInfo\供應商SPA評鑑計分資料匯出範本.xlsx" />
+    <Content Include="ModuleResources\Other\SPA_Violation\供應商違規紀錄資料匯出範本.xlsx" />
+    <None Include="packages.config" />
+    <Content Include="Views\_ViewStart.cshtml" />
+    <Content Include="Views\Shared\_Layout.cshtml" />
+    <Content Include="Views\Shared\_AdminLayout.cshtml" />
+    <Content Include="Views\Shared\_pvASide.cshtml" />
+    <Content Include="Views\Shared\_pvFooter.cshtml" />
+    <Content Include="Views\Shared\_pvBreadcrumb.cshtml" />
+    <Content Include="Views\Shared\_pvHeaderMenu.cshtml" />
+    <Content Include="Views\Shared\_pvSideBar.cshtml" />
+    <Content Include="Views\Shared\_pvUser.cshtml" />
+    <Content Include="Views\Shared\_pvToolbar.cshtml" />
+    <Content Include="Views\Shared\_pvSearchbox.cshtml" />
+    <Content Include="Views\Shared\_pvActions.cshtml" />
+    <Content Include="Views\Shared\_pvUserProfile.cshtml" />
+    <Content Include="Views\Shared\_pvToolbarItemPanels.cshtml" />
+    <Content Include="Views\UserManager\Index.cshtml" />
+    <Content Include="Views\Home\Index.cshtml" />
+    <Content Include="Views\Home\Details.cshtml" />
+    <Content Include="Views\Home\Edit.cshtml" />
+    <Content Include="Views\UserManager\Edit.cshtml" />
+    <Content Include="Views\Account\Login.cshtml" />
+    <Content Include="Views\SampleData\Index.cshtml" />
+    <Content Include="Views\SampleData\Edit.cshtml" />
+    <Content Include="Views\SampleData\Details.cshtml" />
+    <Content Include="Views\SampleDataAjax\Index.cshtml" />
+    <Content Include="Views\PageManagement\Index.cshtml" />
+    <Content Include="Views\Shared\_pvPager.cshtml" />
+    <Content Include="Views\RoleManagement\Index.cshtml" />
+    <Content Include="Views\UserManager\Password.cshtml" />
+    <Content Include="Views\UserRoleManagement\Index.cshtml" />
+    <Content Include="Views\UserRoleManagement\Edit.cshtml" />
+    <Content Include="Views\PageRoleManagement\Index.cshtml" />
+    <Content Include="Views\PageRoleManagement\Edit.cshtml" />
+    <Content Include="Views\ModuleManagement\Index.cshtml" />
+    <Content Include="Views\Account\UserProfile.cshtml" />
+    <Content Include="Views\Account\EditUserProfile.cshtml" />
+    <Content Include="Views\Account\EditUserPassword.cshtml" />
+    <Content Include="Views\Account\EditUserPhoto.cshtml" />
+    <Content Include="Views\Site\Index.cshtml" />
+    <Content Include="Views\Try\Index.cshtml" />
+    <Content Include="Views\RoleManagement\RoleUser.cshtml" />
+    <Content Include="Views\RoleManagement\RoleMenu.cshtml" />
+    <Content Include="Views\Supplier\Index.cshtml" />
+    <Content Include="Views\Supplier\Edit.cshtml" />
+    <Content Include="Views\SupplierApproval\Index.cshtml" />
+    <Content Include="Views\SupplierApproval\SupplierApproval.cshtml" />
+    <Content Include="Views\Test\Index.cshtml" />
+    <Content Include="Views\SupplierRevision\Index.cshtml" />
+    <Content Include="Views\SupplierRevision\Edit.cshtml" />
+    <Content Include="Views\STQA\Index.cshtml" />
+    <Content Include="Views\STQA\Edit.cshtml" />
+    <Content Include="Views\SupplierApproval\STQAApproval.cshtml" />
+    <Content Include="Views\SPA\Edit.cshtml" />
+    <Content Include="Views\SPA\Index.cshtml" />
+    <Content Include="Views\SupplierApproval\SPAApproval.cshtml" />
+    <Content Include="Views\SPA\SingleQuery.cshtml" />
+    <Content Include="Views\Supplier\Query.cshtml" />
+    <Content Include="Views\Supplier\QuerySS.cshtml" />
+    <Content Include="Views\Supplier\QueryEdit.cshtml" />
+    <Content Include="Views\Supplier\QueryView.cshtml" />
+    <Content Include="Views\Supplier\QuerySSView.cshtml" />
+    <Content Include="Views\Try\Index2.cshtml" />
+    <Content Include="Views\Parameters\Index.cshtml" />
+    <Content Include="Views\Test\LoginStatus.cshtml" />
+    <Content Include="Views\SPA_ApproverSetup\Index.cshtml" />
+    <Content Include="Views\SPA_ApproverSetup\Edit.cshtml" />
+    <Content Include="Views\SPA_Period\Index.cshtml" />
+    <Content Include="Views\SPA_Period\Edit.cshtml" />
+    <Content Include="Views\SPA_ScoringRatio\Index.cshtml" />
+    <Content Include="Views\SupplierApproval\RevisionApproval.cshtml" />
+    <Content Include="Views\SupplierApproverChange\Index.cshtml" />
+    <Content Include="Views\SupplierApproverChange\Edit.cshtml" />
+    <Content Include="Views\PaymentSupplier\Index.cshtml" />
+    <Content Include="Views\PaymentSupplier\Edit.cshtml" />
+    <Content Include="Views\PaymentSupplierRevision\Index.cshtml" />
+    <Content Include="Views\SupplierApproval\PaymentSupplierApproval.cshtml" />
+    <Content Include="Views\PaymentSupplierRevision\Edit.cshtml" />
+    <Content Include="Views\SupplierApproval\PaymentSupplierRevisionApproval.cshtml" />
+    <Content Include="Views\PaymentSupplier\Query.cshtml" />
+    <Content Include="Views\PaymentSupplier\QueryEdit.cshtml" />
+    <Content Include="Views\PaymentSupplier\QueryView.cshtml" />
+    <Content Include="Views\Error\Error401.cshtml" />
+    <Content Include="Views\Error\Error404.cshtml" />
+    <Content Include="Views\SPA_CostService\Edit.cshtml" />
+    <Content Include="Views\SPA_CostService\Index.cshtml" />
+    <Content Include="Views\SPA_EvaluationReport\Edit.cshtml" />
+    <Content Include="Views\SPA_EvaluationReport\Index.cshtml" />
+    <Content Include="Views\SPA_Evaluation\Edit.cshtml" />
+    <Content Include="Views\SPA_Evaluation\Index.cshtml" />
+    <Content Include="Views\SPA_ScoringInfo\Edit.cshtml" />
+    <Content Include="Views\SPA_ScoringInfo\Index.cshtml" />
+    <Content Include="Views\SPA_Violation\Edit.cshtml" />
+    <Content Include="Views\SPA_Violation\Index.cshtml" />
+    <None Include="Web.Debug.config">
+      <DependentUpon>Web.config</DependentUpon>
+    </None>
+    <None Include="Web.Release.config">
+      <DependentUpon>Web.config</DependentUpon>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Content\assets\" />
+    <Folder Include="MediaFileUpload\" />
+    <Folder Include="ModuleResources\CSS\" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\BI.AllApproval\BI.AllApproval.csproj">
+      <Project>{1982580b-9d63-4ecb-9783-7107a2b9e868}</Project>
+      <Name>BI.AllApproval</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\BI.PaymentSuppliers\BI.PaymentSuppliers.csproj">
+      <Project>{6fd2d90f-a02e-471d-9ce2-ce2db3b9da94}</Project>
+      <Name>BI.PaymentSuppliers</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\BI.Shared\BI.Shared.csproj">
+      <Project>{c7b88ab0-37b5-4b25-9ae3-410447c22074}</Project>
+      <Name>BI.Shared</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\BI.SPA\BI.SPA.csproj">
+      <Project>{863883af-80a8-4f71-8179-5f1dfab133dd}</Project>
+      <Name>BI.SPA</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\BI.SPA_ApproverSetup\BI.SPA_ApproverSetup.csproj">
+      <Project>{b245ab9d-0fb1-4ebc-b668-240e5b2f95ea}</Project>
+      <Name>BI.SPA_ApproverSetup</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\BI.SPA_CostService\BI.SPA_CostService.csproj">
+      <Project>{c470aa82-8860-4b31-bb93-344db77e907f}</Project>
+      <Name>BI.SPA_CostService</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\BI.SPA_Evaluation\BI.SPA_Evaluation.csproj">
+      <Project>{a6a57381-38d3-45e5-9281-4b88d7398315}</Project>
+      <Name>BI.SPA_Evaluation</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\BI.SPA_ScoringInfo\BI.SPA_ScoringInfo.csproj">
+      <Project>{61cc5ed5-bb11-402d-9f99-424c5ad61067}</Project>
+      <Name>BI.SPA_ScoringInfo</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\BI.SPA_Violation\BI.SPA_Violation.csproj">
+      <Project>{4c8e1c0f-4e97-4aaa-86cb-ddab25d76e4f}</Project>
+      <Name>BI.SPA_Violation</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\BI.STQA\BI.STQA.csproj">
+      <Project>{ba8d84e7-c244-4b93-98c2-71038dfa28b2}</Project>
+      <Name>BI.STQA</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\BI.Suppliers\BI.Suppliers.csproj">
+      <Project>{cf781cc6-3300-49dd-b6d8-6a937b81ad6a}</Project>
+      <Name>BI.Suppliers</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\BI.SampleData\BI.SampleData.csproj">
+      <Project>{CC603DEE-8777-4802-9B55-FC8F3855A8A7}</Project>
+      <Name>BI.SampleData</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Platform.Auth\Platform.Auth.csproj">
+      <Project>{fbab3ef0-28b7-4a04-9bde-0eb86124f131}</Project>
+      <Name>Platform.Auth</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Platform.FileSystem\Platform.FileSystem.csproj">
+      <Project>{2389e96d-ee22-4da2-9e89-013b92c48613}</Project>
+      <Name>Platform.FileSystem</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Platform.LogService\Platform.LogService.csproj">
+      <Project>{1d495112-15c2-467a-8d1f-30a799977f99}</Project>
+      <Name>Platform.LogService</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Platform.ORM\Platform.ORM.csproj">
+      <Project>{91e6d1c4-b7ec-4e9c-a0a3-ecd4a8f2d565}</Project>
+      <Name>Platform.ORM</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Platform.Portal\Platform.Portal.csproj">
+      <Project>{9c0ea599-afc4-4d59-8716-65e8170fe702}</Project>
+      <Name>Platform.Portal</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Platform.AbstractionClass\Platform.AbstractionClass.csproj">
+      <Project>{6330B1BA-7111-4467-8446-4A38C5E3D1EE}</Project>
+      <Name>Platform.AbstractionClass</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Platform.Infra\Platform.Infra.csproj">
+      <Project>{5DEFA750-6EA3-4DFB-BD82-D352D1DB5F08}</Project>
+      <Name>Platform.Infra</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <WCFMetadata Include="Connected Services\" />
+  </ItemGroup>
+  <PropertyGroup>
+    <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
+    <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
+  </PropertyGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <Import Project="$(VSToolsPath)\WebApplications\Microsoft.WebApplication.targets" Condition="'$(VSToolsPath)' != ''" />
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v10.0\WebApplications\Microsoft.WebApplication.targets" Condition="false" />
+  <ProjectExtensions>
+    <VisualStudio>
+      <FlavorProperties GUID="{349c5851-65df-11da-9384-00065b846f21}">
+        <WebProjectProperties>
+          <UseIIS>True</UseIIS>
+          <AutoAssignPort>True</AutoAssignPort>
+          <DevelopmentServerPort>58868</DevelopmentServerPort>
+          <DevelopmentServerVPath>/</DevelopmentServerVPath>
+          <IISUrl>http://localhost:58868/</IISUrl>
+          <NTLMAuthentication>False</NTLMAuthentication>
+          <UseCustomServer>False</UseCustomServer>
+          <CustomServerUrl>
+          </CustomServerUrl>
+          <SaveServerSettingsInUserFile>False</SaveServerSettingsInUserFile>
+        </WebProjectProperties>
+      </FlavorProperties>
+    </VisualStudio>
+  </ProjectExtensions>
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>此專案參考這部電腦上所缺少的 NuGet 套件。請啟用 NuGet 套件還原，以下載該套件。如需詳細資訊，請參閱 http://go.microsoft.com/fwlink/?LinkID=322105。缺少的檔案是 {0}。</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\packages\EntityFramework.6.5.1\build\EntityFramework.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\EntityFramework.6.5.1\build\EntityFramework.props'))" />
+    <Error Condition="!Exists('..\packages\EntityFramework.6.5.1\build\EntityFramework.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\EntityFramework.6.5.1\build\EntityFramework.targets'))" />
+  </Target>
+  <Import Project="..\packages\EntityFramework.6.5.1\build\EntityFramework.targets" Condition="Exists('..\packages\EntityFramework.6.5.1\build\EntityFramework.targets')" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

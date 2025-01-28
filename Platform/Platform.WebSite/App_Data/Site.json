@@ -1,0 +1,9 @@
+﻿{
+  "ID": "1",
+  "Name": "範例公司",
+  "FullName": "範例股份有限公司",
+  "ImageUrl": "/Images/logo.png",
+  "HeaderText": "範例股份有限公司",
+  "FooterText": "範例股份有限公司",
+  "MaintainerUrl": "https://www.SampleSite.tw/"
+}

@@ -1,0 +1,90 @@
+﻿@using Platform.WebSite.Helpers;
+@using Platform.WebSite.Models;
+@using Platform.Infra;
+
+@{
+    var masterInfo = (SiteViewModel)ViewBag.MasterInfo;
+    this.ViewBag.Title = masterInfo.CurrentPage.Name;
+    string controllerName = "Supplier";
+    string editTemplateUrl = Url.Action("Edit", controllerName, new { ID = masterInfo.CurrentPage.ID, supplierID = "__ID__" });
+    string createPageUrl = Url.Action("Create", controllerName, new { ID = masterInfo.CurrentPage.ID });
+}
+
+<!--begin::Card-->
+<div class="card card-custom">
+    <div class="card-header flex-wrap py-5">
+        <div class="card-title">
+            <div class="card-label">
+                @*標題*@
+                @ViewBag.Title
+                @*標題*@
+            </div>
+        </div>
+        <div class="card-toolbar" id="toolbar">
+            @*工具列*@
+            <a href="@createPageUrl" class="btn btn-primary font-weight-bolder">
+                <i class="flaticon2-plus"></i>新增
+            </a>
+            @*工具列*@
+        </div>
+    </div>
+    <div class="card-body">
+        <div id="divSearchArea">
+            @*過濾條件*@
+            <div class="form-group row">
+                <div class="col-3">
+                    <label for="inpName" class="col-form-label">供應商代碼或名稱</label>
+                    <input id="inpName" name="inpName" type="text" class="form-control" placeholder="" />
+                </div>
+
+                <div class="col-3">
+                    <label for="inpTaxNo" class="col-form-label">統一編號</label>
+                    <input id="inpTaxNo" name="inpTaxNo" type="text" class="form-control" placeholder="" />
+                </div>
+
+                <div class="col-3">
+                    <button type="button" id="btnSearch" class="btn btn-success" style="margin-top: 3em;"> 查詢 </button>
+                </div>
+            </div>
+            @*過濾條件*@
+        </div>
+        <!--start: Datatable-->
+        @*表格*@
+        <div id="kt_datatable_wrapper" class="dataTables_wrapper dt-bootstrap4 no-footer">
+            <div class="row">
+                <div class="col-sm-12">
+                    <table class="table table-bordered table-hover table-checkable" id="dataGrid" style="margin-top: 13px !important">
+                    </table>
+                </div>
+            </div>
+            @*表格*@
+        </div>
+        <!--end: Datatable-->
+    </div>
+</div>
+<!--end::Card-->
+@* 要餵 SiteID、EditAction 給 js 用，為必要的隱藏欄位 *@
+<input type="hidden" id="EditAction" value="@editTemplateUrl" />
+
+@* --將 js 註冊至頁尾-- *@
+@Html.Resource(
+    @<text>
+        <script src="~/Content/assets/plugins/custom/datatables/datatables.bundle.js?v=@DateTimeExtensions.GetJS_V_Text()"></script>
+        <script src="~/ModuleResources/JavaScripts/Shared/FormHelper.js?v=@DateTimeExtensions.GetJS_V_Text()"></script>
+        <script src="~/ModuleResources/JavaScripts/Supplier/index.js?v=@DateTimeExtensions.GetJS_V_Text()"></script>
+
+        <style>
+            .dataTables_wrapper table.dataTable thead tr th {
+                background-color: #00a9e0;
+                color: white;
+                font-weight: bold;
+            }
+
+            .columnHeaderWhite {
+                color: white;
+                font-weight: bold;
+            }
+        </style>
+    </text>
+, "customScripts")
+

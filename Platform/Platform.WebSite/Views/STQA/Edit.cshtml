@@ -1,0 +1,277 @@
+﻿@using Platform.WebSite.Helpers;
+@using Platform.AbstractionClass;
+@using Newtonsoft.Json;
+@using BI.Suppliers;
+@using BI.Suppliers.Models;
+@using Platform.WebSite.Models;
+@using Platform.Infra;
+
+@model Guid?
+
+@{
+    var masterInfo = (SiteViewModel)ViewBag.MasterInfo;
+    this.ViewBag.Title = masterInfo.CurrentPage.Name;
+    var ctlName = "STQA";
+
+    var mode = this.ViewBag.Mode;
+    var isCreateMode = this.ViewBag.IsCreateMode;
+    var isNewApply = true;
+    var postActionName = (isCreateMode) ? "Create" : "Edit";
+    var id = (this.Model.HasValue) ? this.Model.ToString() : string.Empty;
+
+    Uri readDetailApiUrl = new Uri("api/STQAApi/Detail/" + id, UriKind.Relative);
+    Uri createApiUrl = new Uri("api/STQAApi/Create/", UriKind.Relative);
+    Uri submitApiUrl = new Uri("api/STQAApi/Submit/", UriKind.Relative);
+    Uri modifyApiUrl = new Uri("api/STQAApi/Modify/" + id, UriKind.Relative);
+    Uri revisionApiUrl = new Uri("api/STQAApi/Revision/" + id, UriKind.Relative);
+    Uri deleteApiUrl = new Uri("api/STQAApi/Delete/" + id, UriKind.Relative);
+    Uri abordApiUrl = new Uri("api/STQAApi/Abord/" + id, UriKind.Relative);
+
+    Uri listPageUrl = new Uri("STQA/Index/" + masterInfo.CurrentPage.ID, UriKind.Relative);
+
+    // 下拉選單項目
+    var pairList_BelongTo = this.ViewBag.ParamList_BelongTo as List<KeyTextModel>;
+    var pairList_Purpose = this.ViewBag.ParamList_Purpose as List<KeyTextModel>;
+    var pairList_BusinessTerm = this.ViewBag.ParamList_BusinessTerm as List<KeyTextModel>;
+    var pairList_Type = this.ViewBag.ParamList_Type as List<KeyTextModel>;
+    var pairList_UnitALevel = this.ViewBag.ParamList_UnitALevel as List<KeyTextModel>;
+    var pairList_UnitCLevel = this.ViewBag.ParamList_UnitCLevel as List<KeyTextModel>;
+    var pairList_UnitDLevel = this.ViewBag.ParamList_UnitDLevel as List<KeyTextModel>;
+
+
+    // 欄位顯示和編輯設定
+    var validConfig = JsonConvert.SerializeObject(BI.STQA.Validators.SupplierSTQAValidator.GetValidConfigs());
+}
+
+<style>
+    .SubArea {
+        background-color: #00A9E0;
+        font-size: 16pt;
+        color: white;
+        font-weight: bolder;
+    }
+</style>
+
+<div class="d-flex flex-column-fluid">
+    <!--begin::Container-->
+    <div class="container-fluid px-2">
+        <!--begin::Row-->
+        <div class="row">
+            <div class="col-lg-12">
+                <!--begin::Example-->
+                <!--begin::Card-->
+                <div class="card card-custom">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <h3 class="card-label">@this.ViewBag.Title - @ViewBag.Name</h3>
+                            @*<div class="d-block text-muted pt-2 font-size-sm">
+                                    <i class="icon-nm text-dark-50"></i>
+                                    (*)為必填選項
+                                </div>*@
+                        </div>
+                    </div>
+                    @using (Html.BeginForm(postActionName, ctlName, FormMethod.Post, new { @class = "form", id = "formMain" }))
+                    {
+                        <div class="card-body">
+                            <!-- 編輯區域 -->
+                            <div class="row">
+                                <div class="col-6">
+                                    <label class="col-form-label"><span style="color:red">*</span>供應商<br />&nbsp;&nbsp;Supplier </label>
+                                    <select name="BelongTo" class="form-control form-control-sm select2" title="請選擇">
+                                        <option value="" disabled selected>請選擇</option>
+                                        @foreach (var pair in pairList_BelongTo)
+                                        {
+                                            <option value="@pair.Key">@pair.Text</option>
+                                        }
+                                    </select>
+                                </div>
+
+                                <div class="col-2">
+                                    <label class="col-form-label"><span style="color:red">*</span>STQA 理由<br />&nbsp;&nbsp;Purpose </label>
+                                    <select name="Purpose" class="form-control form-control-sm select2" title="請選擇">
+                                        <option value="" disabled selected>請選擇</option>
+                                        @foreach (var pair in pairList_Purpose)
+                                        {
+                                            <option value="@pair.Key">@pair.Text</option>
+                                        }
+                                    </select>
+                                </div>
+
+                                <div class="col-4">
+                                    <label class="col-form-label"><span style="color:red">*</span>業務類別<br />&nbsp;&nbsp;Business Term </label>
+                                    <select name="BusinessTerm" class="form-control form-control-sm select2" title="請選擇">
+                                        <option value="" disabled selected>請選擇</option>
+                                        @foreach (var pair in pairList_BusinessTerm)
+                                        {
+                                            <option value="@pair.Key">@pair.Text</option>
+                                        }
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-4">
+                                    <label class="col-form-label"><span style="color:red">*</span>STQA 方式<br />&nbsp;&nbsp;STQA Type </label>
+                                    <select name="Type" class="form-control form-control-sm select2" title="請選擇">
+                                        <option value="" disabled selected>請選擇</option>
+                                        @foreach (var pair in pairList_Type)
+                                        {
+                                            <option value="@pair.Key">@pair.Text</option>
+                                        }
+                                    </select>
+                                </div>
+
+                                <div class="col-2">
+                                    <label class="col-form-label"><span style="color:red">*</span>完成日期<br />&nbsp;&nbsp;Date </label>
+                                    <input name="Date" type="date" class="form-control form-control-sm" placeholder="請輸入完成日期">
+                                </div>
+
+                                <div class="col-2">
+                                    <label class="col-form-label">&nbsp;<br /><span style="color:red">*</span>Unit-A Level </label>
+                                    <select name="UnitALevel" class="form-control form-control-sm select2" title="請選擇">
+                                        <option value="" disabled selected>請選擇</option>
+                                        @foreach (var pair in pairList_UnitALevel)
+                                        {
+                                            <option value="@pair.Key">@pair.Text</option>
+                                        }
+                                    </select>
+                                </div>
+
+                                <div class="col-2">
+                                    <label class="col-form-label">&nbsp;<br /><span style="color:red">*</span>Unit-C Level </label>
+                                    <select name="UnitCLevel" class="form-control form-control-sm select2" title="請選擇">
+                                        <option value="" disabled selected>請選擇</option>
+                                        @foreach (var pair in pairList_UnitCLevel)
+                                        {
+                                            <option value="@pair.Key">@pair.Text</option>
+                                        }
+                                    </select>
+                                </div>
+
+                                <div class="col-2">
+                                    <label class="col-form-label">&nbsp;<br /><span style="color:red">*</span>Unit-D Level </label>
+                                    <select name="UnitDLevel" class="form-control form-control-sm select2" title="請選擇">
+                                        <option value="" disabled selected>請選擇</option>
+                                        @foreach (var pair in pairList_UnitDLevel)
+                                        {
+                                            <option value="@pair.Key">@pair.Text</option>
+                                        }
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-12">
+                                    <label for="STQAComment" class="col-form-label">
+                                        備註<br />
+                                        Comment
+                                    </label>
+                                    <textarea id="STQAComment" class="form-control form-control-sm" placeholder="請輸入備註" name="STQAComment" rows="5"></textarea>
+                                </div>
+                            </div>
+                            <!-- 編輯區域 -->
+                            <!-- 審核資訊 Approval Information -->
+                            <br />
+                            <br />
+                            <div id="divApproveTableTitle" class="alert alert-custom SubArea" role="alert">
+                                <div class="alert-text text-center">審核資訊 Approval Information</div>
+                            </div>
+
+                            <div class="row" id="divApproveTemplate" style="display: none;">
+                                <table class="table">
+                                    <tbody>
+                                        <tr>
+                                            <td scope="row">
+                                                <span class="Level_Text"></span>
+                                            </td>
+                                            <td>
+                                                <span class="Approver"></span>
+                                            </td>
+                                            <td>
+                                                <span class="Result"></span>
+                                            </td>
+                                            <td>
+                                                <span class="ModifyDate_Text"></span>
+                                            </td>
+                                            <td>
+                                                <span class="Comment"></span>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="row" id="divApproveTable">
+                                <div class="col-12">
+                                    <table class="table">
+                                        @* 表頭 *@
+                                        <thead class="thead-dark">
+                                            <tr>
+                                                <th scope="col" class="col-sm-2">審核關卡</th>
+                                                <th scope="col" class="col-sm-2">審核者</th>
+                                                <th scope="col" class="col-sm-2">審核結果</th>
+                                                <th scope="col" class="col-sm-2">審核時間</th>
+                                                <th scope="col" class="col-sm-2">審核意見</th>
+                                            </tr>
+                                        </thead>
+                                        @* 表身 *@
+                                        <tbody>  </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <!-- 審核資訊 Approval Information -->
+                            <!--btn-->
+                            <div class="my-5 col-12">
+                                <div class="d-flex justify-content-between border-top ">
+                                    <div class="mr-2">
+                                        <a href="@Url.Action(ViewBag.ViewReturn, new { id = @ViewBag.ViewReturnID })" class="btn btn-secondary">
+                                            取消
+                                        </a>
+                                    </div>
+                                    <div>
+                                        <button type="button" id="btnSave" class="btn btn-success mr-2">儲存</button>
+                                        <button type="button" id="btnSubmit" class="btn btn-primary mr-2">送出</button>
+                                        <button type="button" id="btnAbord" class="btn btn-danger mr-2">中止</button>
+                                        <button type="button" id="btnDelete" class="btn btn-danger mr-2">刪除</button>
+                                        <button type="button" id="btnRevision" class="btn btn-danger mr-2">改版</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <!--btn-->
+                        </div>
+                        <!--end::Card-->
+                    }
+                </div>
+            </div>
+            <input type="hidden" name="EditType" id="EditType" value="" />
+            <input type="hidden" name="MainID" id="hdfMainID" value="@id" />
+            <!--end::Code example-->
+            <!--end::Example-->
+        </div>
+    </div>
+</div>
+
+@* --將 js 註冊至頁尾-- *@
+@Html.Resource(
+    @<text>
+        <script src="~/ModuleResources/JavaScripts/Shared/TET_FormHelper.js?v=@DateTimeExtensions.GetJS_V_Text()"></script>
+        <script src="~/ModuleResources/JavaScripts/STQA/edit.js?v=@DateTimeExtensions.GetJS_V_Text()"></script>
+        <script>
+            var viewMode = '@mode';
+            var isCreateMode = @isCreateMode.ToString().ToLower();
+            var isNewApply = @isNewApply.ToString().ToLower();
+            var id = '@id';
+
+            var createApiUrl = platformEnvironment.hostUrl + '@createApiUrl';
+            var submitApiUrl = platformEnvironment.hostUrl + '@submitApiUrl';
+            var modifyApiUrl = platformEnvironment.hostUrl + '@modifyApiUrl';
+            var revisionApiUrl = platformEnvironment.hostUrl + '@revisionApiUrl';
+            var deleteApiUrl = platformEnvironment.hostUrl + '@deleteApiUrl';
+            var abordApiUrl = platformEnvironment.hostUrl + '@abordApiUrl';
+            var readDetailApiUrl = platformEnvironment.hostUrl + '@readDetailApiUrl';
+
+            var listPageUrl = platformEnvironment.hostUrl + '@listPageUrl';
+
+            var validConfig = @Html.Raw(validConfig);
+        </script>
+    </text>
+, "customScripts")

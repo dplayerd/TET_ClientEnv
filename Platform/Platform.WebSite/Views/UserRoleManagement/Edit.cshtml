@@ -1,0 +1,100 @@
+﻿@using Platform.WebSite.Helpers;
+@using Platform.Infra;
+
+@model Guid
+@{
+    ViewBag.Title = "Edit";
+}
+
+
+<div class="row">
+    <div class="col-lg-6">
+        <!--begin::Card-->
+        <div class="card card-custom gutter-b">
+            <div class="card-header">
+                <div class="card-title">
+                    <h3 class="card-label"> 已綁定帳號 </h3>
+                </div>
+            </div>
+            <div class="card-body">
+                <!--begin: buttons-->
+                <div>
+                    <button type="button" id="btnUnMap" class="btn btn-primary">解除角色</button>
+                </div>
+                <!--end: buttons-->
+                <!-- begin: table1 -->
+                <div>
+                    @*表格1*@
+                    <table class="table table-bordered table-hover table-checkable" id="dataGrid_Assigned"
+                           style="margin-top: 13px !important">
+                        <thead>
+                            <tr>
+                                <th></th>
+                                <th>帳號</th>
+                                <th>姓</th>
+                                <th>名</th>
+                                <th>職稱</th>
+                                <th>是否啟用</th>
+                            </tr>
+                        </thead>
+                    </table>
+                    @*表格1*@
+                </div>
+                <!-- end: table1 -->
+            </div>
+        </div>
+        <!--end::Card-->
+    </div>
+    <div class="col-lg-6">
+        <!--begin::Card-->
+        <div class="card card-custom gutter-b">
+            <div class="card-header">
+                <div class="card-title">
+                    <h3 class="card-label"> 未綁定帳號 </h3>
+                </div>
+            </div>
+            <div class="card-body">
+                <!--begin: buttons-->
+                <div>
+                    <button type="button" id="btnMap" class="btn btn-primary">綁定角色</button>
+                </div>
+                <!--end: buttons-->
+                <!-- begin: table2 -->
+                <div>
+                    @*表格1*@
+                    <table class="table table-bordered table-hover table-checkable" id="dataGrid_Unassigned"
+                           style="margin-top: 13px !important">
+                        <thead>
+                            <tr>
+                                <th></th>
+                                <th>帳號</th>
+                                <th>姓</th>
+                                <th>名</th>
+                                <th>職稱</th>
+                                <th>是否啟用</th>
+                            </tr>
+                        </thead>
+                    </table>
+                    @*表格1*@
+                </div>
+                <!-- end: table2 -->
+            </div>
+        </div>
+        <!--end::Card-->
+    </div>
+</div>
+
+@* 要餵 SiteID 給 js 用，為必要的隱藏欄位 *@
+<div>
+    <input type="hidden" name="hfRoleID" id="hfRoleID" value="@this.Model" />
+</div>
+
+
+@* --將 js 註冊至頁尾-- *@
+@Html.Resource(
+    @<text>
+        <script src="~/Content/assets/plugins/custom/datatables/datatables.bundle.js?v=@DateTimeExtensions.GetJS_V_Text()"></script>
+        <script src="~/ModuleResources/JavaScripts/Shared/FormHelper.js?v=@DateTimeExtensions.GetJS_V_Text()"></script>
+        <script src="~/ModuleResources/JavaScripts/UserRoleManagement/edit.js?v=@DateTimeExtensions.GetJS_V_Text()"></script>
+    </text>
+, "customScripts")

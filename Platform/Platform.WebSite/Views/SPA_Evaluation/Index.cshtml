@@ -1,0 +1,91 @@
+﻿@using Platform.AbstractionClass;
+@using Platform.WebSite.Helpers;
+@using Platform.WebSite.Models;
+@using Platform.Infra;
+
+@{
+    var masterInfo = (SiteViewModel)ViewBag.MasterInfo;
+    string apiControllerName = "api/SPA_EvaluationApi";
+    this.ViewBag.Title = masterInfo.CurrentPage.Name;
+    string controllerName = "SPA_Evaluation";
+    string viewPageUrl = Url.Action("Detail", controllerName, new { ID = masterInfo.CurrentPage.ID, SPA_EvaluationId = "__ID__" });
+
+    string exportExcelApiUrl = Url.Action("ExportExcel", apiControllerName);
+}
+
+<!--begin::Card-->
+<div class="card card-custom">
+    <div class="card-header flex-wrap py-5">
+        <div class="card-title">
+            <div class="card-label">
+                @*標題*@
+                @ViewBag.Title
+                @*標題*@
+            </div>
+        </div>
+        <div class="card-toolbar" id="toolbar">
+            @*工具列*@
+            @*工具列*@
+        </div>
+    </div>
+    <div class="card-body">
+        <div id="divSearchArea">
+            @*過濾條件*@
+            <div class="form-group row">
+                <div class="col-2">
+                    <label for="inpPeriod" class="col-form-label">評鑑期間</label>
+                    <input id="inpPeriod" class="form-control form-control-sm" type="text" placeholder="請輸入評鑑期間" name="period" />
+                </div>
+
+                <div class="col-2">
+                    <button type="button" id="btnSearch" class="btn btn-sm btn-success" style="margin-top: 3em;"> 查詢 </button>
+                    <a id="aExportExcel" class="btn btn-sm btn-success" href="@exportExcelApiUrl" target="_blank" style="margin-top: 3em;"> 匯出 Excel </a>
+                </div>
+            </div>
+            @*過濾條件*@
+        </div>
+        <!--start: Datatable-->
+        <div id="kt_datatable_wrapper" class="dataTables_wrapper dt-bootstrap4 no-footer">
+            @*表格*@
+            <div class="row">
+                <div class="col-sm-12">
+                    <table class="table table-bordered table-hover table-checkable" id="dataGrid" style="margin-top: 13px !important">
+                    </table>
+                </div>
+            </div>
+            @*表格*@
+        </div>
+        <!--end: Datatable-->
+    </div>
+</div>
+<!--end::Card-->
+@* 要餵 SiteID、EditAction 給 js 用，為必要的隱藏欄位 *@
+<input type="hidden" id="EditAction" value="" />
+
+@* --將 js 註冊至頁尾-- *@
+@Html.Resource(
+    @<text>
+        <script src="~/Content/assets/plugins/custom/datatables/datatables.bundle.js?v=@DateTimeExtensions.GetJS_V_Text()"></script>
+        <script src="~/ModuleResources/JavaScripts/Shared/FormHelper.js?v=@DateTimeExtensions.GetJS_V_Text()"></script>
+        <script src="~/ModuleResources/JavaScripts/SPA_Evaluation/index.js?v=@DateTimeExtensions.GetJS_V_Text()"></script>
+
+        <style>
+            .dataTables_wrapper table.dataTable thead tr th {
+                background-color: #00a9e0;
+                color: white;
+                font-weight: bold;
+            }
+
+            .columnHeaderWhite {
+                color: white;
+                font-weight: bold;
+            }
+        </style>
+
+        <script>
+            var viewPageUrl = "@viewPageUrl";
+            var exportExcelApiUrl = "@exportExcelApiUrl";
+        </script>
+    </text>
+, "customScripts")
+

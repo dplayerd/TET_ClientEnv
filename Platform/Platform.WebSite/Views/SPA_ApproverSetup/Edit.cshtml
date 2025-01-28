@@ -1,0 +1,183 @@
+﻿@using Platform.WebSite.Helpers;
+@using Platform.AbstractionClass;
+@using Newtonsoft.Json;
+@using BI.Suppliers;
+@using BI.Suppliers.Models;
+@using Platform.WebSite.Models;
+@using Platform.Infra;
+
+@model Guid?
+
+@{
+    var masterInfo = (SiteViewModel)ViewBag.MasterInfo;
+    this.ViewBag.Title = masterInfo.CurrentPage.Name;
+    var ctlName = "SPA";
+
+    var mode = this.ViewBag.Mode;
+    var isCreateMode = this.ViewBag.IsCreateMode;
+    var postActionName = (isCreateMode) ? "Create" : "Edit";
+    var id = (this.Model.HasValue) ? this.Model.ToString() : string.Empty;
+
+    Uri readDetailApiUrl = new Uri("api/SPA_ApproverSetupApi/Detail/" + id, UriKind.Relative);
+    Uri createApiUrl = new Uri("api/SPA_ApproverSetupApi/Create/", UriKind.Relative);
+    Uri modifyApiUrl = new Uri("api/SPA_ApproverSetupApi/Modify/" + id, UriKind.Relative);
+
+    Uri listPageUrl = new Uri("SPA_ApproverSetup/Index/" + masterInfo.CurrentPage.ID, UriKind.Relative);
+
+    // 下拉選單項目
+    var pairList_UserList = this.ViewBag.ParamList_UserList as List<KeyTextModel>;
+    var pairList_AssessmentItem = this.ViewBag.ParamList_AssessmentItem as List<KeyTextModel>;
+    var pairList_BU = this.ViewBag.ParamList_BU as List<KeyTextModel>;
+
+    // 欄位顯示和編輯設定
+    var validConfig = JsonConvert.SerializeObject(BI.SPA_ApproverSetup.Validators.SPA_ApproverSetupValidator.GetValidConfigs());
+}
+
+<style>
+    .SubArea {
+        background-color: #00A9E0;
+        font-size: 16pt;
+        color: white;
+        font-weight: bolder;
+    }
+</style>
+
+<div class="d-flex flex-column-fluid">
+    <!--begin::Container-->
+    <div class="container-fluid px-2">
+        <!--begin::Row-->
+        <div class="row">
+            <div class="col-lg-12">
+                <!--begin::Example-->
+                <!--begin::Card-->
+                <div class="card card-custom">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <h3 class="card-label">@this.ViewBag.Title - @ViewBag.Name</h3>
+                            @*<div class="d-block text-muted pt-2 font-size-sm">
+                                    <i class="icon-nm text-dark-50"></i>
+                                    (*)為必填選項
+                                </div>*@
+                        </div>
+                    </div>
+                    @using (Html.BeginForm(postActionName, ctlName, FormMethod.Post, new { @class = "form", id = "formMain" }))
+                    {
+                        <div class="card-body">
+                            <!-- 編輯區域 -->
+                            <div class="row">
+                                <div class="col-3">
+                                    <label class="col-form-label"><span style="color:red">*</span>評鑑項目 </label>
+                                    <select name="ServiceItemID" class="form-control form-control-sm selectpicker" data-live-search="true" title="請選擇">
+                                        @foreach (var pair in pairList_AssessmentItem)
+                                        {
+                                            <option value="@pair.Key">@pair.Text</option>
+                                        }
+                                    </select>
+                                </div>
+
+                                <div class="col-3">
+                                    <label class="col-form-label"><span style="color:red">*</span>評鑑單位 </label>
+                                    <select name="BUID" class="form-control form-control-sm selectpicker" data-live-search="true" title="請選擇">
+                                        @foreach (var pair in pairList_BU)
+                                        {
+                                            <option value="@pair.Key">@pair.Text</option>
+                                        }
+                                    </select>
+                                </div>
+
+
+                                <div class="col-6">
+                                    <label class="col-form-label"><span style="color:red">*</span>計分資料填寫者 </label>
+                                    <select name="InfoFills" class="form-control form-control-sm select2" multiple title="請選擇">
+                                        @foreach (var pair in pairList_UserList)
+                                        {
+                                            <option value="@pair.Key">@pair.Text</option>
+                                        }
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="row">
+
+                                <div class="col-3">
+                                    <label class="col-form-label"><span style="color:red">*</span>計分資料確認者 </label>
+                                    <select name="InfoConfirm" class="form-control form-control-sm selectpicker" data-live-search="true" title="請選擇">
+                                        @foreach (var pair in pairList_UserList)
+                                        {
+                                            <option value="@pair.Key">@pair.Text</option>
+                                        }
+                                    </select>
+                                </div>
+
+
+                                <div class="col-3">
+                                    <label class="col-form-label"><span style="color:red">*</span>第一關審核者 </label>
+                                    <select name="Lv1Apprvoer" class="form-control form-control-sm selectpicker" data-live-search="true" title="請選擇">
+                                        @foreach (var pair in pairList_UserList)
+                                        {
+                                            <option value="@pair.Key">@pair.Text</option>
+                                        }
+                                    </select>
+                                </div>
+
+
+                                <div class="col-3">
+                                    <label class="col-form-label">第二關審核者 </label>
+                                    <select name="Lv2Apprvoer" class="form-control form-control-sm selectpicker" data-live-search="true" title="請選擇">
+                                        <option value="@string.Empty">請選擇</option>
+                                        @foreach (var pair in pairList_UserList)
+                                        {
+                                            <option value="@pair.Key">@pair.Text</option>
+                                        }
+                                    </select>
+                                </div>
+
+                            </div>
+
+                            <!--btn-->
+                            <div class="my-5 col-12">
+                                <div class="d-flex justify-content-between border-top ">
+                                    <div class="mr-2">
+                                        <a href="@Url.Action(ViewBag.ViewReturn, new { id = @ViewBag.ViewReturnID })" class="btn btn-secondary">
+                                            取消
+                                        </a>
+                                    </div>
+                                    <div>
+                                        <button type="button" id="btnSave" class="btn btn-success mr-2">儲存</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <!--btn-->
+                        </div>
+                        <!--end::Card-->
+                    }
+                </div>
+            </div>
+            <input type="hidden" name="EditType" id="EditType" value="" />
+            @*<input type="hidden" name="MainID" id="hdfMainID" value="@id" />*@
+            <!--end::Code example-->
+            <!--end::Example-->
+        </div>
+    </div>
+</div>
+
+@* --將 js 註冊至頁尾-- *@
+@Html.Resource(
+    @<text>
+        <script src="~/ModuleResources/JavaScripts/Shared/TET_FormHelper.js?v=@DateTimeExtensions.GetJS_V_Text()"></script>
+        <script src="~/ModuleResources/JavaScripts/SPA_ApproverSetup/edit.js?v=@DateTimeExtensions.GetJS_V_Text()"></script>
+        <script>
+            var viewMode = '@mode';
+            var isCreateMode = @isCreateMode.ToString().ToLower();
+            var id = '@id';
+
+            var createApiUrl = platformEnvironment.hostUrl + '@createApiUrl';
+            var modifyApiUrl = platformEnvironment.hostUrl + '@modifyApiUrl';
+            var readDetailApiUrl = platformEnvironment.hostUrl + '@readDetailApiUrl';
+
+            var listPageUrl = platformEnvironment.hostUrl + '@listPageUrl';
+
+            var validConfig = @Html.Raw(validConfig);
+        </script>
+    </text>
+, "customScripts")

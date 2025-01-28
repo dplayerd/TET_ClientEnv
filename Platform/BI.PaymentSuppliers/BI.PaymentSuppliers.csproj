@@ -1,0 +1,149 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="..\packages\EntityFramework.6.5.1\build\EntityFramework.props" Condition="Exists('..\packages\EntityFramework.6.5.1\build\EntityFramework.props')" />
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{6FD2D90F-A02E-471D-9CE2-CE2DB3B9DA94}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <RootNamespace>BI.PaymetSuppliers</RootNamespace>
+    <AssemblyName>BI.PaymetSuppliers</AssemblyName>
+    <TargetFrameworkVersion>v4.6.2</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <Deterministic>true</Deterministic>
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject />
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <HintPath>..\packages\EntityFramework.6.5.1\lib\net45\EntityFramework.dll</HintPath>
+    </Reference>
+    <Reference Include="EntityFramework.SqlServer, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <HintPath>..\packages\EntityFramework.6.5.1\lib\net45\EntityFramework.SqlServer.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=6.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\Dev(供應商評鑑)\Platform\packages\Newtonsoft.Json.12.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Deployment" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Enums\ApprovalLevel.cs" />
+    <Compile Include="Enums\ApprovalResult.cs" />
+    <Compile Include="Enums\ApprovalRole.cs" />
+    <Compile Include="Enums\ApprovalStatus.cs" />
+    <Compile Include="Enums\ApprovalType.cs" />
+    <Compile Include="Flows\FlowModel.cs" />
+    <Compile Include="Flows\ModifyPaymentSupplierFlow.cs" />
+    <Compile Include="Flows\NewPaymentSupplierFlow.cs" />
+    <Compile Include="Flows\PaymentSupplierFlow.cs" />
+    <Compile Include="Models\ApprovalValidConfig.cs" />
+    <Compile Include="Models\ISupplierListQueryInput.cs" />
+    <Compile Include="Models\RevisionValidConfig.cs" />
+    <Compile Include="Models\PaymentSupplierListModel.cs" />
+    <Compile Include="Models\TET_PaymentSupplierApprovalModel.cs" />
+    <Compile Include="Models\TET_PaymentSupplierAttachmentModel.cs" />
+    <Compile Include="Models\TET_PaymentSupplierContactModel.cs" />
+    <Compile Include="Models\TET_PaymentSupplierModel.cs" />
+    <Compile Include="Models\ValidConfig.cs" />
+    <Compile Include="ModuleConfig.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TET_PaymentSupplierApprovalManager.cs" />
+    <Compile Include="TET_PaymentSupplierAttachmentManager.cs" />
+    <Compile Include="TET_PaymentSupplierContactManager.cs" />
+    <Compile Include="TET_PaymentSupplierManager.cs" />
+    <Compile Include="TET_PaymentSupplierRevisionManager.cs" />
+    <Compile Include="Utils\ApprovalMailUtil.cs" />
+    <Compile Include="Utils\ApprovalUtils.cs" />
+    <Compile Include="Validators\ApprovalValidator.cs" />
+    <Compile Include="Validators\PaymentSupplierRevisionValidator.cs" />
+    <Compile Include="Validators\QueryValidator.cs" />
+    <Compile Include="Validators\PaymentSupplierAttachmentValidator.cs" />
+    <Compile Include="Validators\PaymentSupplierContactValidator.cs" />
+    <Compile Include="Validators\PaymentSupplierValidator.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\BI.Shared\BI.Shared.csproj">
+      <Project>{c7b88ab0-37b5-4b25-9ae3-410447c22074}</Project>
+      <Name>BI.Shared</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Platform.AbstractionClass\Platform.AbstractionClass.csproj">
+      <Project>{6330b1ba-7111-4467-8446-4a38c5e3d1ee}</Project>
+      <Name>Platform.AbstractionClass</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Platform.Auth\Platform.Auth.csproj">
+      <Project>{fbab3ef0-28b7-4a04-9bde-0eb86124f131}</Project>
+      <Name>Platform.Auth</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Platform.FileSystem\Platform.FileSystem.csproj">
+      <Project>{2389e96d-ee22-4da2-9e89-013b92c48613}</Project>
+      <Name>Platform.FileSystem</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Platform.Infra\Platform.Infra.csproj">
+      <Project>{5defa750-6ea3-4dfb-bd82-d352d1db5f08}</Project>
+      <Name>Platform.Infra</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Platform.LogService\Platform.LogService.csproj">
+      <Project>{1d495112-15c2-467a-8d1f-30a799977f99}</Project>
+      <Name>Platform.LogService</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Platform.Messages\Platform.Messages.csproj">
+      <Project>{6119cd6a-395e-4418-b54d-3484b7fde53e}</Project>
+      <Name>Platform.Messages</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Platform.ORM\Platform.ORM.csproj">
+      <Project>{91e6d1c4-b7ec-4e9c-a0a3-ecd4a8f2d565}</Project>
+      <Name>Platform.ORM</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>此專案參考這部電腦上所缺少的 NuGet 套件。請啟用 NuGet 套件還原，以下載該套件。如需詳細資訊，請參閱 http://go.microsoft.com/fwlink/?LinkID=322105。缺少的檔案是 {0}。</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\packages\EntityFramework.6.5.1\build\EntityFramework.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\EntityFramework.6.5.1\build\EntityFramework.props'))" />
+    <Error Condition="!Exists('..\packages\EntityFramework.6.5.1\build\EntityFramework.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\EntityFramework.6.5.1\build\EntityFramework.targets'))" />
+  </Target>
+  <Import Project="..\packages\EntityFramework.6.5.1\build\EntityFramework.targets" Condition="Exists('..\packages\EntityFramework.6.5.1\build\EntityFramework.targets')" />
+</Project>

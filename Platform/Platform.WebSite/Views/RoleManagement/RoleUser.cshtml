@@ -1,0 +1,115 @@
+﻿@using Platform.WebSite.Helpers;
+@using Platform.WebSite.Models;
+@using Platform.Infra;
+
+@{
+    var masterInfo = (SiteViewModel)ViewBag.MasterInfo;
+    ViewBag.Title = masterInfo.CurrentPage.Name + " - 設定人員";
+    var RoleID = this.ViewBag.RoleID;
+    var indexPageUrl = Url.Action("Index", new { id = masterInfo.CurrentPage.ID });
+}
+
+<div class="row">
+    <div class="col-lg-6">
+        <!--begin::Card-->
+        <div class="card card-custom gutter-b">
+            <div class="card-header">
+                <div class="card-title">
+                    <div class="card-label">
+                        @*標題*@
+                        @ViewBag.Title
+                        @*標題*@
+                    </div>
+                </div>
+                <div class="card-toolbar">
+                    @*工具列*@
+
+                    @*工具列*@
+                </div>
+            </div>
+
+            <div class="card-body">
+                @*過濾條件*@
+                <div id="divSearchArea_Assigned">
+                    <div class="form-group row" style="padding: .5em">
+                        <div class="col-6">
+                            <label for="inpName_Assigned" class="col-form-label">帳號、姓、名、職稱</label>
+                            <input id="inpName_Assigned" name="Name" type="text" class="form-control form-control-sm" placeholder="請輸入帳號、姓、名、職稱" />
+                        </div>
+                        <div class="col-6" style="padding-top: 2.5em;">
+                            <button type="button" id="btnSearch_Assigned" class="btn btn-success"> 查詢 </button>
+                            <button type="button" id="btnUnMap" class="btn btn-primary">解除角色</button>
+                        </div>
+                    </div>
+                </div>
+                @*過濾條件*@
+
+                <!-- begin: table1 -->
+                <div>
+                    @*表格1*@
+                    <table class="table table-bordered table-hover table-checkable" id="dataGrid_Assigned" style="margin-top: 13px !important">
+                    </table>
+                    @*表格1*@
+                </div>
+                <!-- end: table1 -->
+            </div>
+        </div>
+        <!--end::Card-->
+    </div>
+    <div class="col-lg-6">
+        <!--begin::Card-->
+        <div class="card card-custom gutter-b">
+            <div class="card-header">
+                <div class="card-title">
+                    <h3 class="card-label"> 未綁定帳號 </h3>
+                </div>
+                <div class="card-toolbar">
+                    @*工具列*@
+                    <a href="@indexPageUrl" class="btn btn-light-dark"> 回列表 </a>
+                    @*工具列*@
+                </div>
+            </div>
+            <div class="card-body">
+                @*過濾條件*@
+                <div id="divSearchArea_Unassigned">
+                    <div class="form-group row" style="padding: .5em">
+                        <div class="col-6">
+                            <label for="inpName_Unassigned" class="col-form-label">帳號、姓、名、職稱</label>
+                            <input id="inpName_Unassigned" name="Name" type="text" class="form-control form-control-sm" placeholder="請輸入帳號、姓、名、職稱" />
+                        </div>
+                        <div class="col-6" style="padding-top: 2.5em;">
+                            <button type="button" id="btnSearch_Unassigned" class="btn btn-success"> 查詢 </button>
+                            <button type="button" id="btnMap" class="btn btn-primary">綁定角色</button>
+                        </div>
+                    </div>
+                </div>
+                @*過濾條件*@
+
+                <!-- begin: table2 -->
+                <div>
+                    @*表格1*@
+                    <table class="table table-bordered table-hover table-checkable" id="dataGrid_Unassigned" style="margin-top: 13px !important">
+                    </table>
+                    @*表格1*@
+                </div>
+                <!-- end: table2 -->
+            </div>
+        </div>
+        <!--end::Card-->
+    </div>
+</div>
+
+@* 要餵 SiteID 給 js 用，為必要的隱藏欄位 *@
+<div>
+    <input type="hidden" name="hfRoleID" id="hfRoleID" value="@RoleID" />
+</div>
+
+
+@* --將 js 註冊至頁尾-- *@
+@Html.Resource(
+    @<text>
+        <script src="~/Content/assets/plugins/custom/datatables/datatables.bundle.js?v=@DateTimeExtensions.GetJS_V_Text()"></script>
+        <script src="~/ModuleResources/JavaScripts/Shared/FormHelper.js?v=@DateTimeExtensions.GetJS_V_Text()"></script>
+        <script src="~/ModuleResources/JavaScripts/RoleManagement/roleUser.js?v=@DateTimeExtensions.GetJS_V_Text()"></script>
+    </text>
+, "customScripts")

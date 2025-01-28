@@ -1,0 +1,180 @@
+﻿@using Platform.AbstractionClass;
+@using Platform.WebSite.Helpers;
+@using Platform.WebSite.Models;
+@using Platform.Infra;
+
+@{
+    var masterInfo = (SiteViewModel)ViewBag.MasterInfo;
+    this.ViewBag.Title = masterInfo.CurrentPage.Name;
+    string controllerName = "SPA";
+
+    var paramList_BelongTo = this.ViewBag.ParamList_BelongTo as List<KeyTextModel>;
+    var paramList_Period = this.ViewBag.ParamList_Period as List<KeyTextModel>;
+    var paramList_BU = this.ViewBag.ParamList_BU as List<KeyTextModel>;
+    var paramList_AssessmentItem = this.ViewBag.ParamList_AssessmentItem as List<KeyTextModel>;
+    var paramList_PerformanceLevel = this.ViewBag.ParamList_PerformanceLevel as List<KeyTextModel>;
+}
+
+<!--begin::Card-->
+<div class="card card-custom">
+    <div class="card-header flex-wrap py-5">
+        <div class="card-title">
+            <div class="card-label">
+                @*標題*@
+                @ViewBag.Title
+                @*標題*@
+            </div>
+        </div>
+        <div class="card-toolbar" id="toolbar">
+            @*工具列*@
+            @*<a href="@createPageUrl" class="btn btn-primary font-weight-bolder">
+                    <i class="flaticon2-plus"></i>新增
+                </a>*@
+            @*工具列*@
+        </div>
+    </div>
+    <div class="card-body">
+        <div id="divSearchArea">
+            @*過濾條件*@
+            <div class="form-group row">
+
+                <div class="col-3">
+                    <label for="inpPeriod" class="col-form-label">評鑑期間</label>
+                    <select id="inpPeriod" name="Period" class="form-control form-control-sm select2" multiple title="請選擇">
+                        @foreach (var pair in paramList_Period)
+                        {
+                            <option value="@pair.Key">@pair.Text</option>
+                        }
+                    </select>
+                </div>
+
+                <div class="col-3">
+                    <label for="inpAssessmentItem" class="col-form-label">評鑑項目</label>
+                    <select id="inpAssessmentItem" name="AssessmentItem" class="form-control form-control-sm select2" multiple title="請選擇">
+                        @foreach (var pair in paramList_AssessmentItem)
+                        {
+                            <option value="@pair.Key">@pair.Text</option>
+                        }
+                    </select>
+                </div>
+
+                <div class="col-2">
+                    <label for="inpBelongTo" class="col-form-label">供應商</label>
+                    <select id="inpBelongTo" name="BelongTo" class="form-control form-control-sm select2" multiple title="請選擇">
+                        @foreach (var pair in paramList_BelongTo)
+                        {
+                            <option value="@pair.Key">@pair.Text</option>
+                        }
+                    </select>
+                </div>
+
+                <div class="col-2">
+                    <label for="inpBU" class="col-form-label">評鑑單位</label>
+                    <select id="inpBU" name="BU" class="form-control form-control-sm select2" multiple title="請選擇">
+                        @foreach (var pair in paramList_BU)
+                        {
+                            <option value="@pair.Key">@pair.Text</option>
+                        }
+                    </select>
+                </div>
+
+                <div class="col-2">
+                    <button type="button" id="btnSearch" class="btn btn-success" style="margin-top: 3em;"> 查詢 </button>
+                </div>
+            </div>
+            @*過濾條件*@
+        </div>
+        <!--start: Datatable-->
+        @*表格*@
+        <div id="kt_datatable_wrapper" class="dataTables_wrapper dt-bootstrap4 no-footer">
+            <div id="dataGridContainer"></div>
+        </div>
+        @*表格*@
+
+
+
+        @*樣版 - 表頭*@
+        <div id="template_Header" style="display: none;">
+            <table class="table table-bordered">
+                <thead>
+                    <tr class="FirstHeaderRow">
+                        <th scope="col" colspan="3" class="align-middle">
+                            <div class="text-center">
+                                TET 供應商績效評鑑 (<span class="AssessmentItem">評鑑項目</span>) <br />
+                                Supplier Performance Assessment <br />
+                                歷年評鑑結果
+                            </div>
+                            <hr />
+                            <div>
+                                Note: <br />
+                                除[服務配合度]外，其他各項評分應有客觀依據資料
+                            </div>
+                        </th>
+                    </tr>
+                    <tr class="bg-secondary SecondHeaderRow">
+                        <th scope="col" class="align-middle text-center"> 評鑑單位 <br /> BU </th>
+                        <th scope="col" class="align-middle text-center"> 服務對象 <br /> Service for </th>
+                        <th scope="col" class="align-middle text-center"> 供應商   <br /> Supplier </th>
+                    </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+        </div>
+
+        @*樣版 - 表頭 (動態欄位)*@
+        <div id="template_HeaderAfter" style="display: none;">
+            <table class="table table-bordered">
+                <thead>
+                    <tr class="FirstHeaderRow">
+                        <th scope="col" colspan="2" class="align-middle text-center">
+                            <span class="Period">評價期間</span> <br />
+                            <span class="sDate">sDate</span> ~
+                            <span class="eDate">eDate</span>
+                        </th>
+                    </tr>
+                    <tr class="SecondHeaderRow">
+                        <th scope="col" class="align-middle text-center">Performance <br /> Level</th>
+                        <th scope="col" class="align-middle text-center">Total <br />Score</th>
+                    </tr>
+                </thead>
+            </table>
+        </div>
+
+        @*樣版 - 表身*@
+        <div id="template_Body" style="display: none;">
+            <table>
+                <tbody>
+                    <tr>
+                        <td><span class="BU"></span></td>
+                        <td><span class="ServiceFor"></span></td>
+                        <td><span class="BelongTo"></span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        @*樣版 - 表身 (動態欄位)*@
+        <div id="template_BodyAfter" style="display: none;">
+            <table>
+                <tbody>
+                    <tr class="bg-secondary">
+                        <td class="text-center"><span class="PerformanceLevel"></span></td>
+                        <td class="text-center"><span class="TotalScore"></span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <!--end: Datatable-->
+    </div>
+</div>
+<!--end::Card-->
+@* --將 js 註冊至頁尾-- *@
+@Html.Resource(
+    @<text>
+        <script src="~/Content/assets/plugins/custom/datatables/datatables.bundle.js?v=@DateTimeExtensions.GetJS_V_Text()"></script>
+        <script src="~/ModuleResources/JavaScripts/Shared/TET_FormHelper.js?v=@DateTimeExtensions.GetJS_V_Text()"></script>
+        <script src="~/ModuleResources/JavaScripts/SPA/multiQuery.js?v=@DateTimeExtensions.GetJS_V_Text()"></script>
+    </text>
+, "customScripts")
+

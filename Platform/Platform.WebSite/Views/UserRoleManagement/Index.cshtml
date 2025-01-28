@@ -1,0 +1,49 @@
+﻿@using Platform.WebSite.Helpers;
+@using Platform.WebSite.Models;
+@using Platform.Infra;
+
+@{
+    var masterInfo = (SiteViewModel)ViewBag.MasterInfo;
+    ViewBag.Title = "帳號角色管理";
+}
+
+<!--begin::Card-->
+<div class="card card-custom">
+    <div class="card-header flex-wrap py-5">
+        <div class="card-title">
+            <div class="card-label">
+                @*標題*@
+                @ViewBag.Title
+                @*標題*@
+            </div>
+        </div>
+        <div class="card-toolbar">
+            @*工具列*@
+            @*工具列*@
+        </div>
+    </div>
+    <div class="card-body">
+        @*表格*@
+        <table class="table table-bordered table-hover table-checkable" id="dataGrid" style="margin-top: 13px !important">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>名稱</th>
+                    <th>是否啟用</th>
+                    <th>設定</th>
+                </tr>
+            </thead>
+        </table>
+        @*表格*@
+    </div>
+</div>
+<!--end::Card-->
+
+@* --將 js 註冊至頁尾-- *@
+@Html.Resource(
+@<text>
+    <script src="~/Content/assets/plugins/custom/datatables/datatables.bundle.js?v=@DateTimeExtensions.GetJS_V_Text()"></script>
+    <script src="~/ModuleResources/JavaScripts/Shared/FormHelper.js?v=@DateTimeExtensions.GetJS_V_Text()"></script>
+    <script src="~/ModuleResources/JavaScripts/UserRoleManagement/index.js?v=@DateTimeExtensions.GetJS_V_Text()"></script>
+</text>
+, "customScripts")

@@ -1,0 +1,1 @@
+﻿ALTER TABLE TET_Supplier ALTER COLUMN KeySupplier NVARCHAR(64)

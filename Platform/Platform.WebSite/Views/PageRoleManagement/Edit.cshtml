@@ -1,0 +1,153 @@
+﻿@using Platform.WebSite.Helpers;
+@using Platform.Portal.Models;
+@using Platform.Infra;
+@model PageModel
+
+@{
+    ViewBag.Title = "選單角色管理 - " + this.Model.Name;
+}
+
+<!--begin::Card-->
+<div class="card card-custom">
+    <div class="card-header flex-wrap py-5">
+        <div class="card-title">
+            <div class="card-label">
+                @*標題*@
+                @ViewBag.Title
+                @*標題*@
+            </div>
+        </div>
+        <div class="card-toolbar">
+            @*工具列*@
+            @*工具列*@
+        </div>
+    </div>
+    <div class="card-body">
+        @*表格*@
+        <table class="table table-bordered table-hover table-checkable" id="dataGrid" style="margin-top: 13px !important">
+            <thead>
+                <tr>
+                    <th>角色</th>
+
+                    <th>閱讀清單</th>
+                    <th>閱讀內頁</th>
+                    <th>新增</th>
+                    <th>修改</th>
+                    <th>刪除</th>
+                    <th>匯出</th>
+                    <th>管理者功能</th>
+
+                    <th>是否啟用</th>
+                    <th>設定</th>
+                </tr>
+            </thead>
+        </table>
+        @*表格*@
+    </div>
+</div>
+<!--end::Card-->
+@*編輯區*@
+<div class="modal fade bd-example-modal-xl" id="editorArea" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered  modal-xl" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalCenterTitle">
+                    @*編輯區標題*@
+                    <span class="display-4">@ViewBag.Title</span>
+                    @*編輯區標題*@
+                </h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <!-- 內容 -->
+                <form class="form">
+                    <div class="tab-content">
+                        <!--begin::Tab-->
+                        <div class="tab-pane show px-7 active" id="kt_user_edit_tab_1" role="tabpanel">
+                            <!--begin::Row-->
+                            <div class="row">
+                                <div class="col-xl-2"></div>
+                                <div class="col-xl-7 my-2">
+                                    <!--begin::Group-->
+                                    <div class="form-group row">
+                                        <label class="col-form-label col-3 text-lg-right text-left">名稱</label>
+                                        <div class="col-9">
+                                            @* Column: Id  *@
+                                            <input type="hidden" name="RoleID" value="" />
+
+                                            @* Column: Name  *@
+                                            <input class="form-control form-control-lg form-control-solid" type="text" name="RoleName" value="" disabled="disabled" placeholder="請輸入名稱" />
+                                        </div>
+                                    </div>
+                                    <!--end::Group-->
+                                    <!--begin::Group-->
+                                    <div class="form-group row">
+                                        <label class="col-form-label col-3 text-lg-right text-left">標準行為</label>
+                                        <div class="col-9">
+                                            @* Column: Standard Actions  *@
+                                            <table border="1">
+                                                <tr>
+                                                    <th>閱讀清單</th>
+                                                    <th>閱讀內頁</th>
+                                                    <th>新增</th>
+                                                    <th>修改</th>
+                                                    <th>刪除</th>
+                                                    <th>匯出</th>
+                                                    <th>管理者</th>
+                                                </tr>
+                                                <tr>
+                                                    <td style="text-align:center;"><input type="checkbox" name="ReadList" /></td>
+                                                    <td style="text-align:center;"><input type="checkbox" name="ReadDetail" /></td>
+                                                    <td style="text-align:center;"><input type="checkbox" name="Create" /></td>
+                                                    <td style="text-align:center;"><input type="checkbox" name="Modify" /></td>
+                                                    <td style="text-align:center;"><input type="checkbox" name="Delete" /></td>
+                                                    <td style="text-align:center;"><input type="checkbox" name="Export" /></td>
+                                                    <td style="text-align:center;"><input type="checkbox" name="Admin" /></td>
+                                                </tr>
+                                            </table>
+                                        </div>
+                                    </div>
+                                    <!--end::Group-->
+                                    <!--begin::Group-->
+                                    <div class="form-group row" style="display:none;">
+                                        <label class="col-form-label col-3 text-lg-right text-left">特殊權限</label>
+                                        <div class="col-9">
+                                            @* Column: IsEnable  *@
+                                            <div id="SpecificActions">
+                                                -
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <!--end::Group-->
+                                </div>
+                            </div>
+                            <!--end::Row-->
+                        </div>
+                        <!--end::Tab-->
+                    </div>
+                </form>
+                <!-- 內容 -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">關閉</button>
+                <button type="button" class="btn btn-primary" id="btnSave">儲存</button>
+            </div>
+        </div>
+    </div>
+</div>
+@*編輯區*@
+
+@* 要餵 SiteID,PageID 給 js 用，為必要的隱藏欄位 *@
+<input type="hidden" id="hfSiteID" value="@this.Model.SiteID" />
+<input type="hidden" id="hfPageID" value="@this.Model.ID" />
+
+@* --將 js 註冊至頁尾-- *@
+@Html.Resource(
+@<text>
+    <script src="~/Content/assets/plugins/custom/datatables/datatables.bundle.js?v=@DateTimeExtensions.GetJS_V_Text()"></script>
+    <script src="~/ModuleResources/JavaScripts/Shared/FormHelper.js?v=@DateTimeExtensions.GetJS_V_Text()"></script>
+    <script src="~/ModuleResources/JavaScripts/PageRoleManagement/edit.js?v=@DateTimeExtensions.GetJS_V_Text()"></script>
+</text>
+, "customScripts")

@@ -1,0 +1,47 @@
+﻿@{
+    Layout = null;
+
+    var masterInfo = (Platform.WebSite.Models.SiteViewModel)ViewBag.MasterInfo;
+    string rootUrl = VirtualPathUtility.ToAbsolute("~/");
+    string background_imgUrl = VirtualPathUtility.ToAbsolute("~/Content/assets/media/error/bg5.jpg");
+    string pageTitle = "Error happened";
+}
+
+<!DOCTYPE html>
+<html lang="zh-hant">
+<!--begin::Head-->
+<head>
+    <meta charset="utf-8" />
+    <meta lang="zh-tw" />
+    <title>@pageTitle | @masterInfo.Name</title>
+    <meta name="description" content="" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <!--begin::Page Custom Styles(used by this page)-->
+    <link href="~/Content/assets/css/pages/error/error-5.css" rel="stylesheet" type="text/css" />
+    <!--end::Page Custom Styles-->
+    <!--begin::Global Theme Styles(used by all pages)-->
+    <link href="~/Content/assets/css/style.bundle.css" rel="stylesheet" type="text/css" />
+    <!--end::Global Theme Styles-->
+    <link rel="shortcut icon" href="~/Content/assets/media/logos/favicon.ico" />
+</head>
+<!--end::Head-->
+<!--begin::Body-->
+<body id="kt_body" class="header-fixed header-mobile-fixed subheader-enabled subheader-fixed aside-enabled aside-fixed aside-minimize-hoverable page-loading">
+    <!--begin::Main-->
+    <div class="d-flex flex-column flex-root">
+        <!--begin::Error-->
+        <div class="error error-5 d-flex flex-row-fluid bgi-size-cover bgi-position-center" style="background-image: url(@background_imgUrl);">
+            <!--begin::Content-->
+            <div class="container d-flex flex-row-fluid flex-column justify-content-md-center p-12">
+                <h1 class="error-title font-weight-boldest text-info mt-10 mt-md-0 mb-12">Oops!</h1>
+                <p class="font-weight-boldest display-4">Something went wrong here.</p>
+                <p class="font-size-h3">We're working on it and we'll get it fixedas soon possible.You can back or use our Help Center.</p>
+            </div>
+            <!--end::Content-->
+        </div>
+        <!--end::Error-->
+    </div>
+    <!--end::Main-->
+</body>
+<!--end::Body-->
+</html>

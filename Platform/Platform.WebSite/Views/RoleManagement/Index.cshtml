@@ -1,0 +1,137 @@
+﻿@using Platform.WebSite.Helpers;
+@using Platform.WebSite.Models;
+@using Platform.Infra;
+
+@{
+    var masterInfo = (SiteViewModel)ViewBag.MasterInfo;
+    var SiteID = masterInfo.ID;
+    ViewBag.Title = masterInfo.CurrentPage.Name;
+}
+
+<!--begin::Card-->
+<div class="card card-custom">
+    <div class="card-header flex-wrap py-5">
+        <div class="card-title">
+            <div class="card-label">
+                @*標題*@
+                @ViewBag.Title
+                @*標題*@
+            </div>
+        </div>
+        <div class="card-toolbar">
+            @*工具列*@
+
+            <button class="btn btn-primary font-weight-bolder" id="btnCreate">
+                <i class="flaticon2-plus"></i> 新增
+            </button>
+            @*工具列*@
+        </div>
+    </div>
+    <div class="card-body">
+        @*過濾條件*@
+        <div id="divSearchArea">
+            <div class="form-group row" style="padding: .5em">
+                <div class="col-6">
+                    <label for="inpName" class="col-form-label">角色名稱</label>
+                    <input id="inpName" name="Name" type="text" class="form-control form-control-sm" placeholder="請輸入角色名稱" />
+                </div>
+                <div class="col-2" style="padding-top: 2.5em;">
+                    <button type="button" id="btnSearch" class="btn btn-success"> 查詢 </button>
+                </div>
+            </div>
+        </div>
+        @*過濾條件*@
+        @*表格*@
+        <table class="table table-bordered table-hover table-checkable" id="dataGrid" style="margin-top: 13px !important"></table>
+        @*表格*@
+    </div>
+</div>
+<!--end::Card-->
+@*編輯區*@
+<div class="modal fade bd-example-modal-xl" id="editorArea" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered  modal-xl" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalCenterTitle">
+                    @*編輯區標題*@
+                    <span class="display-4">@ViewBag.Title</span>
+                    @*編輯區標題*@
+                </h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <!-- 內容 -->
+                <form class="form">
+                    <div class="tab-content">
+                        <!--begin::Tab-->
+                        <div class="tab-pane show px-7 active" id="kt_user_edit_tab_1" role="tabpanel">
+                            <!--begin::Row-->
+                            <div class="row">
+                                <div class="col-xl-2"></div>
+                                <div class="col-xl-7 my-2">
+                                    <!--begin::Group-->
+                                    <div class="form-group row">
+                                        <label class="col-form-label col-3 text-lg-right text-left">名稱</label>
+                                        <div class="col-9">
+                                            @* Column: Id  *@
+                                            <input type="hidden" name="ID" value="" />
+
+                                            @* Column: Name  *@
+                                            <input class="form-control form-control-lg form-control-solid" type="text" name="Name" value="" placeholder="請輸入名稱" />
+
+                                            @* 提示文字範例 *@
+                                            <div class="d-block text-muted pt-2 font-size-sm">
+                                                <i class="icon-nm text-dark-50 flaticon2-information"></i>
+                                                注意：角色的名稱為必填，且不允許重覆名稱，包含名稱相同但大小寫不同的情況。
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <!--end::Group-->
+                                    <!--begin::Group-->
+                                    <div class="form-group row">
+                                        <label class="col-form-label col-3 text-lg-right text-left">是否啟用</label>
+                                        <div class="col-9">
+                                            @* Column: IsEnable  *@
+                                            <span class="switch">
+                                                <label>
+                                                    <input type="checkbox" checked="checked" name="IsEnable" />
+                                                    <span></span>
+                                                </label>
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <!--end::Group-->
+                                </div>
+                            </div>
+                            <!--end::Row-->
+                        </div>
+                        <!--end::Tab-->
+                    </div>
+                </form>
+                <!-- 內容 -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">關閉</button>
+                <button type="button" class="btn btn-primary" id="btnSave">儲存</button>
+            </div>
+        </div>
+    </div>
+</div>
+@*編輯區*@
+
+@* 要餵 SiteID 給 js 用，為必要的隱藏欄位 *@
+<input type="hidden" id="hfSiteID" value="@SiteID" />
+
+@* --將 js 註冊至頁尾-- *@
+@Html.Resource(
+@<text>
+    <script>
+        var pageID = '@masterInfo.CurrentPage.ID';
+    </script>
+    <script src="~/Content/assets/plugins/custom/datatables/datatables.bundle.js?v=@DateTimeExtensions.GetJS_V_Text()"></script>
+    <script src="~/ModuleResources/JavaScripts/Shared/FormHelper.js?v=@DateTimeExtensions.GetJS_V_Text()"></script>
+    <script src="~/ModuleResources/JavaScripts/RoleManagement/index.js?v=@DateTimeExtensions.GetJS_V_Text()"></script>
+</text>
+, "customScripts")

@@ -1,0 +1,28 @@
+﻿@model Platform.WebSite.Models.SiteViewModel
+@*
+    原始內容
+    <ul class="breadcrumb breadcrumb-transparent breadcrumb-dot font-weight-bold p-0 my-2 font-size-sm">
+        <li class="breadcrumb-item text-muted">
+            <a href="" class="text-muted">General</a>
+        </li>
+        <li class="breadcrumb-item text-muted">
+            <a href="" class="text-muted">Empty Page</a>
+        </li>
+    </ul>
+*@
+
+<!--begin::Breadcrumb-->
+<ul class="breadcrumb breadcrumb-transparent breadcrumb-dot font-weight-bold p-0 my-2 font-size-sm">
+    <li class="breadcrumb-item text-muted">   
+    </li>
+    @if (this.Model.CurrentPage != null)
+    {
+        foreach (var item in this.Model.CurrentPage.GetParentUtilRoot())
+        {
+            <li class="breadcrumb-item text-muted">
+                <a href="@item.Url" class="text-muted">@item.Name</a>
+            </li>
+        }
+    }
+</ul>
+<!--end::Breadcrumb-->
