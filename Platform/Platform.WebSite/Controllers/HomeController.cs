@@ -56,7 +56,9 @@ namespace Platform.WebSite.Controllers
                                 if (!subSubItem.IsKeep)
                                 {
                                     subItem.Children.Remove(subSubItem);
-                                    j -= 1;
+
+                                    if (j > 0)
+                                        j -= 1;
                                 }
                             }
                         }
@@ -64,12 +66,13 @@ namespace Platform.WebSite.Controllers
                         if (!subItem.IsKeep)
                         {
                             item.Children.Remove(subItem);
-                            i -= 1;
+                            if (i > 0)
+                                i -= 1;
                         }
                     }
                 }
 
-                if(item.IsKeep && item.MenuTypeEnum == MenuTypeEnum.Folder)
+                if (item.IsKeep && item.MenuTypeEnum == MenuTypeEnum.Folder)
                 {
                     pageList.Add(item);
                 }
