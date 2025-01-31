@@ -1,6 +1,15 @@
-﻿"use strict";
+﻿var divDetailEditorSelector = '#editorArea';  // 編輯區
+var intMenuType_Module = 2;
+
+var divFileSelector = ".fileUpload";            // 上傳檔案
+var divAttachmentSelector = ".attachment";      // 已上傳區
+var imgFileSelector = "img";                    // 圖片
+
+var btnClearImageSelector = "#btnClearImage";   // 清除圖片鈕
+var hdfClearImageSelector = "[name=ClearImage]";   // 清除圖片鈕
+
+
 $(document).ready(function () {
-    var intMenuType_Module = 2;
 
     var listApiUrl = platformEnvironment.hostUrl + "api/PageApi/GetDataTableList/";
     var detailApiUrl = platformEnvironment.hostUrl + "api/PageApi/";
@@ -10,13 +19,27 @@ $(document).ready(function () {
     var readFolderApiUrl = platformEnvironment.hostUrl + "api/NavigateApi/GetList/";
     var readModuleApiList = platformEnvironment.hostUrl + "api/ModuleManagementApi/GetModuleList/";
 
-    // 依MenuType顯示系統模組
-    var showModuleSelector = function () {
-        var jqSelected = $('select[name=MenuType] option:selected');
-        var willShow = jqSelected.val() == intMenuType_Module;
-        $("#ModuleSelector").toggle(willShow);
+    // 依資料顯示不同欄位
+    var setMainInput = function (jqObjArea, objFormData) {
+
+        if (objFormData == null) { 
+            $("#ModuleSelector").hide();
+
+            jqObjArea.find("")
+        } else {
+            var willShow = objFormData.MenuType == intMenuType_Module;
+            $("#ModuleSelector").toggle(willShow);
+
+            var willShowImg = (objFormData.Attachment != null) ;
+            jqObjArea.find(divFileSelector).toggle(!willShowImg);
+            jqObjArea.find(divAttachmentSelector).toggle(willShowImg);
+
+            if(willShowImg) {
+                jqObjArea.find(divAttachmentSelector).find(imgFileSelector).prop("src", objFormData.Attachment.FilePath);
+            }
+        }
     }
-    showModuleSelector();
+    setMainInput($(divDetailEditorSelector), null);
 
     // 列表區域
     var PageManagementDataTable = function () {
@@ -71,8 +94,8 @@ $(document).ready(function () {
                         render: function (data, type, rowData, meta) {
                             var rowId = rowData["ID"];
 
-                            var htm = 
-                            `<div class="divButtonContainer">
+                            var htm =
+                                `<div class="divButtonContainer">
                                 <input type="hidden" name="rowKey" value="${rowId}" />
                         	    <button type="button" class="btn btn-sm btn-primary btnEdit" title="編輯">
                                     編輯
@@ -88,7 +111,7 @@ $(document).ready(function () {
             });
         };
 
-        // 設定欄裡面的按鈕
+        // 設定欄裡面的按鈕 - 編輯鈕
         $("#dataGrid").on('click', '.btnEdit', function () {
             var container = $(this).closest(".divButtonContainer");
             var id = container.find(":hidden").val();
@@ -99,18 +122,18 @@ $(document).ready(function () {
             }).done(function (data) {
                 console.log(data);
 
-                var container = $('#editorArea');
+                var container = $(divDetailEditorSelector);
                 container.data("editMode", "edit");
                 FormHelper.ClearColumns(container);
                 FormHelper.MapColumns(container, data);
 
-                showModuleSelector();
+                setMainInput(container, data);
 
                 container.modal('show');
             });
         });
 
-        // 設定欄裡面的按鈕
+        // 設定欄裡面的按鈕 - 刪除鈕
         $("#dataGrid").on('click', '.btnDelete', function () {
             var container = $(this).closest(".divButtonContainer");
             var id = container.find(":hidden").val();
@@ -130,7 +153,7 @@ $(document).ready(function () {
         });
 
         // 設定下拉選單事件
-        $('select[name=MenuType]').change(showModuleSelector);
+        $('select[name=MenuType]').change(setMainInput);
 
         return {
             //main function to initiate the module
@@ -144,7 +167,7 @@ $(document).ready(function () {
     var PageManagementEditor = function () {
 
         var initEditor1 = function (objInit) {
-            var container = $('#editorArea');
+            var container = $(divDetailEditorSelector);
 
             // 新增鈕
             $("#btnCreate").click(function () {
@@ -166,6 +189,20 @@ $(document).ready(function () {
                     var postData = FormHelper.GetColumns(container);
                     postData["SiteID"] = objInit.siteID;
 
+                    if (container.data("editMode") == "new")
+                        delete postData.ID;
+
+                    var formData = new FormData();
+                    formData.append("Main", JSON.stringify(postData));
+                    formData.append("ClearImage", postData.ClearImage);
+
+                    // file
+                    var uploadFile = container.find("[name=PageImage]").get(0).files;
+                    if (uploadFile.length > 0) {
+                        formData.append("AttachmentList", uploadFile[0]);
+                    }
+
+
                     var url = createApiUrl;
 
                     if (container.data("editMode") == "new")
@@ -176,16 +213,28 @@ $(document).ready(function () {
                         return;
 
                     $.ajax({
-                       url: url,
-                       method: 'POST',
-                       dataType: 'JSON',
-                       data: postData
-                    }).done(function () {
-                       alert('更新完成');
-                       $('#dataGrid').DataTable().ajax.reload();
-                       $('#editorArea').modal('hide');
-                    }).fail(function () {
-                       alert('更新失敗');
+                        url: url,
+                        method: 'POST',
+                        dataType: 'TEXT',
+                        data: formData,
+                        contentType: false,         // 不設定 Content-Type
+                        processData: false,         // 不處理發送的資料
+                    }).done(function (data) {
+                        alert("送出成功");
+                        $('#dataGrid').DataTable().ajax.reload();
+                        $('#editorArea').modal('hide');
+                    }).fail(function (jqXHR, textStatus, errorThrown) {
+                        if (jqXHR.responseJSON == undefined || jqXHR.responseJSON.Message == null)
+                            alert("儲存失敗，請聯絡管理員。");
+                        else {
+                            try {
+                                var msg = JSON.parse(jqXHR.responseJSON.Message).join('\n');
+                                alert(msg);
+                            } catch (ex) {
+                                console.log(ex);
+                                alert(jqXHR.responseJSON.ExceptionMessage);
+                            }
+                        }
                     });
                 }
             });
@@ -222,6 +271,15 @@ $(document).ready(function () {
                 }
             }).fail(function () {
                 alert('讀取選單 (模組) 失敗');
+            });
+
+            // 清除圖片鈕
+            $(btnClearImageSelector).click(function() {
+                container.find(imgFileSelector).prop("src", "#");
+
+                container.find(divFileSelector).show();
+                container.find(divAttachmentSelector).hide();
+                container.find(hdfClearImageSelector).val("true");
             });
         };
 

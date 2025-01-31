@@ -1,0 +1,1 @@
+DELETE [TET_Supplier2].[dbo].[MediaFiles];

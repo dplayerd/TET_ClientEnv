@@ -63,11 +63,12 @@ namespace Platform.WebSite.Services
 
         /// <summary> 修改頁面 </summary>
         /// <param name="model"></param>
+        /// <param name="clearImage"></param>
         /// <param name="userID"></param>
         /// <param name="time"></param>
-        public static void ModifyPage(PageModel model, string userID, DateTime time)
+        public static void ModifyPage(PageModel model, bool clearImage, string userID, DateTime time)
         {
-            PageService.GetPageManager().ModifyPage(model, userID, time);
+            PageService.GetPageManager().ModifyPage(model, clearImage, userID, time);
         }
 
         /// <summary> 修改頁面 </summary>

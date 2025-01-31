@@ -2,20 +2,19 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using Platform.AbstractionClass;
 using Platform.ORM;
 using Platform.Portal.Models;
 using Platform.Infra;
 using Platform.LogService;
-using System.Data.Entity.Core.Metadata.Edm;
-using System.Security.Policy;
+using Platform.FileSystem;
 
 namespace Platform.Portal
 {
     public class PageManager
     {
         private Logger _logger = new Logger();
+        MediaFileManager fileManager = new MediaFileManager();
 
         #region Read
         /// <summary> 查出所有的頁面 </summary>
@@ -32,7 +31,7 @@ namespace Platform.Portal
                         (from obj in context.Pages
                          where
                             obj.SiteID == siteID &&
-                            obj.IsEnable == true 
+                            obj.IsEnable == true
                          select obj);
 
                     if (menuType != null)
@@ -41,27 +40,54 @@ namespace Platform.Portal
                         query = query.Where(obj => obj.MenuType == mType);
                     }
 
+                    var mediaFileQuery =
+                        from obj in context.MediaFiles
+                        where
+                            obj.ModuleName == ModuleConfig.ModuleName_Page &&
+                            obj.Purpose == MediaFileModel.DefaultPurpose &&
+                            (obj.DeleteDate == null && obj.DeleteUser == null)
+                        select new MediaFileModel()
+                        {
+                            ID = obj.ID,
+                            ModuleName = obj.ModuleName,
+                            ModuleID = obj.ModuleID,
+                            Purpose = obj.Purpose,
+                            FilePath = obj.FilePath,
+                            OrgFileName = obj.OrgFileName,
+                            OutputFileName = obj.OutputFileName,
+                            MimeType = obj.MimeType,
+                            RequireAuth = obj.RequireAuth,
+                            IsEnable = obj.IsEnable,
+                        };
+
+
                     var list =
-                       (from obj in query
-                        orderby obj.SortNo
+                       (from item in query
+                        orderby item.SortNo
+                        join mediaFileItem in mediaFileQuery
+                            on item.ID.ToString() equals mediaFileItem.ModuleID
+                            into temp
+                        from tempItem in temp.DefaultIfEmpty()
                         select
                             new PageModel()
                             {
-                                ID = obj.ID,
-                                SiteID = obj.SiteID,
-                                ParentID = obj.ParentID,
-                                Name = obj.Name,
-                                PageTitle = obj.Description,
-                                MenuType = obj.MenuType,
-                                OuterLink = obj.Linkurl,
-                                ModuleID = obj.ModuleID,
-                                PageIcon = obj.PageIcon,
-                                SortNo = obj.SortNo,
-                                IsEnable = obj.IsEnable,
-                                CreateUser = obj.CreateUser,
-                                CreateDate = obj.CreateDate,
-                                ModifyUser = obj.ModifyUser,
-                                ModifyDate = obj.ModifyDate,
+                                ID = item.ID,
+                                SiteID = item.SiteID,
+                                ParentID = item.ParentID,
+                                Name = item.Name,
+                                PageTitle = item.Description,
+                                MenuType = item.MenuType,
+                                OuterLink = item.Linkurl,
+                                ModuleID = item.ModuleID,
+                                PageIcon = item.PageIcon,
+                                SortNo = item.SortNo,
+                                IsEnable = item.IsEnable,
+                                CreateUser = item.CreateUser,
+                                CreateDate = item.CreateDate,
+                                ModifyUser = item.ModifyUser,
+                                ModifyDate = item.ModifyDate,
+
+                                Attachment = temp.FirstOrDefault()
                             }
                        ).ToList();
 
@@ -88,7 +114,7 @@ namespace Platform.Portal
                     var query =
                         (from obj in context.Pages
                          join obj2 in context.Modules
-                         on obj.ModuleID equals obj2.ID into combine
+                            on obj.ModuleID equals obj2.ID into combine
                          from temp in combine.DefaultIfEmpty()
                          where
                             obj.SiteID == siteID
@@ -134,7 +160,29 @@ namespace Platform.Portal
             {
                 using (PlatformContextModel context = new PlatformContextModel())
                 {
-                    var retObj =
+                    var mediaFileQuery =
+                        from obj in context.MediaFiles
+                        where
+                            obj.ModuleID == id.ToString() &&
+                            obj.ModuleName == ModuleConfig.ModuleName_Page &&
+                            obj.Purpose == MediaFileModel.DefaultPurpose &&
+                            (obj.DeleteDate == null && obj.DeleteUser == null)
+                        select new MediaFileModel()
+                        {
+                            ID = obj.ID,
+                            ModuleName = obj.ModuleName,
+                            ModuleID = obj.ModuleID,
+                            Purpose = obj.Purpose,
+                            FilePath = obj.FilePath,
+                            OrgFileName = obj.OrgFileName,
+                            OutputFileName = obj.OutputFileName,
+                            MimeType = obj.MimeType,
+                            RequireAuth = obj.RequireAuth,
+                            IsEnable = obj.IsEnable,
+                        };
+
+
+                    var query =
                         (from obj in context.Pages
                          where
                             obj.ID == id &&
@@ -158,64 +206,14 @@ namespace Platform.Portal
                                  ModifyUser = obj.ModifyUser,
                                  ModifyDate = obj.ModifyDate,
                              }
-                        ).FirstOrDefault();
+                        );
 
-                    return retObj;
-                }
-            }
-            catch (Exception ex)
-            {
-                _logger.WriteError(ex);
-                return default;
-            }
-        }
-
-        /// <summary> 依站台及頁面名稱查詢頁面 </summary>
-        /// <param name="siteID"></param>
-        /// <param name="pageName"></param>
-        /// <param name="excludePageID"> 要排除的頁面 ID </param>
-        /// <returns></returns>
-        public PageModel GetPage(Guid siteID, string pageName, Guid? excludePageID)
-        {
-            try
-            {
-                using (PlatformContextModel context = new PlatformContextModel())
-                {
-                    var query =
-                        (from obj in context.Pages
-                         where
-                            obj.SiteID == siteID &&
-                            obj.Name == pageName &&
-                            obj.IsEnable == true
-                         select obj);
-
-                    if (excludePageID.HasValue)
-                        query = query.Where(obj => obj.ID != excludePageID.Value);
-
-                    var retObj =
-                        (from obj in query
-                         select
-                             new PageModel()
-                             {
-                                 ID = obj.ID,
-                                 SiteID = obj.SiteID,
-                                 ParentID = obj.ParentID,
-                                 Name = obj.Name,
-                                 PageTitle = obj.Description,
-                                 MenuType = obj.MenuType,
-                                 OuterLink = obj.Linkurl,
-                                 ModuleID = obj.ModuleID,
-                                 PageIcon = obj.PageIcon,
-                                 SortNo = obj.SortNo,
-                                 IsEnable = obj.IsEnable,
-                                 CreateUser = obj.CreateUser,
-                                 CreateDate = obj.CreateDate,
-                                 ModifyUser = obj.ModifyUser,
-                                 ModifyDate = obj.ModifyDate,
-                             }
-                        ).FirstOrDefault();
-
-                    return retObj;
+                    var mediaFile = mediaFileQuery.FirstOrDefault();
+                    var result = query.FirstOrDefault();
+                    if (result != null)
+                        result.Attachment = mediaFile;
+                    
+                    return result;
                 }
             }
             catch (Exception ex)
@@ -237,7 +235,7 @@ namespace Platform.Portal
                     var query =
                         (from obj in context.Pages
                          where
-                            obj.ID == pageID 
+                            obj.ID == pageID
                          select obj);
 
                     var retObj =
@@ -331,11 +329,11 @@ namespace Platform.Portal
         #region CUD
         /// <summary> 建立頁面 </summary>
         /// <param name="model"></param>
-        /// <param name="userID"></param>
-        /// <param name="time"></param>
+        /// <param name="cUser"></param>
+        /// <param name="cDate"></param>
         /// <exception cref="ArgumentNullException"></exception>
         /// <exception cref="ArgumentException"></exception>
-        public void CreatePage(PageModel model, string userID, DateTime time)
+        public void CreatePage(PageModel model, string cUser, DateTime cDate)
         {
             if (model == null || !SiteManager.IsExist(model.SiteID))
                 throw new ArgumentNullException($"Site doesn't exists: [Site: {model?.SiteID}]");
@@ -363,13 +361,36 @@ namespace Platform.Portal
                         PageIcon = model.PageIcon,
                         SortNo = model.SortNo,
                         IsEnable = true,
-                        CreateUser = userID,
-                        CreateDate = time,
-                        ModifyUser = userID,
-                        ModifyDate = time,
+                        CreateUser = cUser,
+                        CreateDate = cDate,
+                        ModifyUser = cUser,
+                        ModifyDate = cDate,
                     };
 
                     dbModel.ID = Guid.NewGuid();
+
+                    // 取得使用者舊頭像，如果舊頭像存在，刪除之
+                    var oldFile = fileManager.GetAdminMediaFile(context, ModuleConfig.ModuleName_Page, dbModel.ID.ToString());
+                    if (oldFile != null)
+                        fileManager.DeleteDataAndFile(context, oldFile.ID, cUser, cDate);
+
+                    // 儲存資料庫
+                    MediaFileModel mediaFileModel = new MediaFileModel()
+                    {
+                        ModuleName = ModuleConfig.ModuleName_Page,
+                        ModuleID = dbModel.ID.ToString(),
+                        MimeType = model.UploadFile.MimeType,
+                        FilePath = ModuleConfig.PageFileFolderPath,
+                        RequireAuth = false,
+                        OutputFileName = model.UploadFile.FileName,
+                        OrgFileName = model.UploadFile.FileName,
+                    };
+
+                    // 存檔
+                    fileManager.UploadAndCreate(context, mediaFileModel, model.UploadFile, cUser, cDate);
+
+
+
 
                     context.Pages.Add(dbModel);
                     context.SaveChanges();
@@ -386,11 +407,12 @@ namespace Platform.Portal
         /// <para> 站台不因此變更 </para>
         /// </summary>
         /// <param name="model"></param>
-        /// <param name="userID"></param>
-        /// <param name="time"></param>
+        /// <param name="clearImage"></param>
+        /// <param name="cUser"></param>
+        /// <param name="cDate"></param>
         /// <exception cref="ArgumentNullException"></exception>
         /// <exception cref="ArgumentException"></exception>
-        public void ModifyPage(PageModel model, string userID, DateTime time)
+        public void ModifyPage(PageModel model, bool clearImage, string cUser, DateTime cDate)
         {
             if (model == null || !SiteManager.IsExist(model.SiteID))
                 throw new ArgumentNullException($"Site doesn't exists: [Site: {model?.SiteID}]");
@@ -417,8 +439,8 @@ namespace Platform.Portal
                     dbModel.Linkurl = model.OuterLink ?? string.Empty;
                     dbModel.SortNo = model.SortNo;
                     dbModel.IsEnable = true;
-                    dbModel.ModifyUser = userID;
-                    dbModel.ModifyDate = time;
+                    dbModel.ModifyUser = cUser;
+                    dbModel.ModifyDate = cDate;
 
                     if (model.ModuleID != null)
                         dbModel.ModuleID = model.ModuleID;
@@ -429,6 +451,30 @@ namespace Platform.Portal
                         dbModel.PageIcon = model.PageIcon;
                     else
                         dbModel.PageIcon = dbModel.PageIcon;
+
+
+                    // 取得使用者舊頭像，如果舊頭像存在，刪除之
+                    var oldFile = fileManager.GetAdminMediaFile(context, ModuleConfig.ModuleName_Page, dbModel.ID.ToString());
+                    if (oldFile != null && (clearImage || model.UploadFile != null))
+                        fileManager.DeleteDataAndFile(context, oldFile.ID, cUser, cDate);
+
+                    if (model.UploadFile != null)
+                    {
+                        // 儲存資料庫
+                        MediaFileModel mediaFileModel = new MediaFileModel()
+                        {
+                            ModuleName = ModuleConfig.ModuleName_Page,
+                            ModuleID = dbModel.ID.ToString(),
+                            MimeType = model.UploadFile.MimeType,
+                            FilePath = ModuleConfig.PageFileFolderPath,
+                            RequireAuth = false,
+                            OutputFileName = model.UploadFile.FileName,
+                            OrgFileName = model.UploadFile.FileName,
+                        };
+
+                        // 存檔
+                        fileManager.UploadAndCreate(context, mediaFileModel, model.UploadFile, cUser, cDate);
+                    }
 
                     context.SaveChanges();
                 }
@@ -478,6 +524,61 @@ namespace Platform.Portal
         #endregion
 
         #region Private Methods
+        /// <summary> 依站台及頁面名稱查詢頁面 </summary>
+        /// <param name="siteID"></param>
+        /// <param name="pageName"></param>
+        /// <param name="excludePageID"> 要排除的頁面 ID </param>
+        /// <returns></returns>
+        private PageModel GetPage(Guid siteID, string pageName, Guid? excludePageID)
+        {
+            try
+            {
+                using (PlatformContextModel context = new PlatformContextModel())
+                {
+                    var query =
+                        (from obj in context.Pages
+                         where
+                            obj.SiteID == siteID &&
+                            obj.Name == pageName &&
+                            obj.IsEnable == true
+                         select obj);
+
+                    if (excludePageID.HasValue)
+                        query = query.Where(obj => obj.ID != excludePageID.Value);
+
+                    var retObj =
+                        (from obj in query
+                         select
+                             new PageModel()
+                             {
+                                 ID = obj.ID,
+                                 SiteID = obj.SiteID,
+                                 ParentID = obj.ParentID,
+                                 Name = obj.Name,
+                                 PageTitle = obj.Description,
+                                 MenuType = obj.MenuType,
+                                 OuterLink = obj.Linkurl,
+                                 ModuleID = obj.ModuleID,
+                                 PageIcon = obj.PageIcon,
+                                 SortNo = obj.SortNo,
+                                 IsEnable = obj.IsEnable,
+                                 CreateUser = obj.CreateUser,
+                                 CreateDate = obj.CreateDate,
+                                 ModifyUser = obj.ModifyUser,
+                                 ModifyDate = obj.ModifyDate,
+                             }
+                        ).FirstOrDefault();
+
+                    return retObj;
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.WriteError(ex);
+                return default;
+            }
+        }
+
         private bool IsExist(PageModel model)
         {
             return IsExist(model.SiteID, model.Name);

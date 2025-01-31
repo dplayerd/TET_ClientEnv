@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Platform.AbstractionClass;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -31,6 +32,14 @@ namespace Platform.Portal.Models
             return (MenuTypeEnum)this.MenuType;
         }
         public string ModuleName { get; set; }
+        #endregion
+
+        #region 檔案上傳
+        /// <summary> 本次上傳的檔案 </summary>
+        public FileContent UploadFile { get; set; }
+
+        /// <summary> 已附加檔案 </summary>
+        public MediaFileModel Attachment { get; set; }
         #endregion
     }
 }

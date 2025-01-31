@@ -138,6 +138,10 @@ namespace Platform.WebSite.Models
                 return this.ParentNode.FullPathName + " > " + this.Name;
             }
         }
+
+
+        /// <summary> 圖片路徑 </summary>
+        public string ImagePath { get; set; }
         #endregion
     }
 }

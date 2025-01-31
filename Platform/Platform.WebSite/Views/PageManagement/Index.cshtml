@@ -1,6 +1,7 @@
 ﻿@using Platform.WebSite.Helpers;
 @using Platform.WebSite.Models;
 @using Platform.Infra;
+@using Platform.Portal;
 
 @{
     var masterInfo = (SiteViewModel)ViewBag.MasterInfo;
@@ -58,7 +59,10 @@
                                 <div class="col-xl-2"></div>
                                 <div class="col-xl-7 my-2">
                                     <input type="hidden" name="ID" value="" />
-                                    <!--begin::Group-->
+                                    <input type="hidden" name="ClearImage" value="false" />
+
+
+                                    <!--名稱-->
                                     <div class="form-group row">
                                         <label class="col-form-label col-3 text-lg-right text-left">名稱</label>
                                         <div class="col-9">
@@ -70,17 +74,19 @@
                                             </div>
                                         </div>
                                     </div>
-                                    <!--end::Group-->
-                                    <!--begin::Group-->
+                                    <!--名稱-->
+
+                                    <!--標題-->
                                     <div class="form-group row">
                                         <label class="col-form-label col-3 text-lg-right text-left">標題</label>
                                         <div class="col-9">
                                             <input class="form-control form-control-lg form-control-solid" type="text" name="PageTitle" value="" placeholder="請輸入標題" />
                                         </div>
                                     </div>
-                                    <!--end::Group-->
-                                    <!--begin::Group-->
-                                    <div class="form-group row" style="display: none;">
+                                    <!--標題-->
+
+                                    <!--上層資料夾-->
+                                    <div class="form-group row">
                                         <label class="col-form-label col-3 text-lg-right text-left">上層資料夾</label>
                                         <div class="col-9">
                                             <select class="form-control form-control-lg form-control-solid" name="ParentID">
@@ -88,8 +94,9 @@
                                             </select>
                                         </div>
                                     </div>
-                                    <!--end::Group-->
-                                    <!--begin::Group-->
+                                    <!--上層資料夾-->
+
+                                    <!--圖示-->
                                     <div class="form-group row">
                                         <label class="col-form-label col-3 text-lg-right text-left">圖示</label>
                                         <div class="col-9">
@@ -101,8 +108,9 @@
                                             </div>
                                         </div>
                                     </div>
-                                    <!--end::Group-->
-                                    <!--begin::Group-->
+                                    <!--圖示-->
+
+                                    <!--頁面種類-->
                                     <div class="form-group row" style="display: none;">
                                         <label class="col-form-label col-3 text-lg-right text-left">頁面種類</label>
                                         <div class="col-9">
@@ -113,10 +121,16 @@
                                                 <option value="3">外連結</option>
                                                 <option value="4">檔案下載</option>
                                             </select>
+
+                                            <div class="d-block pt-2 font-size-sm text-danger">
+                                                <i class="icon-nm text-dark-50 flaticon2-information"></i>
+                                                頁面種類設定後就無法再變更
+                                            </div>
                                         </div>
                                     </div>
-                                    <!--end::Group-->
-                                    <!--begin::Group-->
+                                    <!--頁面種類-->
+
+                                    <!--模組選擇-->
                                     <div class="form-group row" id="ModuleSelector" style="display: none;">
                                         <label class="col-form-label col-3 text-lg-right text-left">模組選擇</label>
                                         <div class="col-9">
@@ -125,8 +139,9 @@
                                             </select>
                                         </div>
                                     </div>
-                                    <!--end::Group-->
-                                    <!--begin::Group-->
+                                    <!--模組選擇-->
+
+                                    <!-- 排序值 -->
                                     <div class="form-group row">
                                         <label class="col-form-label col-3 text-lg-right text-left">排序值</label>
                                         <div class="col-9">
@@ -137,7 +152,34 @@
                                             </div>
                                         </div>
                                     </div>
-                                    <!--end::Group-->
+                                    <!-- 排序值 -->
+
+                                    <!-- 圖片 -->
+                                    <div class="form-group row">
+                                        <label class="col-form-label col-3 text-lg-right text-left">圖片</label>
+                                        <div class="col-9">
+
+                                            <!--上傳檔案-->
+                                            <div class="row fileUpload">
+                                                <input class="form-control form-control-lg form-control-solid col-6" type="file" name="PageImage" accept=".jpg,.png,.gif" />&nbsp;
+                                            </div>
+                                            <!--上傳檔案-->
+                                            
+                                            <!--附件-->
+                                            <div class="row attachment">
+                                                <img src="#" id="fileImg" alt="已上傳圖片" width="@ModuleConfig.PageImageWidth" height="@ModuleConfig.PageImageHeight" />
+                                                <button type="button" id="btnClearImage" class="btn btn-sm btn-danger"> 清除圖片 </button>
+                                            </div>
+                                            <!--附件-->
+
+                                            <div class="d-block text-muted font-size-sm">
+                                                <i class="icon-nm text-dark-50 pt-2 flaticon2-information"></i>
+                                                允許格式為 jpg / png / gif，最佳解析度為 @ModuleConfig.PageImageWidth px * @ModuleConfig.PageImageHeight px 。 <br />
+                                                若己上傳圖片，則不再顯示圖示。
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <!-- 圖片 -->
 
                                 </div>
                             </div>

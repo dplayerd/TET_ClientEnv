@@ -30,5 +30,11 @@ namespace Platform.Portal
             AllowSizeMB = 5,
             AllowExtensions = new string[] { ".jpg", ".png", ".gif" },
         };
+
+        /// <summary> 圖片寬 </summary>
+        public static int PageImageWidth = 240;
+
+        /// <summary> 圖片高 </summary>
+        public static int PageImageHeight = 180;
     }
 }

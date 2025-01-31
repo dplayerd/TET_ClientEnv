@@ -122,6 +122,9 @@ namespace Platform.WebSite.Services
                 TipType = NavigateItemTipType.None
             };
 
+            if (model.Attachment != null)
+                vModel.ImagePath = model.Attachment.FilePath;
+
             return vModel;
         }
 
