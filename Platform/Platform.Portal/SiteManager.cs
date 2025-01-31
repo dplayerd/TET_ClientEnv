@@ -108,7 +108,7 @@ namespace Platform.Portal
                         from obj in context.MediaFiles
                         where
                             obj.ModuleID == siteID.ToString() &&
-                            obj.ModuleName == ModuleConfig.ModuleName &&
+                            obj.ModuleName == ModuleConfig.ModuleName_Site &&
                             obj.Purpose == MediaFileModel.DefaultPurpose &&
                             (obj.DeleteDate == null && obj.DeleteUser == null)
                         select obj;
@@ -118,7 +118,7 @@ namespace Platform.Portal
                         join mediaFileItem in mediaFileQuery
                             on siteItem.ID.ToString() equals mediaFileItem.ModuleID into temp
                         where siteItem.ID == siteID
-                        from tempItem in temp
+                        from tempItem in temp.DefaultIfEmpty()
                         select
                             new SiteModel()
                             {
@@ -174,14 +174,14 @@ namespace Platform.Portal
                         var fileManager = new MediaFileManager();
 
                         // 取得站台舊 logo ，如果存在，刪除之
-                        var oldFile = fileManager.GetAdminMediaFile(context, ModuleConfig.ModuleName, siteModel.ID.ToString());
+                        var oldFile = fileManager.GetAdminMediaFile(context, ModuleConfig.ModuleName_Site, siteModel.ID.ToString());
                         if (oldFile != null)
                             fileManager.DeleteDataAndFile(context, oldFile.ID, userID, cDate);
 
                         // 資料庫
                         MediaFileModel mediaFileModel = new MediaFileModel()
                         {
-                            ModuleName = ModuleConfig.ModuleName,
+                            ModuleName = ModuleConfig.ModuleName_Site,
                             ModuleID = siteModel.ID.ToString(),
                             MimeType = fileContent.MimeType,
                             FilePath = ModuleConfig.SiteLogoFolderPath,
