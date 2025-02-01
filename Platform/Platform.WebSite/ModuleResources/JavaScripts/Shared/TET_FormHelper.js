@@ -158,17 +158,8 @@ var setFormInput = function (jqObjArea, objFormData) {
 
 
         if (item.hasClass("select2")) {
-            for (var i = 0; i < arr.length; i++) {
-                var val = arr[i];
-                if (val === undefined || val == null || val.length == 0) {
-                    var opt = item.find(`option[value=""]`);
-                    opt.prop("selected", true);
-                }
-                else {
-                    var opt = item.find(`option[value="${val}"]`);
-                    opt.prop("selected", true);
-                }
-            }
+            item.val(arr);
+            item.trigger('change'); 
         }
         else {
             // 呼叫 selectPicker 的 API 給值

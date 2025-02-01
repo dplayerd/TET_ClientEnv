@@ -127,8 +127,8 @@ $(function () {
                         var result = $(`<table border="0" cellpadding="0"></table>`);
                         if (rowData.FileUploadList && rowData.FileUploadList.length > 0) {
                             var temp =
-                                rowData.FileUploadList.map((obj, index) => 
-                                `<tr> 
+                                rowData.FileUploadList.map((obj, index) =>
+                                    `<tr> 
                                     <td> ${obj.AttachmentFileName} </td>
                                     <td> 
                                         <button type="button" name="deleteFileUpload" value="${index}" class="btn btn-sm btn-danger" title="刪除"> 
@@ -142,8 +142,8 @@ $(function () {
                         }
                         else if (rowData.AttachmentList && rowData.AttachmentList.length > 0) {
                             var temp =
-                                rowData.AttachmentList.map((obj, index) => 
-                                `<tr> 
+                                rowData.AttachmentList.map((obj, index) =>
+                                    `<tr> 
                                     <td>
                                         <a href="${downloadFileUrl}${obj.ID}" target="_blank">${obj.OrgFileName}</a> 
                                     </td>
@@ -239,7 +239,6 @@ $(function () {
 
         cols.forEach(obj => {
             $(divDetailEditorSelector).find("[name=" + obj + "]").prop("disabled", !isEnable);
-            //$(divDetailEditorSelector).find("[name=" + obj + "]").selectpicker("refresh");
         });
     }
 
@@ -496,23 +495,22 @@ $(function () {
         var selectedItem = detailArea.find("[name=IsEvaluate]").val();
 
         if (selectedItem == fixText_IsEvaluate) {
-            detailArea.find("[name=PriceDeflator]").val("NA").trigger('change');
-            detailArea.find("[name=PaymentTerm]").val("NA").trigger('change');
-            detailArea.find("[name=Cooperation]").val("NA").trigger('change');
-
-            detailArea.find("[name=PriceDeflator]").find(`option[value=NA]`).prop("selected", true);
-            detailArea.find("[name=PaymentTerm]").find(`option[value=NA]`).prop("selected", true);
-            detailArea.find("[name=Cooperation]").find(`option[value=NA]`).prop("selected", true);
-
+            detailArea.find("[name=PriceDeflator]").val("NA");
+            detailArea.find("[name=PaymentTerm]").val("NA");
+            detailArea.find("[name=Cooperation]").val("NA");
 
             detailArea.find("[name=PriceDeflator]").prop("disabled", true);
             detailArea.find("[name=PaymentTerm]").prop("disabled", true);
             detailArea.find("[name=Cooperation]").prop("disabled", true);
-        }else {
+        } else {
             detailArea.find("[name=PriceDeflator]").prop("disabled", false);
             detailArea.find("[name=PaymentTerm]").prop("disabled", false);
             detailArea.find("[name=Cooperation]").prop("disabled", false);
         }
+
+        detailArea.find("[name=PriceDeflator]").change();
+        detailArea.find("[name=PaymentTerm]").change();
+        detailArea.find("[name=Cooperation]").change();
     }
     setTimeout(function () { _setDefaultValue(); }, 250);
 
@@ -527,9 +525,17 @@ $(function () {
         var selectedItem = detailArea.find("[name=POSource]").val();
 
         if (selectedItem == fixText_POSource) {
-            detailArea.find("[name=PriceDeflator]").val("NA").trigger('change');
-            detailArea.find("[name=PaymentTerm]").val("NA").trigger('change');
-            detailArea.find("[name=Cooperation]").val("NA").trigger('change');
+            detailArea.find("[name=PriceDeflator]").val("NA");
+            detailArea.find("[name=PaymentTerm]").val("NA");
+            detailArea.find("[name=Cooperation]").val("NA");
+
+            // detailArea.find("[name=PriceDeflator]").selectpicker("refresh");
+            // detailArea.find("[name=PaymentTerm]").selectpicker("refresh");
+            // detailArea.find("[name=Cooperation]").selectpicker("refresh");
+
+            detailArea.find("[name=PriceDeflator]").change();
+            detailArea.find("[name=PaymentTerm]").change();
+            detailArea.find("[name=Cooperation]").change();
         }
     }
     setTimeout(function () { _setDefaultValue2(); }, 250);
@@ -824,11 +830,6 @@ $(function () {
 
             if (viewMode == "Detail" || !item.CanEdit) {
                 field.prop("disabled", true);
-
-                // 如果是特殊下拉選單，要用 API 鎖定和解鎖
-                if (field.hasClass("selectpicker")) {
-                    field.selectpicker('refresh');
-                }
             }
         });
 
