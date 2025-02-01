@@ -1,1 +1,6 @@
-DELETE [TET_Supplier2].[dbo].[MediaFiles];
+DELETE [TET_Supplier2].[dbo].[MediaFiles]
+WHERE ModuleName <> 'Portal';
+
+-- 若 Logo 消失，使用此語法救回
+INSERT [dbo].[MediaFiles] ([SeqNo], [ID], [ModuleName], [ModuleID], [Purpose], [FilePath], [OrgFileName], [OutputFileName], [MimeType], [RequireAuth], [IsEnable], [CreateUser], [CreateDate], [ModifyUser], [ModifyDate], [DeleteUser], [DeleteDate]) VALUES (8, N'fbd91cd5-2b57-4930-aa10-2ad3c4bd13ce', N'Portal', N'15e34669-cc25-48c5-85c6-6af49252cbfe', N'', N'/Images/logo.png', N'Logo.png', N'logo.png', N'image/png', 0, 1, N'F9C2F7F4-CF1A-41C0-B767-0D5217E8863F', CAST(N'2021-12-10T10:33:26.043' AS DateTime), NULL, NULL, NULL, NULL)
+GO
