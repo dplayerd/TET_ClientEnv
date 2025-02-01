@@ -118,7 +118,7 @@ namespace Platform.Portal
                          from temp in combine.DefaultIfEmpty()
                          where
                             obj.SiteID == siteID
-                         orderby obj.SortNo descending
+                         orderby obj.SortNo 
                          select new PageModel()
                          {
                              ID = obj.ID,

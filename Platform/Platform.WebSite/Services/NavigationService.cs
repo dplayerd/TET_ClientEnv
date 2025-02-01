@@ -151,7 +151,9 @@ namespace Platform.WebSite.Services
         {
             Dictionary<string, NavigateItemViewModel> dic = new Dictionary<string, NavigateItemViewModel>();
 
-            foreach (var item in list)
+            var enm = list.OrderBy(obj => obj.SortIndex);
+
+            foreach (var item in enm)
             {
                 if (dic.ContainsKey(item.ID))
                     continue;
@@ -174,7 +176,7 @@ namespace Platform.WebSite.Services
                 }
                 else
                 {
-                    var parentNode = list.Where(obj => obj.ID == item.ParentID).FirstOrDefault();
+                    var parentNode = enm.Where(obj => obj.ID == item.ParentID).FirstOrDefault();
 
                     if (parentNode == null)
                         continue;
