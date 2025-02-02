@@ -10,6 +10,9 @@ namespace Platform.Infra
     {
         public static string GetJS_V_Text()
         {
+#if(DEBUG)
+            return "V";
+#endif
             return DateTime.Now.ToString("yyyyMMddHHmm");
         }
     }
