@@ -68,13 +68,13 @@ namespace Platform.WebSite.Controllers
 
 
             // 查詢下拉選單用內容
-            this.ViewBag.ParamList_ServiceFor = TET_ParameterService.GetTET_ParametersList("SPA服務對象");
-            this.ViewBag.ParamList_BU = TET_ParameterService.GetTET_ParametersList("SPA評鑑單位");
+            this.ViewBag.ParamList_ServiceFor = TET_ParameterService.GetTET_ParametersList1("SPA服務對象");
+            this.ViewBag.ParamList_BU = TET_ParameterService.GetTET_ParametersList1("SPA評鑑單位");
             this.ViewBag.ParamList_BelongTo = this._supplierMgr.GetBelongToList();
-            this.ViewBag.ParamList_AssessmentItem = TET_ParameterService.GetTET_ParametersList("SPA評鑑項目");
-            this.ViewBag.ParamList_PriceDeflator = TET_ParameterService.GetTET_ParametersList("SPA價格競爭力");
-            this.ViewBag.ParamList_PaymentTerm = TET_ParameterService.GetTET_ParametersList("SPA付款條件");
-            this.ViewBag.ParamList_Cooperation = TET_ParameterService.GetTET_ParametersList("SPA配合度");
+            this.ViewBag.ParamList_AssessmentItem = TET_ParameterService.GetTET_ParametersList1("SPA評鑑項目");
+            this.ViewBag.ParamList_PriceDeflator = TET_ParameterService.GetTET_ParametersList1("SPA價格競爭力");
+            this.ViewBag.ParamList_PaymentTerm = TET_ParameterService.GetTET_ParametersList1("SPA付款條件");
+            this.ViewBag.ParamList_Cooperation = TET_ParameterService.GetTET_ParametersList1("SPA配合度");
 
             // 其它值
             var period = PeriodUtil.ParsePeriod(startingPeriod.Period);
@@ -98,13 +98,13 @@ namespace Platform.WebSite.Controllers
             this.ViewBag.IsCreateMode = false;
 
             // 查詢下拉選單用內容
-            this.ViewBag.ParamList_ServiceFor = TET_ParameterService.GetTET_ParametersList("SPA服務對象");
-            this.ViewBag.ParamList_BU = TET_ParameterService.GetTET_ParametersList("SPA評鑑單位");
+            this.ViewBag.ParamList_ServiceFor = TET_ParameterService.GetTET_ParametersList1("SPA服務對象");
+            this.ViewBag.ParamList_BU = TET_ParameterService.GetTET_ParametersList1("SPA評鑑單位");
             this.ViewBag.ParamList_BelongTo = this._supplierMgr.GetBelongToList();
-            this.ViewBag.ParamList_AssessmentItem = TET_ParameterService.GetTET_ParametersList("SPA評鑑項目");
-            this.ViewBag.ParamList_PriceDeflator = TET_ParameterService.GetTET_ParametersList("SPA價格競爭力");
-            this.ViewBag.ParamList_PaymentTerm = TET_ParameterService.GetTET_ParametersList("SPA付款條件");
-            this.ViewBag.ParamList_Cooperation = TET_ParameterService.GetTET_ParametersList("SPA配合度");
+            this.ViewBag.ParamList_AssessmentItem = TET_ParameterService.GetTET_ParametersList1("SPA評鑑項目");
+            this.ViewBag.ParamList_PriceDeflator = TET_ParameterService.GetTET_ParametersList1("SPA價格競爭力");
+            this.ViewBag.ParamList_PaymentTerm = TET_ParameterService.GetTET_ParametersList1("SPA付款條件");
+            this.ViewBag.ParamList_Cooperation = TET_ParameterService.GetTET_ParametersList1("SPA配合度");
 
 
             // 修改模式
@@ -126,13 +126,13 @@ namespace Platform.WebSite.Controllers
             this.ViewBag.IsCreateMode = false;
 
             // 查詢下拉選單用內容
-            this.ViewBag.ParamList_ServiceFor = TET_ParameterService.GetTET_ParametersList("SPA服務對象");
-            this.ViewBag.ParamList_BU = TET_ParameterService.GetTET_ParametersList("SPA評鑑單位");
+            this.ViewBag.ParamList_ServiceFor = TET_ParameterService.GetTET_ParametersList1("SPA服務對象");
+            this.ViewBag.ParamList_BU = TET_ParameterService.GetTET_ParametersList1("SPA評鑑單位");
             this.ViewBag.ParamList_BelongTo = this._supplierMgr.GetBelongToList();
-            this.ViewBag.ParamList_AssessmentItem = TET_ParameterService.GetTET_ParametersList("SPA評鑑項目");
-            this.ViewBag.ParamList_PriceDeflator = TET_ParameterService.GetTET_ParametersList("SPA價格競爭力");
-            this.ViewBag.ParamList_PaymentTerm = TET_ParameterService.GetTET_ParametersList("SPA付款條件");
-            this.ViewBag.ParamList_Cooperation = TET_ParameterService.GetTET_ParametersList("SPA配合度");
+            this.ViewBag.ParamList_AssessmentItem = TET_ParameterService.GetTET_ParametersList1("SPA評鑑項目");
+            this.ViewBag.ParamList_PriceDeflator = TET_ParameterService.GetTET_ParametersList1("SPA價格競爭力");
+            this.ViewBag.ParamList_PaymentTerm = TET_ParameterService.GetTET_ParametersList1("SPA付款條件");
+            this.ViewBag.ParamList_Cooperation = TET_ParameterService.GetTET_ParametersList1("SPA配合度");
 
             // 修改模式
             var model = this._mgr.GetOne(spa_CostServiceID);

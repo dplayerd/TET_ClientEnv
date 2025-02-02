@@ -76,6 +76,28 @@ namespace Platform.WebSite.Services
             return retList.Select(obj => new KeyTextModel() { Key = obj.ID.ToString().ToUpper(), Text = obj.Item }).ToList();
         }
 
+        public static List<KeyTextModel> GetTET_ParametersList1(string typeName)
+        {
+            if (HttpContext.Current == null)
+                return new List<KeyTextModel>();
+
+            List<TET_ParametersModel> sourceList;
+
+            if (HttpContext.Current.Items[_parameterListKey] == null)
+            {
+                var list = _mgr.GetAllParametersKeyTextList();
+                HttpContext.Current.Items[_parameterListKey] = list;
+                sourceList = list;
+            }
+            else
+            {
+                sourceList = (List<TET_ParametersModel>)HttpContext.Current.Items[_parameterListKey];
+            }
+
+            var retList = sourceList.Where(obj => string.Compare(typeName, obj.Type, true) == 0).ToList();
+            return retList.Select(obj => new KeyTextModel() { Key = obj.Item, Text = obj.Item }).ToList();
+        }
+
         public static List<KeyTextModel> GetTET_ParametersList(Guid id)
         {
             if (HttpContext.Current == null)
