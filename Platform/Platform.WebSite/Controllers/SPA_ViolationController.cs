@@ -66,11 +66,11 @@ namespace Platform.WebSite.Controllers
                 return RedirectToAction(nameof(Index), new { id = id });
 
             // 查詢下拉選單用內容
-            this.ViewBag.ParamList_BU = TET_ParameterService.GetTET_ParametersList("SPA評鑑單位");
+            this.ViewBag.ParamList_BU = TET_ParameterService.GetTET_ParametersList1("SPA評鑑單位");
             this.ViewBag.ParamList_BelongTo = this._supplierMgr.GetBelongToList();
-            this.ViewBag.ParamList_AssessmentItem = TET_ParameterService.GetTET_ParametersList("SPA評鑑項目");
-            this.ViewBag.ParamList_ViolationMiddleCategory = TET_ParameterService.GetTET_ParametersList("SPA違規紀錄中分類");
-            this.ViewBag.ParamList_ViolationSmallCategory = TET_ParameterService.GetTET_ParametersList("SPA違規紀錄小分類");
+            this.ViewBag.ParamList_AssessmentItem = TET_ParameterService.GetTET_ParametersList1("SPA評鑑項目");
+            this.ViewBag.ParamList_ViolationMiddleCategory = TET_ParameterService.GetTET_ParametersList1("SPA違規紀錄中分類");
+            this.ViewBag.ParamList_ViolationSmallCategory = TET_ParameterService.GetTET_ParametersList1("SPA違規紀錄小分類");
 
             // 其它值
             var period = PeriodUtil.ParsePeriod(startingPeriod.Period);
@@ -94,11 +94,11 @@ namespace Platform.WebSite.Controllers
             this.ViewBag.IsCreateMode = false;
 
             // 查詢下拉選單用內容
-            this.ViewBag.ParamList_BU = TET_ParameterService.GetTET_ParametersList("SPA評鑑單位");
+            this.ViewBag.ParamList_BU = TET_ParameterService.GetTET_ParametersList1("SPA評鑑單位");
             this.ViewBag.ParamList_BelongTo = this._supplierMgr.GetBelongToList();
-            this.ViewBag.ParamList_AssessmentItem = TET_ParameterService.GetTET_ParametersList("SPA評鑑項目");
-            this.ViewBag.ParamList_ViolationMiddleCategory = TET_ParameterService.GetTET_ParametersList("SPA違規紀錄中分類");
-            this.ViewBag.ParamList_ViolationSmallCategory = TET_ParameterService.GetTET_ParametersList("SPA違規紀錄小分類");
+            this.ViewBag.ParamList_AssessmentItem = TET_ParameterService.GetTET_ParametersList1("SPA評鑑項目");
+            this.ViewBag.ParamList_ViolationMiddleCategory = TET_ParameterService.GetTET_ParametersList1("SPA違規紀錄中分類");
+            this.ViewBag.ParamList_ViolationSmallCategory = TET_ParameterService.GetTET_ParametersList1("SPA違規紀錄小分類");
 
             if (!spa_violationId.HasValue)
                 return new HttpStatusCodeResult(HttpStatusCode.NotFound);
@@ -123,11 +123,11 @@ namespace Platform.WebSite.Controllers
             this.ViewBag.IsCreateMode = false;
 
             // 查詢下拉選單用內容
-            this.ViewBag.ParamList_BU = TET_ParameterService.GetTET_ParametersList("SPA評鑑單位");
+            this.ViewBag.ParamList_BU = TET_ParameterService.GetTET_ParametersList1("SPA評鑑單位");
             this.ViewBag.ParamList_BelongTo = this._supplierMgr.GetBelongToList();
-            this.ViewBag.ParamList_AssessmentItem = TET_ParameterService.GetTET_ParametersList("SPA評鑑項目");
-            this.ViewBag.ParamList_ViolationMiddleCategory = TET_ParameterService.GetTET_ParametersList("SPA違規紀錄中分類");
-            this.ViewBag.ParamList_ViolationSmallCategory = TET_ParameterService.GetTET_ParametersList("SPA違規紀錄小分類");
+            this.ViewBag.ParamList_AssessmentItem = TET_ParameterService.GetTET_ParametersList1("SPA評鑑項目");
+            this.ViewBag.ParamList_ViolationMiddleCategory = TET_ParameterService.GetTET_ParametersList1("SPA違規紀錄中分類");
+            this.ViewBag.ParamList_ViolationSmallCategory = TET_ParameterService.GetTET_ParametersList1("SPA違規紀錄小分類");
 
             // 修改模式
             var model = this._mgr.GetOne(spa_violationId);

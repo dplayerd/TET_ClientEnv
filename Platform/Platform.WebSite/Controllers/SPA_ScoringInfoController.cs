@@ -36,9 +36,9 @@ namespace Platform.WebSite.Controllers
                 return this.FindModuleAndRedirectToPage(BI.SPA_ScoringInfo.ModuleConfig.ModuleName);
             }
 
-            this.ViewBag.ParamList_BU = TET_ParameterService.GetTET_ParametersList("SPA評鑑單位");
-            this.ViewBag.ParamList_ServiceFor = TET_ParameterService.GetTET_ParametersList("SPA服務對象");
-            this.ViewBag.paramList_ServiceItem = TET_ParameterService.GetTET_ParametersList("SPA評鑑項目");
+            this.ViewBag.ParamList_BU = TET_ParameterService.GetTET_ParametersList1("SPA評鑑單位");
+            this.ViewBag.ParamList_ServiceFor = TET_ParameterService.GetTET_ParametersList1("SPA服務對象");
+            this.ViewBag.paramList_ServiceItem = TET_ParameterService.GetTET_ParametersList1("SPA評鑑項目");
             this.ViewBag.ParamList_BelongTo = this._supplierMgr.GetBelongToList();
             this.ViewBag.ParamList_ApproveStatus = new List<KeyTextModel>()
             {
@@ -71,9 +71,9 @@ namespace Platform.WebSite.Controllers
             this.ViewBag.IsCreateMode = false;
 
             // 查詢下拉選單用內容
-            this.ViewBag.ParamList_MajorJob = TET_ParameterService.GetTET_ParametersList("SPA主要負責作業");
-            this.ViewBag.ParamList_ServiceFor = TET_ParameterService.GetTET_ParametersList("SPA服務對象");
-            this.ViewBag.ParamList_WorkItem = TET_ParameterService.GetTET_ParametersList("SPA作業項目");
+            this.ViewBag.ParamList_MajorJob = TET_ParameterService.GetTET_ParametersList1("SPA主要負責作業");
+            this.ViewBag.ParamList_ServiceFor = TET_ParameterService.GetTET_ParametersList1("SPA服務對象");
+            this.ViewBag.ParamList_WorkItem = TET_ParameterService.GetTET_ParametersList1("SPA作業項目");
 
             // 修改模式
             var model = this._mgr.GetOne(SPA_ScoringInfoID);
@@ -98,9 +98,9 @@ namespace Platform.WebSite.Controllers
             this.ViewBag.IsCreateMode = false;
 
             // 查詢下拉選單用內容
-            this.ViewBag.ParamList_MajorJob = TET_ParameterService.GetTET_ParametersList("SPA主要負責作業");
-            this.ViewBag.ParamList_ServiceFor = TET_ParameterService.GetTET_ParametersList("SPA服務對象");
-            this.ViewBag.ParamList_WorkItem = TET_ParameterService.GetTET_ParametersList("SPA作業項目");
+            this.ViewBag.ParamList_MajorJob = TET_ParameterService.GetTET_ParametersList1("SPA主要負責作業");
+            this.ViewBag.ParamList_ServiceFor = TET_ParameterService.GetTET_ParametersList1("SPA服務對象");
+            this.ViewBag.ParamList_WorkItem = TET_ParameterService.GetTET_ParametersList1("SPA作業項目");
 
             // 修改模式
             var model = this._mgr.GetOne(SPA_ScoringInfoID);
