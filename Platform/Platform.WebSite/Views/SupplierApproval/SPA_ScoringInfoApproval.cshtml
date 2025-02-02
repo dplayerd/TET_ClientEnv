@@ -1,0 +1,604 @@
+﻿@using Platform.WebSite.Helpers;
+@using Platform.AbstractionClass;
+@using Newtonsoft.Json;
+@using Platform.WebSite.Models;
+@using BI.SPA_ScoringInfo.Enums;
+@using BI.SPA_ScoringInfo.Models;
+@using Platform.Infra;
+
+@model Guid?
+
+@{
+    var masterInfo = (SiteViewModel)ViewBag.MasterInfo;
+    this.ViewBag.Title = masterInfo.CurrentPage.Name;
+    var ctlName = "SPA_ScoringInfo";
+
+    var mode = this.ViewBag.Mode;
+    var isCreateMode = this.ViewBag.IsCreateMode;
+    var isNewApply = true;
+    var postActionName = (isCreateMode) ? "Create" : "Edit";
+    var id = (this.Model.HasValue) ? this.Model.ToString() : string.Empty;
+    var parentID = this.ViewBag.ParentID;
+    var levelName = this.ViewBag.CurrentLevelName;
+
+    Uri readDetailApiUrl = new Uri("api/SPA_ScoringInfoApprovalApi/Detail/" + parentID, UriKind.Relative);
+    Uri submitApiUrl = new Uri("api/SPA_ScoringInfoApprovalApi/Submit/", UriKind.Relative);
+
+    Uri listPageUrl = new Uri("SupplierApproval/Index/" + masterInfo.CurrentPage.ID, UriKind.Relative);
+    Uri downloadFileUrl = new Uri("SPA_ScoringInfo/Attachment/", UriKind.Relative);
+
+    // 下拉選單項目
+    var pairList_MajorJob = this.ViewBag.ParamList_MajorJob as List<KeyTextModel>;
+    var pairList_ServiceFor = this.ViewBag.ParamList_ServiceFor as List<KeyTextModel>;
+    var pairList_WorkItem = this.ViewBag.ParamList_WorkItem as List<KeyTextModel>;
+
+
+    var TabVisiable = this.ViewBag.TabVisiable as TabVisiableModel;
+    var tabConfig = JsonConvert.SerializeObject(new
+    {
+        tab1 = TabVisiable.Tab1,
+        tab2 = TabVisiable.Tab2,
+        tab3 = TabVisiable.Tab3,
+        tab4 = TabVisiable.Tab4,
+        tab5 = TabVisiable.Tab5,
+        tab6 = TabVisiable.Tab6,
+        tab7 = TabVisiable.Tab7,
+    });
+
+    // 欄位顯示和編輯設定
+    var validConfig = JsonConvert.SerializeObject(BI.SPA_ScoringInfo.Validators.ApprovalValidator.GetValidConfigs());
+}
+
+<style>
+    .SubArea {
+        background-color: #00A9E0;
+        font-size: 16pt;
+        color: white;
+        font-weight: bolder;
+    }
+</style>
+
+<div class="d-flex flex-column-fluid">
+    <!--begin::Container-->
+    <div class="container-fluid px-2">
+        <!--begin::Row-->
+        <div class="row">
+            <div class="col-lg-12">
+                <!--begin::Example-->
+                <!--begin::Card-->
+                <div class="card card-custom">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <h3 class="card-label">@this.ViewBag.Title - @ViewBag.Name</h3>
+                            @*<div class="d-block text-muted pt-2 font-size-sm">
+                                    <i class="icon-nm text-dark-50"></i>
+                                    (*)為必填選項
+                                </div>*@
+                        </div>
+                    </div>
+                    @using (Html.BeginForm(postActionName, ctlName, FormMethod.Post, new { @class = "form", id = "formMain" }))
+                    {
+                        <div class="card-body">
+                            <!-- 編輯區域 -->
+                            <div class="row">
+                                <div class="col-12">
+                                    <p class="text-danger"> 資料填入過程若有任何不清楚之處或系統異常，可至Share point查詢使用手冊，或與Grace(ext.2416) 或Allen(ext.2711)聯繫 </p>
+                                </div>
+                            </div>
+
+                            <div style="display: none;">
+                                <input type="text" name="Period" />
+                            </div>
+
+
+                            <div class="row">
+                                <!-- 上方無法編輯的區域 -->
+                                <div class="col-4">
+                                    <label for="Period" class="col-form-label">評鑑期間</label>
+                                    <input id="Period" class="form-control form-control-sm" type="text" name="PeriodDateText" value="" disabled />
+                                </div>
+
+                                <div class="col-2">
+                                    <label for="BU" class="col-form-label">評鑑單位</label>
+                                    <input id="BU" class="form-control form-control-sm" type="text" name="BU" value="" disabled />
+                                </div>
+
+                                <div class="col-2">
+                                    <label for="ServiceFor" class="col-form-label">服務對象</label>
+                                    <input id="ServiceFor" class="form-control form-control-sm" type="text" name="ServiceFor" value="" disabled />
+                                </div>
+
+                                <div class="col-2">
+                                    <label for="BelongTo" class="col-form-label">受評供應商</label>
+                                    <input id="BelongTo" class="form-control form-control-sm" type="text" name="BelongTo" value="" disabled />
+                                </div>
+
+                                <div class="col-2">
+                                    <label for="ServiceItem" class="col-form-label">評鑑項目</label>
+                                    <input id="ServiceItem" class="form-control form-control-sm" type="text" name="ServiceItem" value="" disabled />
+                                </div>
+                                <!-- 上方無法編輯的區域 -->
+                            </div>
+                            <br />
+
+
+                            <div>
+                                <!-- 頁籤區 -->
+                                <ul class="nav nav-tabs" role="tablist">
+                                    <li class="nav-item">
+                                        <a class="nav-link" data-toggle="tab" href="#tab1">
+                                            <span class="nav-text">人力盤點</span>
+                                        </a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link" data-toggle="tab" href="#tab2">
+                                            <span class="nav-text">施工達交狀況盤點</span>
+                                        </a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link" data-toggle="tab" href="#tab3">
+                                            <span class="nav-text">施工正確性</span>
+                                        </a>
+                                    </li>
+
+                                    <li class="nav-item">
+                                        <a class="nav-link" data-toggle="tab" href="#tab4">
+                                            <span class="nav-text">作業正確性 &amp; 人員備齊貢獻度頁簽 </span>
+                                        </a>
+                                    </li>
+
+                                    <li class="nav-item">
+                                        <a class="nav-link" data-toggle="tab" href="#tab5">
+                                            <span class="nav-text">自訓能力</span>
+                                        </a>
+                                    </li>
+
+                                    <li class="nav-item">
+                                        <a class="nav-link" data-toggle="tab" href="#tab6">
+                                            <span class="nav-text">服務</span>
+                                        </a>
+                                    </li>
+
+                                    <li class="nav-item">
+                                        <a class="nav-link" data-toggle="tab" href="#tab7">
+                                            <span class="nav-text">附件</span>
+                                        </a>
+                                    </li>
+                                </ul>
+                                <!-- 頁籤區 -->
+                                <div class="tab-content mt-5">
+                                    <!-- 頁籤內容區 -->
+
+                                    <div class="tab-pane fade show" id="tab1" role="tabpanel" aria-labelledby="home-tab">
+                                        <!-- 人力盤點 -->
+                                        <div id="divDetailEditor_Tab1">
+                                            <div style="display: none;">
+                                                <input type="text" name="Source" value="本期新增" /><br />
+                                                <input type="text" name="DetailID" value="" /><br />
+                                                <input type="text" name="SIID" value="@id" /><br />
+                                                <input type="text" name="Index" value="0" /><br />
+                                                <input type="text" name="Mode" value="Create" />
+                                            </div>
+                                        </div>
+
+                                        <br />
+
+                                        <div class="row" id="divDetailTable_Tab1">
+                                            <!-- 表格區 -->
+                                            <div class="col-12">
+                                                <table>
+                                                    <thead class="thead-dark">
+                                                    </thead>
+                                                </table>
+                                            </div>
+                                            <!-- 表格區 -->
+                                        </div>
+                                        <!-- 人力盤點 -->
+                                    </div>
+
+                                    <div class="tab-pane fade" id="tab2" role="tabpanel" aria-labelledby="profile-tab">
+                                        <!-- 施工達交狀況盤點 -->
+                                        <div id="divDetailEditor_Tab2">
+                                            <div style="display: none;">
+                                                <input type="text" name="DetailID" value="" /><br />
+                                                <input type="text" name="SIID" value="@id" /><br />
+                                                <input type="text" name="Index" value="0" /><br />
+                                                <input type="text" name="Mode" value="Create" />
+                                            </div>
+                                        </div>
+
+                                        <br />
+
+                                        <div class="row" id="divDetailTable_Tab2">
+                                            <!-- 表格區 -->
+                                            <div class="col-12">
+                                                <table>
+                                                    <thead class="thead-dark">
+                                                    </thead>
+                                                </table>
+                                            </div>
+                                            <!-- 表格區 -->
+                                        </div>
+                                        <!-- 施工達交狀況盤點 -->
+                                    </div>
+
+                                    <div class="tab-pane fade" id="tab3" role="tabpanel" aria-labelledby="contact-tab">
+                                        <!-- 施工正確性 -->
+
+                                        <div class="row">
+                                            <div class="col-2">
+                                                <label for="MOCount" class="col-form-label">MO次數</label>
+                                                <!-- MO次數 -->
+                                                <input id="MOCount" class="form-control form-control-sm" type="text" name="MOCount" value="" disabled />
+                                            </div>
+
+                                            <div class="col-2">
+                                                <label for="TELLoss" class="col-form-label">TEL財損</label>
+                                                <!-- TEL財損 -->
+                                                <input id="TELLoss" class="form-control form-control-sm" type="text" name="TELLoss" value="" disabled />
+                                            </div>
+
+                                            <div class="col-2">
+                                                <label for="CustomerLoss" class="col-form-label">客戶財損</label>
+                                                <!-- 客戶財損 -->
+                                                <input id="CustomerLoss" class="form-control form-control-sm" type="text" name="CustomerLoss" value="" disabled />
+                                            </div>
+
+                                            <div class="col-2">
+                                                <label for="Accident" class="col-form-label">人身事故</label>
+                                                <!-- 人身事故 -->
+                                                <input id="Accident" class="form-control form-control-sm" type="text" name="Accident" value="" disabled />
+                                            </div>
+
+                                            <div class="col-2">
+                                                <label for="WorkerCount" class="col-form-label">出工人數</label>
+                                                <!-- 出工人數 -->
+                                                <input id="WorkerCount" class="form-control form-control-sm" type="number" min="0" step="1" name="WorkerCount" value="0" disabled />
+                                            </div>
+                                        </div>
+
+                                        <br />
+
+                                        <div id="divDetailEditor_Tab3">
+                                            <div style="display: none;">
+                                                <input type="text" name="DetailID" value="" /><br />
+                                                <input type="text" name="SIID" value="@id" /><br />
+                                                <input type="text" name="Index" value="0" /><br />
+                                                <input type="text" name="Mode" value="Create" />
+                                            </div>
+                                        </div>
+
+                                        <br />
+
+                                        <div class="row" id="divDetailTable_Tab3">
+                                            <!-- 表格區 -->
+                                            <div class="col-12">
+                                                <table>
+                                                    <thead class="thead-dark">
+                                                    </thead>
+                                                </table>
+                                            </div>
+                                            <!-- 表格區 -->
+                                        </div>
+                                        <!-- 施工正確性 -->
+                                    </div>
+
+                                    <div class="tab-pane fade" id="tab4" role="tabpanel" aria-labelledby="contact-tab">
+                                        <!-- 作業正確性 -->
+
+                                        <div class="row">
+                                            <div class="col-2">
+                                                <label class="col-form-label"><span style="color:red">*</span>作業正確性 </label>
+                                                <!-- 作業正確性 -->
+                                                <select name="Correctness" class="form-control form-control-sm selectpicker" data-live-search="true" title="請選擇" disabled>
+                                                    <option value="0">0</option>
+                                                    <option value="1">1</option>
+                                                    <option value="2">2</option>
+                                                    <option value="3">3</option>
+                                                    <option value="4">4</option>
+                                                </select>
+                                            </div>
+
+                                            <div class="col-2">
+                                                <label class="col-form-label"><span style="color:red">*</span>人員備齊貢獻度 </label>
+                                                <!-- 人員備齊貢獻度 -->
+                                                <select name="Contribution" class="form-control form-control-sm selectpicker" data-live-search="true" title="請選擇" disabled>
+                                                    <option value="4">4</option>
+                                                    <option value="3">3</option>
+                                                    <option value="2">2</option>
+                                                    <option value="1">1</option>
+                                                    <option value="0">0</option>
+                                                </select>
+                                            </div>
+                                        </div>
+
+                                        <!-- 作業正確性 -->
+                                    </div>
+                                    <div class="tab-pane fade" id="tab5" role="tabpanel" aria-labelledby="contact-tab">
+                                        <!-- 自訓能力 -->
+
+                                        <div class="row">
+                                            <div class="col-3">
+                                                <label class="col-form-label"><span style="color:red">*</span>供應商自訓程度 </label>
+                                                <!-- 供應商自訓程度 -->
+                                                <select name="SelfTraining" class="form-control form-control-sm selectpicker" data-live-search="true" title="請選擇" disabled>
+                                                    <option value="完全由供應商自行訓練">完全由供應商自行訓練</option>
+                                                    <option value="部分人員須由TEL代訓">部分人員須由TEL代訓</option>
+                                                    <option value="完全由TEL代訓">完全由TEL代訓</option>
+                                                </select>
+                                            </div>
+
+                                            <div class="col-9">
+                                                <label class="col-form-label">備註 </label>
+                                                <!-- 備註 -->
+                                                <textarea class="form-control form-control-sm" name="SelfTrainingRemark" rows="3" cols="20" disabled></textarea>
+                                            </div>
+                                        </div>
+
+                                        <div id="divDetailEditor_Tab5">
+
+                                            <br />
+
+                                            <div class="row">
+                                                <div class="col-12">
+                                                    <div class="d-flex justify-content-between">
+                                                        <div class="mr-2">
+
+                                                        </div>
+
+                                                        <div>
+                                                            <!-- 儲存鈕 -->
+                                                            <button type="button" name="btnSave" class="btn btn-sm btn-success">儲存</button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <!-- 自訓能力 -->
+                                    </div>
+                                    <div class="tab-pane fade" id="tab6" role="tabpanel" aria-labelledby="contact-tab">
+                                        <!-- 服務 -->
+                                        <div class="row">
+
+                                            <div class="col-2">
+                                                <label for="Cooperation" class="col-form-label"><span style="color:red">*</span>配合度</label>
+                                                <!-- 配合度 -->
+                                                <select name="Cooperation" class="form-control form-control-sm selectpicker" data-live-search="true" title="請選擇" disabled>
+                                                    <option value="很滿意">很滿意</option>
+                                                    <option value="滿意">滿意</option>
+                                                    <option value="普通">普通</option>
+                                                    <option value="不滿意">不滿意</option>
+                                                    <option value="很不滿意">很不滿意</option>
+                                                </select>
+                                            </div>
+
+                                            <div class="col-6">
+                                                <label for="Complain" class="col-form-label">客戶抱怨</label>
+                                                <!-- 客戶抱怨 -->
+                                                <input id="Complain" class="form-control form-control-sm" type="text" name="Complain" value="" disabled />
+                                            </div>
+
+                                        </div>
+
+                                        <div class="row">
+
+                                            <div class="col-4">
+                                                <label for="Advantage" class="col-form-label">優點、滿意、值得鼓勵之處</label>
+                                                <!-- 優點、滿意、值得鼓勵之處 -->
+                                                <textarea class="form-control form-control-sm" name="Advantage" rows="3" cols="20" disabled></textarea>
+
+                                            </div>
+
+                                            <div class="col-4">
+                                                <label for="Improved" class="col-form-label">不滿意、期望改善之處</label>
+                                                <!-- 不滿意、期望改善之處 -->
+                                                <textarea class="form-control form-control-sm" name="Improved" rows="3" cols="20" disabled></textarea>
+
+                                            </div>
+
+                                            <div class="col-4">
+                                                <label for="Comment" class="col-form-label">客戶評論與其他補充說明</label>
+                                                <!-- 客戶評論與其他補充說明 -->
+                                                <textarea class="form-control form-control-sm" name="Comment" rows="3" cols="20" disabled></textarea>
+                                            </div>
+
+                                        </div>
+
+                                        <br />
+
+                                        <div id="divDetailEditor_Tab6">
+                                            <div style="display: none;">
+                                                <input type="text" name="DetailID" value="" /><br />
+                                                <input type="text" name="SIID" value="@id" /><br />
+                                                <input type="text" name="Index" value="0" /><br />
+                                                <input type="text" name="Mode" value="Create" />
+                                            </div>
+                                        </div>
+
+                                        <br />
+
+                                        <div class="row" id="divDetailTable_Tab6">
+                                            <!-- 表格區 -->
+                                            <div class="col-12">
+                                                <table>
+                                                    <thead class="thead-dark">
+                                                    </thead>
+                                                </table>
+                                            </div>
+                                            <!-- 表格區 -->
+                                        </div>
+                                        <!-- 服務 -->
+                                    </div>
+                                    <div class="tab-pane fade" id="tab7" role="tabpanel" aria-labelledby="contact-tab">
+                                        <!-- 附件 -->
+                                        <div id="divDetailEditor_Tab7">
+                                            <div style="display: none;">
+                                                <input type="text" name="DetailID" value="" /><br />
+                                                <input type="text" name="SIID" value="@id" /><br />
+                                                <input type="text" name="Index" value="0" /><br />
+                                                <input type="text" name="Mode" value="Create" />
+                                            </div>
+
+                                        </div>
+
+                                        <br />
+
+                                        <div class="row" id="divDetailTable_Tab7">
+                                            <!-- 表格區 -->
+                                            <div class="col-12">
+                                                <table>
+                                                    <thead class="thead-dark">
+                                                    </thead>
+                                                </table>
+                                            </div>
+                                            <!-- 表格區 -->
+                                        </div>
+                                        <!-- 附件 -->
+                                    </div>
+                                </div>
+
+                            </div>
+
+                            <!-- 編輯區域 -->
+                            <!-- 審核資訊 Approval Information -->
+                            <br />
+                            <br />
+                            <div id="divApproveTableTitle" class="alert alert-custom SubArea" role="alert">
+                                <div class="alert-text text-center">審核資訊 Approval Information</div>
+                            </div>
+
+                            <div class="row" id="divApproveTemplate" style="display: none;">
+                                <table class="table">
+                                    <tbody>
+                                        <tr>
+                                            <td scope="row">
+                                                <span class="Level_Text"></span>
+                                            </td>
+                                            <td>
+                                                <span class="Approver"></span>
+                                            </td>
+                                            <td>
+                                                <span class="Result"></span>
+                                            </td>
+                                            <td>
+                                                <span class="ModifyDate_Text"></span>
+                                            </td>
+                                            <td>
+                                                <span class="Comment"></span>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="row" id="divApproveTable">
+                                <div class="col-12">
+                                    <table class="table">
+                                        @* 表頭 *@
+                                        <thead class="thead-dark">
+                                            <tr>
+                                                <th scope="col" class="col-sm-2">審核關卡</th>
+                                                <th scope="col" class="col-sm-2">審核者</th>
+                                                <th scope="col" class="col-sm-2">審核結果</th>
+                                                <th scope="col" class="col-sm-2">審核時間</th>
+                                                <th scope="col" class="col-sm-2">審核意見</th>
+                                            </tr>
+                                        </thead>
+                                        @* 表身 *@
+                                        <tbody>  </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-2">
+                                    <div class="radio-list">
+                                        <label class="col-form-label">審核結果 </label>
+                                        <label class="radio">
+                                            <input type="radio" name="Result" value="@ApprovalResult.Agree.ToText()">
+                                            <span></span>@ApprovalResult.Agree.ToText()
+                                        </label>
+                                        <label class="radio">
+                                            <input type="radio" name="Result" value="@ApprovalResult.RejectToStart.ToText()">
+                                            <span></span>@ApprovalResult.RejectToStart.ToText()
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-10">
+                                    <div class="form-group row mb-2">
+                                        <label for="ApplyReason" class="col-12 col-form-label">
+                                            審核意見
+                                        </label>
+                                        <textarea class="form-control form-control-sm" placeholder="請輸入審核意見" name="ApprovalComment" rows="5"></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- 審核資訊 Approval Information -->
+                            <!--btn-->
+                            <div class="my-5 col-12">
+                                <div class="d-flex justify-content-between border-top ">
+                                    <div class="mr-2">
+                                        <a href="@Url.Action(ViewBag.ViewReturn, new { id = @ViewBag.ViewReturnID })" class="btn btn-secondary">
+                                            取消
+                                        </a>
+                                    </div>
+                                    <div>
+                                        <button type="button" id="btnSubmit" class="btn btn-primary mr-2">送出</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <!--btn-->
+                        </div>
+                        <!--end::Card-->
+                    }
+                </div>
+            </div>
+            <input type="hidden" name="EditType" id="EditType" value="" />
+            <input type="hidden" name="MainID" id="hdfMainID" value="@id" />
+            <!--end::Code example-->
+            <!--end::Example-->
+        </div>
+    </div>
+</div>
+
+@* --將 js 註冊至頁尾-- *@
+@Html.Resource(
+    @<text>
+        <link href="~/Content/assets/plugins/custom/bootstrap-table/bootstrap-table.min.css?v=@DateTimeExtensions.GetJS_V_Text()" rel="stylesheet" />
+        <link href="~/Content/assets/plugins/custom/bootstrap-table/extensions/fixed-columns/bootstrap-table-fixed-columns.min.css?v=@DateTimeExtensions.GetJS_V_Text()" rel="stylesheet" />
+
+        <script src="~/Content/assets/plugins/custom/bootstrap-table/bootstrap-table.min.js?v=@DateTimeExtensions.GetJS_V_Text()"></script>
+        <script src="~/Content/assets/plugins/custom/bootstrap-table/extensions/fixed-columns/bootstrap-table-fixed-columns.min.js?v=@DateTimeExtensions.GetJS_V_Text()"></script>
+
+        <script>
+            var viewMode = '@mode';
+            var isCreateMode = @isCreateMode.ToString().ToLower();
+            var isNewApply = @isNewApply.ToString().ToLower();
+            var id = '@id';
+            var parentID = '@parentID';
+            var levelName = '@levelName';
+
+            var submitApiUrl = platformEnvironment.hostUrl + '@submitApiUrl';
+            var readDetailApiUrl = platformEnvironment.hostUrl + '@readDetailApiUrl';
+
+            var listPageUrl = platformEnvironment.hostUrl + '@listPageUrl';
+            var downloadFileUrl = platformEnvironment.hostUrl + '@downloadFileUrl';
+
+            var validConfig = @Html.Raw(validConfig);
+
+            var tabConfig = @Html.Raw(tabConfig);
+        </script>
+
+        <script src="~/ModuleResources/JavaScripts/Shared/TET_FormHelper.js?v=@DateTimeExtensions.GetJS_V_Text()"></script>
+        @*
+            <script src="~/ModuleResources/JavaScripts/SupplierApproval/SPA_ScoringInfoApproval/SPA_ScoringInfoApproval.js"></script>
+            <script src="~/ModuleResources/JavaScripts/SupplierApproval/SPA_ScoringInfoApproval/editTab1.js"></script>
+            <script src="~/ModuleResources/JavaScripts/SupplierApproval/SPA_ScoringInfoApproval/editTab2.js"></script>
+            <script src="~/ModuleResources/JavaScripts/SupplierApproval/SPA_ScoringInfoApproval/editTab3.js"></script>
+            <script src="~/ModuleResources/JavaScripts/SupplierApproval/SPA_ScoringInfoApproval/editTab4.js"></script>
+            <script src="~/ModuleResources/JavaScripts/SupplierApproval/SPA_ScoringInfoApproval/editTab5.js"></script>
+            <script src="~/ModuleResources/JavaScripts/SupplierApproval/SPA_ScoringInfoApproval/editTab6.js"></script>
+            <script src="~/ModuleResources/JavaScripts/SupplierApproval/SPA_ScoringInfoApproval/editTab7.js"></script>
+        *@
+        <script src="~/SupplierApproval/SPA_ScoringInfoApproval_TabsJS"></script>
+
+    </text>
+, "customScripts")

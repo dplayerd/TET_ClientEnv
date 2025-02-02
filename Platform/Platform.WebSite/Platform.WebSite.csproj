@@ -521,6 +521,9 @@
     <Content Include="Views\SPA_ScoringInfo\Index.cshtml" />
     <Content Include="Views\SPA_Violation\Edit.cshtml" />
     <Content Include="Views\SPA_Violation\Index.cshtml" />
+    <Content Include="Views\SupplierApproval\SPA_CostServiceApproval.cshtml" />
+    <Content Include="Views\SupplierApproval\SPA_ScoringInfoApproval.cshtml" />
+    <Content Include="Views\SupplierApproval\SPA_VIolationApproval.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
