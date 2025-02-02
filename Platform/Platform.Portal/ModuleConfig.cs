@@ -32,9 +32,9 @@ namespace Platform.Portal
         };
 
         /// <summary> 圖片寬 </summary>
-        public static int PageImageWidth = 240;
+        public static int PageImageWidth = 80;
 
         /// <summary> 圖片高 </summary>
-        public static int PageImageHeight = 180;
+        public static int PageImageHeight = 60;
     }
 }
