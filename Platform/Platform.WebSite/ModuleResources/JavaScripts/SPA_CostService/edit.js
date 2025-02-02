@@ -25,6 +25,11 @@ var divAbordReasonSelector = "#divAbordReason";   // 填寫中止原因的範例
 
 var $table = $(detailTableSelector);
 
+var naText_PriceDeflator = 'NA';                    // NA 的 ID
+var naText_PaymentTerm = 'NA';                      // NA 的 ID
+var naText_Cooperation = 'NA';                      // NA 的 ID
+
+
 $(function () {
     // --- 明細表區域 ---
     // 初始化明細表
@@ -343,13 +348,13 @@ $(function () {
 
         // 若PO Source = Factory，該筆資料價格競爭力、付款條件、配合度欄位必須為NA
         if (model.POSource == "Factory") {
-            if ("NA" != model.PriceDeflator)
+            if (naText_PriceDeflator != model.PriceDeflator)
                 msgList.push("價格競爭力" + shouldBeNaText);
 
-            if ("NA" != model.PaymentTerm)
+            if (naText_PaymentTerm != model.PaymentTerm)
                 msgList.push("付款條件" + shouldBeNaText);
 
-            if ("NA" != model.Cooperation)
+            if (naText_Cooperation != model.Cooperation)
                 msgList.push("配合度" + shouldBeNaText);
         }
 
@@ -505,15 +510,40 @@ $(function () {
         resetDetailEditor();
     }
 
+    function findOption(jqObjSelect, optText) {
+        var opts = jqObjSelect.find("option");
+
+        for (let i = 0; i < opts.length; i++) {
+            const opt = $(opts[i]);
+            
+            if(optText == opt.text())
+                return opt;
+        }
+    }
+
+    function findOptionAndSelect(jqObjSelect, optText) {
+        var opts = jqObjSelect.find("option");
+
+        for (let i = 0; i < opts.length; i++) {
+            const opt = $(opts[i]);
+            
+            if(optText == opt.text() || optText == opt.val())
+                opt.prop("selected", true);
+        }
+    }
+
     // 若細項的評鑑與否欄位=不評鑑，系統將價格競爭力、付款條件、配合度改為NA，欄位disabled
     function _setDefaultValue() {
         var detailArea = $(divDetailEditorSelector);
         var selectedItem = detailArea.find("[name=IsEvaluate]").val();
 
         if (selectedItem == fixText_IsEvaluate) {
-            detailArea.find("[name=PriceDeflator]").val("NA");
-            detailArea.find("[name=PaymentTerm]").val("NA");
-            detailArea.find("[name=Cooperation]").val("NA");
+            // detailArea.find("[name=PriceDeflator]").val("NA");
+            // detailArea.find("[name=PaymentTerm]").val("NA");
+            // detailArea.find("[name=Cooperation]").val("NA");
+            findOptionAndSelect(detailArea.find("[name=PriceDeflator]"), "NA");
+            findOptionAndSelect(detailArea.find("[name=PaymentTerm]"), "NA");
+            findOptionAndSelect(detailArea.find("[name=Cooperation]"), "NA");
 
             detailArea.find("[name=PriceDeflator]").prop("disabled", true);
             detailArea.find("[name=PaymentTerm]").prop("disabled", true);
@@ -541,13 +571,12 @@ $(function () {
         var selectedItem = detailArea.find("[name=POSource]").val();
 
         if (selectedItem == fixText_POSource) {
-            detailArea.find("[name=PriceDeflator]").val("NA");
-            detailArea.find("[name=PaymentTerm]").val("NA");
-            detailArea.find("[name=Cooperation]").val("NA");
-
-            // detailArea.find("[name=PriceDeflator]").selectpicker("refresh");
-            // detailArea.find("[name=PaymentTerm]").selectpicker("refresh");
-            // detailArea.find("[name=Cooperation]").selectpicker("refresh");
+            // detailArea.find("[name=PriceDeflator]").val("NA");
+            // detailArea.find("[name=PaymentTerm]").val("NA");
+            // detailArea.find("[name=Cooperation]").val("NA");
+            findOptionAndSelect(detailArea.find("[name=PriceDeflator]"), "NA");
+            findOptionAndSelect(detailArea.find("[name=PaymentTerm]"), "NA");
+            findOptionAndSelect(detailArea.find("[name=Cooperation]"), "NA");
 
             detailArea.find("[name=PriceDeflator]").change();
             detailArea.find("[name=PaymentTerm]").change();
@@ -882,6 +911,19 @@ $(function () {
             $(btnSubmitSelector).hide();
             $(btnAbordSelector).hide();
         }
+
+        var opt_PriceDeflator = findOption($(divDetailEditorSelector).find("[name=PriceDeflator]"), "NA");
+        var opt_PaymentTerm = findOption($(divDetailEditorSelector).find("[name=PaymentTerm]"), "NA");
+        var opt_Cooperation = findOption($(divDetailEditorSelector).find("[name=Cooperation]"), "NA");
+
+        if(opt_PriceDeflator != null)
+            naText_PriceDeflator = opt_PriceDeflator.val();
+
+        if(opt_PaymentTerm != null)
+            naText_PaymentTerm = opt_PaymentTerm.val();
+
+        if(opt_Cooperation != null)
+            naText_Cooperation = opt_Cooperation.val();
     }
     initMainForm();
     //--- Main Events ---
