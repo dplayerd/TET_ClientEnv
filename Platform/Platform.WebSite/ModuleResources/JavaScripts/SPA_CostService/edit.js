@@ -221,6 +221,20 @@ $(function () {
             FileName: ''
         };
 
+        function trimNull(txtColumnName) {
+            if (rowData[txtColumnName] == undefined || rowData[txtColumnName] == null)
+                rowData[txtColumnName] = '';
+        }
+
+        trimNull('AssessmentItem');
+        trimNull('BU');
+        trimNull('BelongTo');
+        trimNull('DetailID');
+        trimNull('ServiceFor');
+        trimNull('PriceDeflator');
+        trimNull('PaymentTerm');
+        trimNull('Cooperation');
+
         return rowData;
     }
 
@@ -487,6 +501,8 @@ $(function () {
                 }
             }
         });
+    } else {
+        resetDetailEditor();
     }
 
     // 若細項的評鑑與否欄位=不評鑑，系統將價格競爭力、付款條件、配合度改為NA，欄位disabled
