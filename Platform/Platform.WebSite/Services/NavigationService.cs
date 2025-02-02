@@ -72,7 +72,7 @@ namespace Platform.WebSite.Services
             if (treeList == null || treeList.Count == 0)
                 return;
 
-            foreach(var model in treeList)
+            foreach (var model in treeList)
             {
                 ProcessAuth(model, authedPageIDList);
             }
@@ -94,7 +94,7 @@ namespace Platform.WebSite.Services
             {
                 subItem.IsKeep = authedPageIDList.Contains(subItem.ID);
 
-                if(subItem.HasChildren())
+                if (subItem.HasChildren())
                     ProcessAuth(subItem, authedPageIDList);
             }
 
@@ -116,7 +116,7 @@ namespace Platform.WebSite.Services
                 IconName = model.PageIcon,
                 Url = NavigationService.BuildModuleUrl(model),
                 MenuType = model.MenuType,
-                SortIndex = 0,
+                SortIndex = model.SortNo,
                 IsOuterLink = false,
                 TipText = model.PageTitle,
                 TipType = NavigateItemTipType.None
