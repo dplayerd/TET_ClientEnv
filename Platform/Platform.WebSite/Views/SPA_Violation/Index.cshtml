@@ -55,9 +55,9 @@
                     <label for="inpPeriod" class="col-form-label">評鑑期間</label>
                     <input id="inpPeriod" name="inpPeriod" type="text" class="form-control form-control-sm" placeholder="" />
                 </div>
-                <div class="col-2">
+                <div class="col-4">
                     <label for="inpApproveStatus" class="col-form-label">審核狀態</label>
-                    <select id="inpApproveStatus" name="inpApproveStatus" class="form-control form-control-sm selectpicker" multiple data-live-search="true" title="請選擇">
+                    <select id="inpApproveStatus" name="inpApproveStatus" class="form-control form-control-sm select2" multiple title="請選擇">
                         @foreach (var pair in paramList_ApproveStatus)
                         {
                             <option value="@pair.Key">@pair.Text</option>
@@ -93,7 +93,7 @@
 @Html.Resource(
     @<text>
         <script src="~/Content/assets/plugins/custom/datatables/datatables.bundle.js?v=@DateTimeExtensions.GetJS_V_Text()"></script>
-        <script src="~/ModuleResources/JavaScripts/Shared/FormHelper.js?v=@DateTimeExtensions.GetJS_V_Text()"></script>
+        <script src="~/ModuleResources/JavaScripts/Shared/TET_FormHelper.js?v=@DateTimeExtensions.GetJS_V_Text()"></script>
         <script src="~/ModuleResources/JavaScripts/SPA_Violation/index.js?v=@DateTimeExtensions.GetJS_V_Text()"></script>
 
         <style>

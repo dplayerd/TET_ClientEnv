@@ -201,6 +201,17 @@ $(function () {
             FileName: ''
         };
 
+        function trimNull(txtColumnName) {
+            if (rowData[txtColumnName] == undefined || rowData[txtColumnName] == null)
+                rowData[txtColumnName] = '';
+        }
+
+        trimNull('BelongTo');
+        trimNull('BU');
+        trimNull('AssessmentItem');
+        trimNull('MiddleCategory');
+        trimNull('SmallCategory');
+
         return rowData;
     }
 
@@ -239,11 +250,11 @@ $(function () {
             CustomerPlant: '',
             CustomerDetail: '',
             Description: '',
+
             FileName: ''
         };
 
         setFormInput($(divDetailEditorSelector), rowData);
-        toggleColumnEnable(rowData);
     }
 
     // 清除明細表
@@ -397,6 +408,8 @@ $(function () {
             data: { id: id, includeApprovalList: true },
             success: function (data) {
                 setMainInput(mainForm, data);
+
+                resetDetailEditor();
             },
             error: function (data) {
                 if (data.responseJSON == undefined || data.responseJSON.Message == null)
@@ -412,6 +425,8 @@ $(function () {
                 }
             }
         });
+    } else {
+        resetDetailEditor();
     }
 
     // 送出鈕
