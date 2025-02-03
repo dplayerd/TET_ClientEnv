@@ -9,6 +9,8 @@
     //SiteViewModel siteViewModel = (SiteViewModel)this.ViewBag.MasterInfo;
 
     var pageList = this.Model;
+
+    string[] skipFolderName = { "未分類", "系統設定" };
 }
 
 <style>
@@ -18,13 +20,32 @@
 </style>
 
 
+<div class="d-flex justify-content-between border-top my-2 col-12">
+    <div>
+        <a id="btnShowCondition" href="~/ModuleResources/Other/PaymentSupplier/無採購交易行為明細表.png" target="_blank" class="btn btn-info mr-2"> 採購行為與一般付款申請區分準則 </a>
+    </div>
+</div>
+
 @foreach (var item in pageList)
 {
     if (item.MenuTypeEnum == MenuTypeEnum.Folder)
     {
+        if (skipFolderName.Contains(item.Name))
+        {
+            continue;
+        }
+
         <div class="card card-custom mb-8">
             <div class="card-header">
                 <div class="card-title">
+                    @if (!string.IsNullOrWhiteSpace(item.ImagePath))
+                    {
+                        <div>
+                            <a href="@item.Url" class="card-title text-hover-primary font-weight-bolder font-size-h5 text-dark mb-1 text-primary">
+                                <img src="@item.ImagePath" width="@ModuleConfig.PageImageWidth" height="@ModuleConfig.PageImageHeight" alt="圖片" />
+                            </a>
+                        </div>
+                    }
                     <h2 class="card-label h2">
                         @item.Name
                     </h2>
@@ -40,8 +61,8 @@
                                 <!--begin::Body-->
                                 <div class="card-body">
                                     <div class="d-flex align-items-center">
-                                        @if(!string.IsNullOrWhiteSpace(subItem.ImagePath))
-                                        { 
+                                        @if (!string.IsNullOrWhiteSpace(subItem.ImagePath))
+                                        {
                                             <div class="d-flex flex-column mr-1">
                                                 <a href="@subItem.Url" title="前往: @subItem.Name" class="card-title text-hover-primary font-weight-bolder font-size-h5 text-dark mb-1 text-primary">
                                                     <img src="@subItem.ImagePath" width="@ModuleConfig.PageImageWidth" height="@ModuleConfig.PageImageHeight" alt="圖片" />
