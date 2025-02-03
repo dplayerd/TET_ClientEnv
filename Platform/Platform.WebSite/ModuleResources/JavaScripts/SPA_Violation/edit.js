@@ -201,6 +201,9 @@ $(function () {
             FileName: ''
         };
 
+        rowData["Date_Text"] = rowData.Date;
+
+
         function trimNull(txtColumnName) {
             if (rowData[txtColumnName] == undefined || rowData[txtColumnName] == null)
                 rowData[txtColumnName] = '';
