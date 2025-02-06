@@ -12,4 +12,12 @@ namespace Platform.AbstractionClass
 
         public string Text { get; set; }
     }
+
+
+    public class KeyTextModel<T>
+    {
+        public T Key { get; set; }
+
+        public string Text { get; set; }
+    }
 }

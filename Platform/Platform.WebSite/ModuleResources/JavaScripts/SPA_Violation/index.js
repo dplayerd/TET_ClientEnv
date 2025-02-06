@@ -6,6 +6,42 @@
 
     var aExportExcel = $("#aExportExcel");
 
+
+    // 是否為設定中的審核者，傳入值是成功時的 CallBack 
+    function canApprove(funcSuccess) {
+        // Load Data
+        $.ajax({
+            url: canApproveApiUrl,
+            method: "GET",
+            type: "JSON",
+            success: function (boolIsExisted) {
+                if (boolIsExisted) {
+                    funcSuccess();
+                }
+            },
+            error: function (data) {
+                if (data.responseJSON == undefined || data.responseJSON.Message == null)
+                    alert("讀取失敗，請聯絡管理員。");
+                else {
+                    try {
+                        var msg = JSON.parse(data.responseJSON.Message).join('\n');
+                        alert(msg);
+                    } catch (ex) {
+                        console.log(ex);
+                        alert(data.responseJSON.ExceptionMessage);
+                    }
+                }
+            }
+        });
+    }
+
+    // 當編輯鈕點下時，要驗證身份才能跳頁
+    function onEditClick(txtUrl) {
+        canApprove(function () {
+            window.location.href = txtUrl;
+        });
+    }
+
     //--- Table Start ---
     var SPA_ViolationAjaxDataTable = function () {
         var initTable1 = function (objInit) {
@@ -46,30 +82,17 @@
                     {
                         title: "",
                         class: "text-center",
-                        data: function (rowData, type, set, meta)
-                        {
+                        data: function (rowData, type, set, meta) {
                             var rowId = rowData["ID"];
-                            var editAction = ObjInit.EditAction;
-                            var editurl = editAction.replace(/__ID__/gi, rowId);
                             var isCompleted = (rowData["ApproveStatus"] == "已完成");
 
-                            var html = '';
-
-                            var enableLinkHtml =
-                                `
-                                    <a href="${editurl}" class="btn btn-sm btn-primary" title="編輯" />
-                                        編輯
-                                    </a>
-                                `;
-
+                            var enableLinkHtml = `<button type="button" class="btn btn-sm btn-primary" title="編輯" name="btnEdit" data-id="${rowId}">編輯</button>`;
                             var disableHtml = `<button type="button" class="btn btn-sm btn-primary" title="編輯" disabled>編輯</button>`;
 
-                            if (isCompleted)
-                            {
+                            if (isCompleted) {
                                 return disableHtml;
                             }
-                            else
-                            {
+                            else {
                                 return enableLinkHtml;
                             }
                         }
@@ -92,9 +115,21 @@
                         }
                     }
                 ],
-                columnDefs:[],
+                columnDefs: [],
+            });
+
+            // 當編輯鈕被點下時，要先檢查是否為審核者再跳頁
+            jqTable.on('click', "[name=btnEdit]", function () {
+                var rowId = $(this).data('id');
+                var editAction = ObjInit.EditAction;
+                var editurl = editAction.replace(/__ID__/gi, rowId);
+
+                canApprove(function () {
+                    window.location.href = editurl;
+                });
             });
         };
+
 
         $("#btnClearFilter").click(function () {
             var searchContainer = $("#divSearchArea");
@@ -106,34 +141,36 @@
             jqTable.DataTable().ajax.reload();
         });
 
-        // 按下新增鈕，如果可以資料檢查有通過，再跳頁
+        // 按下新增鈕，如果可以資料檢查有通過，且是審核者，再跳頁
         $("#btnCreate").click(function () {
-            // Load Data
-            $.ajax({
-                url: hasSamePeriodApiUrl,
-                method: "GET",
-                type: "JSON",
-                success: function (boolIsExisted) {
-                    if (boolIsExisted) {
-                        alert("目前進行中的評鑑期間，同一評鑑期間只能有一筆資料");
-                    }
-                    else {
-                        window.location.href = createPageUrl;
-                    }
-                },
-                error: function (data) {
-                    if (data.responseJSON == undefined || data.responseJSON.Message == null)
-                        alert("讀取失敗，請聯絡管理員。");
-                    else {
-                        try {
-                            var msg = JSON.parse(data.responseJSON.Message).join('\n');
-                            alert(msg);
-                        } catch (ex) {
-                            console.log(ex);
-                            alert(data.responseJSON.ExceptionMessage);
+            canApprove(function () {
+                // Load Data
+                $.ajax({
+                    url: hasSamePeriodApiUrl,
+                    method: "GET",
+                    type: "JSON",
+                    success: function (boolIsExisted) {
+                        if (boolIsExisted) {
+                            alert("目前進行中的評鑑期間，登入者已有填寫Cost&Service資料");
+                        }
+                        else {
+                            window.location.href = createPageUrl;
+                        }
+                    },
+                    error: function (data) {
+                        if (data.responseJSON == undefined || data.responseJSON.Message == null)
+                            alert("讀取失敗，請聯絡管理員。");
+                        else {
+                            try {
+                                var msg = JSON.parse(data.responseJSON.Message).join('\n');
+                                alert(msg);
+                            } catch (ex) {
+                                console.log(ex);
+                                alert(data.responseJSON.ExceptionMessage);
+                            }
                         }
                     }
-                }
+                });
             });
         });
 

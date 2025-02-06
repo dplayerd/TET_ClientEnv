@@ -18,6 +18,7 @@
     var defaultPeriodText = this.ViewBag.Param_Period;
 
     Uri hasSamePeriodApiUrl = new Uri("api/SPA_ViolationApi/HasSamePeriod/" + defaultPeriodText, UriKind.Relative);
+    Uri canApproveApiUrl = new Uri("api/SPA_ViolationApi/CanApprove", UriKind.Relative);
 
     var paramList_ApproveStatus = this.ViewBag.ParamList_ApproveStatus as List<KeyTextModel>;
     var cUser = this.ViewBag.CurrentUser;
@@ -113,6 +114,7 @@
             var createPageUrl = "@createPageUrl";
             var exportExcelApiUrl = '@exportExcelApiUrl';
             var hasSamePeriodApiUrl = platformEnvironment.hostUrl + "@hasSamePeriodApiUrl";
+            var canApproveApiUrl = platformEnvironment.hostUrl + "@canApproveApiUrl";
         </script>
     </text>
 , "customScripts")

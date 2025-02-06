@@ -19,6 +19,7 @@ using System.Net;
 using BI.SPA_Violation.Models.Exporting;
 using NPOI.SS.UserModel;
 using NPOI.XSSF.UserModel;
+using BI.SPA_ApproverSetup;
 
 namespace Platform.WebSite.Controllers
 {
@@ -29,6 +30,7 @@ namespace Platform.WebSite.Controllers
 
         private SPA_ViolationManager _mgr = new SPA_ViolationManager();
         private SPA_ViolationApprovalManager _approvalMgr = new SPA_ViolationApprovalManager();
+        private SPA_ApproverSetupManager _approverSetupMgr = new SPA_ApproverSetupManager();
 
         #region Input / Output Classes
         public class TempPager : DataTablePager
@@ -78,16 +80,53 @@ namespace Platform.WebSite.Controllers
         [HttpGet]
         public bool HasSamePeriod(string period)
         {
-            DateTime cTime = DateTime.Now;
+            DateTime cDate = DateTime.Now;
 
             var cUser = UserProfileService.GetCurrentUser();
             if (string.IsNullOrWhiteSpace(cUser.ID))
                 throw new UnauthorizedAccessException();
 
-            var result = this._mgr.HasSamePeriod(period, cUser.ID, cTime);
+            var result = this._mgr.HasSamePeriod(period, cUser.ID, cDate);
             return result;
         }
 
+        /// <summary> 登入者須為審核者設定中EHS & Safety組合的計分資料填寫者或計分資料確認者，才能點擊 </summary>
+        /// <returns></returns>
+        [Route("~/api/SPA_ViolationApi/CanApprove")]
+        [HttpGet]
+        public bool CanApprove()
+        {
+            DateTime cDate = DateTime.Now;
+
+            var cUser = UserProfileService.GetCurrentUser();
+            if (string.IsNullOrWhiteSpace(cUser.ID))
+                return false;
+
+            var param_BU = TET_ParameterService.GetTET_Parameters_ID("SPA評鑑單位", "EHS");
+            var param_Item = TET_ParameterService.GetTET_Parameters_ID("SPA評鑑項目", "Safety");
+
+            var buIdList = new List<Guid>();
+            var itemIdList = new List<Guid>();
+
+            if (param_BU != null)
+                buIdList.Add(param_BU.Key);
+            if (param_Item != null)
+                itemIdList.Add(param_Item.Key);
+
+            var setupList = this._approverSetupMgr.GetList(itemIdList, buIdList, cUser.ID, cDate, new Pager() { AllowPaging = false });
+            if (setupList.Count == 0)
+                return false;
+
+
+            var model = setupList.FirstOrDefault();
+            var approverList = new List<string>(model.InfoFills);
+            approverList.Add(model.InfoConfirm);
+
+            if (!approverList.Contains(cUser.ID))
+                return false;
+            
+            return true;
+        }
         #endregion
 
 
