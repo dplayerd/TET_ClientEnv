@@ -5,6 +5,7 @@ using BI.SPA_CostService.Enums;
 using BI.SPA_Violation.Enums;
 using BI.SPA_ScoringInfo.Enums;
 using BI.STQA.Enums;
+using BI.PaymentSuppliers.Enums;
 using BI.Suppliers;
 using BI.Suppliers.Enums;
 using BI.Suppliers.Models;
@@ -62,6 +63,14 @@ namespace Platform.WebSite.Controllers
 
                     case "Revision":
                         item.Level_Text = BI.Suppliers.Utils.ApprovalUtils.ParseApprovalLevel(item.Level).ToDisplayText();
+                        break;
+
+                    case "PaymentSupplier":
+                        item.Level_Text = BI.PaymentSuppliers.Utils.ApprovalUtils.ParseApprovalLevel(item.Level).ToDisplayText();
+                        break;
+
+                    case "PaymentSupplierRevision":
+                        item.Level_Text = BI.PaymentSuppliers.Utils.ApprovalUtils.ParseApprovalLevel(item.Level).ToDisplayText();
                         break;
 
                     case "SPA":
