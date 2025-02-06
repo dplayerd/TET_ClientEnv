@@ -71,7 +71,7 @@ namespace Platform.WebSite.Controllers
             return result;
         }
 
-        /// <summary> 讀取前期的明細資料 </summary>
+        /// <summary> 查詢評鑑期間是否存在相同資料 </summary>
         /// <param name="period"> 評鑑期間 </param>
         /// <returns></returns>
         [Route("~/api/SPA_ViolationApi/HasSamePeriod/{period}")]
