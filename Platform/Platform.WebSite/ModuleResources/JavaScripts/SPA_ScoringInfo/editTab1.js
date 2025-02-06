@@ -138,18 +138,18 @@ $(function () {
 
         cols.forEach(obj => {
             detailArea.find("[name=" + obj + "]").prop("disabled", !isEnable);
-            detailArea.find("[name=" + obj + "]").selectpicker("refresh");
+            detailArea.find("[name=" + obj + "]").trigger('change'); 
         });
 
         // 員工狀態欄位在「前期匯入」時，選項:新進、在職、離職、其他
         // 員工狀態欄位在「本期新增」時，選項:新進、其他
         if (objDetail.Source == fixText_PrevPeriod) {
             detailArea.find("[name=EmpStatus] option[value=在職], option[value=離職]").show();
-            detailArea.find("[name=EmpStatus]").selectpicker("refresh");
+            detailArea.find("[name=EmpStatus]").trigger('change'); 
         }
         else {
             detailArea.find("[name=EmpStatus] option[value=在職], option[value=離職]").hide();
-            detailArea.find("[name=EmpStatus]").selectpicker("refresh");
+            detailArea.find("[name=EmpStatus]").trigger('change'); 
         }
 
         // 如果「本社/協力廠商」是「本社社員」，鎖定「供應商名稱」
@@ -268,7 +268,7 @@ $(function () {
             detailArea.find("[name=SkillLevel]").prop("disabled", false);
         }
 
-        detailArea.find("[name=IsIndependent]").selectpicker("refresh");
+        detailArea.find("[name=IsIndependent]").trigger('change'); 
     }
     setTimeout(function () { _setDefaultValue2(); }, 250);
 

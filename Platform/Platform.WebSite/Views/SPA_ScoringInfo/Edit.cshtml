@@ -206,7 +206,7 @@
                                                 <div class="col-2">
                                                     <label class="col-form-label" data-toggle="tooltip" data-html="true" title="@tab1ToolTips.Type"><span style="color:red">*</span>本社/協力廠商 </label>
                                                     <!-- 本社/協力廠商 -->
-                                                    <select name="Type" class="form-control form-control-sm selectpicker" data-live-search="true" style="width: 5em;" title="請選擇">
+                                                    <select name="Type" class="form-control form-control-sm select2" title="請選擇">
                                                         <option value="本社社員" selected="selected">本社社員</option>
                                                         <option value="協力廠商">協力廠商</option>
                                                     </select>
@@ -228,7 +228,7 @@
                                                 <div class="col-2">
                                                     <label class="col-form-label" data-toggle="tooltip" data-html="true" title="@tab1ToolTips.MajorJob"><span style="color:red">*</span>主要負責作業 </label>
                                                     <!-- 主要負責作業 -->
-                                                    <select name="MajorJob" class="form-control form-control-sm selectpicker" data-live-search="true" title="請選擇">
+                                                    <select name="MajorJob" class="form-control form-control-sm select2" title="請選擇">
                                                         @foreach (var pair in pairList_MajorJob)
                                                         {
                                                             <option value="@pair.Key">@pair.Text</option>
@@ -239,7 +239,7 @@
                                                 <div class="col-2">
                                                     <label class="col-form-label" data-toggle="tooltip" data-html="true" title="@tab1ToolTips.IsIndependent"><span style="color:red">*</span>能否獨立作業 </label>
                                                     <!-- 能否獨立作業 -->
-                                                    <select name="IsIndependent" class="form-control form-control-sm selectpicker" data-live-search="true" title="請選擇">
+                                                    <select name="IsIndependent" class="form-control form-control-sm select2" title="請選擇">
                                                         <option value="O">O</option>
                                                         <option value="X">X</option>
                                                         <option value="NA">NA</option>
@@ -255,7 +255,7 @@
                                                 <div class="col-2">
                                                     <label class="col-form-label" data-toggle="tooltip" data-html="true" title="@tab1ToolTips.EmpStatus"><span style="color:red">*</span>員工狀態 </label>
                                                     <!-- 員工狀態 -->
-                                                    <select name="EmpStatus" class="form-control form-control-sm selectpicker" data-live-search="true" title="請選擇">
+                                                    <select name="EmpStatus" class="form-control form-control-sm select2" title="請選擇">
                                                         <option value="新進">新進</option>
                                                         <option value="在職">在職</option>
                                                         <option value="離職">離職</option>
@@ -266,7 +266,7 @@
                                                 <div class="col-2">
                                                     <label class="col-form-label" data-toggle="tooltip" data-html="true" title="@tab1ToolTips.TELSeniority"><span style="color:red">*</span>派工至TEL的年資(年) </label>
                                                     <!-- 派工至TEL的年資(年) -->
-                                                    <select name="TELSeniorityY" class="form-control form-control-sm selectpicker" data-live-search="true" title="請選擇">
+                                                    <select name="TELSeniorityY" class="form-control form-control-sm select2" title="請選擇">
                                                         <option value="0">0</option>
                                                         <option value="1">1</option>
                                                         <option value="2">2</option>
@@ -319,7 +319,7 @@
                                                 <div class="col-2">
                                                     <label class="col-form-label" data-toggle="tooltip" data-html="true" title="@tab1ToolTips.TELSeniority"><span style="color:red">*</span>派工至TEL的年資(月) </label>
                                                     <!-- 派工至TEL的年資(月) -->
-                                                    <select name="TELSeniorityM" class="form-control form-control-sm selectpicker" data-live-search="true" title="請選擇">
+                                                    <select name="TELSeniorityM" class="form-control form-control-sm select2" title="請選擇">
                                                         <option value="0">0</option>
                                                         <option value="1">1</option>
                                                         <option value="2">2</option>
@@ -391,7 +391,7 @@
                                                 <div class="col-2">
                                                     <label class="col-form-label" data-toggle="tooltip" data-html="true" title="@tab2ToolTips.ServiceFor"><span style="color:red">*</span>服務對象 </label>
                                                     <!-- 服務對象 -->
-                                                    <select name="ServiceFor2" class="form-control form-control-sm selectpicker" data-live-search="true" style="width: 5em;" title="請選擇">
+                                                    <select name="ServiceFor2" class="form-control form-control-sm select2" title="請選擇">
                                                         @foreach (var pair in pairList_ServiceFor)
                                                         {
                                                             <option value="@pair.Key">@pair.Text</option>
@@ -402,7 +402,7 @@
                                                 <div class="col-2">
                                                     <label class="col-form-label" data-toggle="tooltip" data-html="true" title="@tab2ToolTips.WorkItem"><span style="color:red">*</span>作業項目 </label>
                                                     <!-- 作業項目 -->
-                                                    <select name="WorkItem" class="form-control form-control-sm selectpicker" data-live-search="true" style="width: 5em;" title="請選擇">
+                                                    <select name="WorkItem" class="form-control form-control-sm select2" title="請選擇">
                                                         @foreach (var pair in pairList_WorkItem)
                                                         {
                                                             <option value="@pair.Key">@pair.Text</option>
@@ -426,7 +426,7 @@
                                                 <div class="col-2">
                                                     <label class="col-form-label" data-toggle="tooltip" data-html="true" title="@tab2ToolTips.OnTime"><span style="color:red">*</span>是否準時交付 </label>
                                                     <!-- 是否準時交付 -->
-                                                    <select name="OnTime" class="form-control form-control-sm selectpicker" data-live-search="true" title="請選擇">
+                                                    <select name="OnTime" class="form-control form-control-sm select2" title="請選擇">
                                                         <option value="Yes">Yes</option>
                                                         <option value="No">No</option>
                                                     </select>
@@ -534,7 +534,7 @@
                                                 <div class="col-2">
                                                     <label class="col-form-label" data-toggle="tooltip" data-html="true" title="@tab3ToolTips.TELLoss"><span style="color:red">*</span>TEL財損 </label>
                                                     <!-- TEL財損 -->
-                                                    <select name="TELLoss2" class="form-control form-control-sm selectpicker" data-live-search="true" title="請選擇">
+                                                    <select name="TELLoss2" class="form-control form-control-sm select2" title="請選擇">
                                                         <option value="Yes">Yes</option>
                                                         <option value="No">No</option>
                                                     </select>
@@ -543,7 +543,7 @@
                                                 <div class="col-2">
                                                     <label class="col-form-label" data-toggle="tooltip" data-html="true" title="@tab3ToolTips.CustomerLoss"><span style="color:red">*</span>客戶財損 </label>
                                                     <!-- 是否準時交付 -->
-                                                    <select name="CustomerLoss2" class="form-control form-control-sm selectpicker" data-live-search="true" title="請選擇">
+                                                    <select name="CustomerLoss2" class="form-control form-control-sm select2" title="請選擇">
                                                         <option value="Yes">Yes</option>
                                                         <option value="No">No</option>
                                                     </select>
@@ -552,7 +552,7 @@
                                                 <div class="col-2">
                                                     <label class="col-form-label" data-toggle="tooltip" data-html="true" title="@tab3ToolTips.Accident"><span style="color:red">*</span>人身事故 </label>
                                                     <!-- 人身事故 -->
-                                                    <select name="Accident2" class="form-control form-control-sm selectpicker" data-live-search="true" title="請選擇">
+                                                    <select name="Accident2" class="form-control form-control-sm select2" title="請選擇">
                                                         <option value="Yes">Yes</option>
                                                         <option value="No">No</option>
                                                     </select>
@@ -606,7 +606,7 @@
                                             <div class="col-2">
                                                 <label class="col-form-label" data-toggle="tooltip" data-html="true" title="@tab4ToolTips.Correctness"><span style="color:red">*</span>作業正確性 </label>
                                                 <!-- 作業正確性 -->
-                                                <select name="Correctness" class="form-control form-control-sm selectpicker" data-live-search="true" title="請選擇">
+                                                <select name="Correctness" class="form-control form-control-sm select2" title="請選擇">
                                                     <option value="0">0</option>
                                                     <option value="1">1</option>
                                                     <option value="2">2</option>
@@ -618,7 +618,7 @@
                                             <div class="col-2">
                                                 <label class="col-form-label" data-toggle="tooltip" data-html="true" title="@tab4ToolTips.Contribution"><span style="color:red">*</span>人員備齊貢獻度 </label>
                                                 <!-- 人員備齊貢獻度 -->
-                                                <select name="Contribution" class="form-control form-control-sm selectpicker" data-live-search="true" title="請選擇">
+                                                <select name="Contribution" class="form-control form-control-sm select2" title="請選擇">
                                                     <option value="4">4</option>
                                                     <option value="3">3</option>
                                                     <option value="2">2</option>
@@ -657,7 +657,7 @@
                                             <div class="col-3">
                                                 <label class="col-form-label" data-toggle="tooltip" data-html="true" title="@tab5ToolTips.SelfTraining"><span style="color:red">*</span>供應商自訓程度 </label>
                                                 <!-- 供應商自訓程度 -->
-                                                <select name="SelfTraining" class="form-control form-control-sm selectpicker" data-live-search="true" title="請選擇">
+                                                <select name="SelfTraining" class="form-control form-control-sm select2" title="請選擇">
                                                     <option value="完全由供應商自行訓練">完全由供應商自行訓練</option>
                                                     <option value="部分人員須由TEL代訓">部分人員須由TEL代訓</option>
                                                     <option value="完全由TEL代訓">完全由TEL代訓</option>
@@ -700,7 +700,7 @@
                                             <div class="col-2">
                                                 <label for="Cooperation" class="col-form-label" data-toggle="tooltip" data-html="true" title="@tab6ToolTips.Cooperation"><span style="color:red">*</span>配合度</label>
                                                 <!-- 配合度 -->
-                                                <select name="Cooperation" class="form-control form-control-sm selectpicker" data-live-search="true" title="請選擇">
+                                                <select name="Cooperation" class="form-control form-control-sm select2" title="請選擇">
                                                     <option value="很滿意">很滿意</option>
                                                     <option value="滿意">滿意</option>
                                                     <option value="普通">普通</option>
@@ -768,7 +768,7 @@
                                                 <div class="col-2">
                                                     <label class="col-form-label" data-toggle="tooltip" data-html="true" title="@tab6ToolTips.IsDamage"><span style="color:red">*</span>造成財損 </label>
                                                     <!-- 造成財損 -->
-                                                    <select name="IsDamage" class="form-control form-control-sm selectpicker" data-live-search="true" title="請選擇">
+                                                    <select name="IsDamage" class="form-control form-control-sm select2" title="請選擇">
                                                         <option value="Yes">Yes</option>
                                                         <option value="No">No</option>
                                                     </select>

@@ -290,7 +290,7 @@ $(function () {
 
         // In tab6
         jqObjArea.find("[name=Cooperation]").find(`option[value=${objFormData.Cooperation}]`).prop("selected", true);
-        jqObjArea.find("[name=Cooperation]").selectpicker('refresh');
+        jqObjArea.find("[name=Cooperation]").trigger('change'); 
         jqObjArea.find("[name=Complain]").val(objFormData.Complain);
         jqObjArea.find("[name=Advantage]").val(objFormData.Advantage);
         jqObjArea.find("[name=Improved]").val(objFormData.Improved);
@@ -354,7 +354,8 @@ $(function () {
                 // 如果是特殊下拉選單，要用 API 鎖定和解鎖
                 if (field.hasClass("selectpicker")) {
                     field.selectpicker('refresh');
-                }
+                } else if (field.hasClass("select2"))
+                    field.trigger('change'); 
             }
         });
 
@@ -405,7 +406,7 @@ $(function () {
 
             // 尋找並停用所有 ID 為 tab 字頭裡，所有的表單元素
             $("[id^=tab").find("input, select, textarea").prop("disabled", true);
-            $("[id^=tab").find(".selectpicker").selectpicker('refresh');
+            $("[id^=tab").find(".select2").trigger('change'); 
         } else {
             $(btnSubmitSelector).hide();
         }
