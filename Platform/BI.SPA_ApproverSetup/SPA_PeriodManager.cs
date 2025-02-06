@@ -280,7 +280,7 @@ namespace BI.SPA_ApproverSetup
                         var srissList = this._roleMgr.GetUserListInRole(ApprovalRole.SRI_SS.ToID().Value).ToList();
                         var qsmList = this._roleMgr.GetUserListInRole(ApprovalRole.QSM.ToID().Value).ToList();
                         var receiver1_MailList = srissList.Select(obj => obj.EMail).Distinct().ToList();
-                        var cc_MailList = srissList.Select(obj => obj.EMail).Distinct().ToList();
+                        var cc_MailList = qsmList.Select(obj => obj.EMail).Distinct().ToList();
 
                         MailUtil.Send_SRISS_Mail(receiver1_MailList, cc_MailList, dbModel.Period, userID, cDate);
 
