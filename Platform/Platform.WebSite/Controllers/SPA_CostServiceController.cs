@@ -48,7 +48,7 @@ namespace Platform.WebSite.Controllers
 
             // 其它值
             var startingPeriod = this._spaPeriodMgr.GetStartingDetail();
-            this.ViewBag.Param_Period = startingPeriod.Period;
+            this.ViewBag.Param_Period = startingPeriod?.Period ?? PeriodUtil.GetCurrentPeriod()?.PeriodText;
             this.ViewBag.CurrentUser = cUser.ID;
 
             this.InitAction(id);

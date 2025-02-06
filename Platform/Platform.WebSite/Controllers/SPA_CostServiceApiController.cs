@@ -89,7 +89,7 @@ namespace Platform.WebSite.Controllers
             return list;
         }
 
-        /// <summary> 讀取前期的明細資料 </summary>
+        /// <summary> 是否存在指定的評鑑期間 </summary>
         /// <param name="period"> 評鑑期間 </param>
         /// <returns></returns>
         [Route("~/api/SPA_CostServiceApi/HasSamePeriod/{period}")]

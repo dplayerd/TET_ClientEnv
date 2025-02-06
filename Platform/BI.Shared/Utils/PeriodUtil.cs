@@ -1,4 +1,5 @@
-﻿using Platform.AbstractionClass;
+﻿using BI.Shared.Extensions;
+using Platform.AbstractionClass;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,6 +12,31 @@ namespace BI.Shared.Utils
     /// <summary> 換算評鑑期間的工具 </summary>
     public class PeriodUtil
     {
+        /// <summary> 取得預設的評鑑期間
+        /// </summary>
+        /// <returns></returns>
+        public static DatePeriod GetCurrentPeriod()
+        {
+            int year = DateTime.Today.Year;
+            var period = new DatePeriod()
+            {
+                StartDate = new DateTime(year + 1, 4, 1),
+                EndDate = new DateTime(year + 1, 9, 30)
+            };
+
+
+            if (DateTime.Today >= period.StartDate && DateTime.Today <= period.EndDate)
+                return period;
+            else if (DateTime.Today < period.StartDate)
+                return period.GetPrevPeriod();
+            else if (DateTime.Today > period.EndDate)
+                return period.GetNextPeriod();
+
+            // 基本上不應該走到這路徑，到這裡一定有大問題
+            return null;    
+        }
+
+
         /// <summary> 將日期取出 
         /// <para> 依照評鑑期間換算出開始日期，評鑑期間的格式為FY@yy-@termH </para>
         /// <para> 若 @term = 1: @sdate為 @yy-1/04/01，若 @term = 2: @sdate為 @yy-1/10/01 </para>
