@@ -647,17 +647,17 @@ namespace BI.SPA_CostService
                 {
                     Title = $"[Cost&Service資料確認] {main.Period}_{item.Key.ServiceItemText}_{item.Key.BUText}",
                     Body =
-                $@"
-                您好,
-                <br/>
-                請點擊「<a href=""{pageUrl}"" target=""_blank"">待審清單</a>」，謝謝 <br/>
-                <br/>
-                流程名稱: Cost&Service資料審核 <br/>
+                    $@"
+                    您好,
+                    <br/>
+                    請點擊「<a href=""{pageUrl}"" target=""_blank"">待審清單</a>」，謝謝 <br/>
+                    <br/>
+                    流程名稱: Cost&Service資料審核 <br/>
 
-                流程發起時間: {firstApprovalTimeText} <br/>
-                審核關卡: {ApprovalLevel.BU.ToDisplayText()} <br/>
-                審核開始時間: {createTime} <br/>
-                "
+                    流程發起時間: {firstApprovalTimeText} <br/>
+                    審核關卡: {ApprovalLevel.BU.ToDisplayText()} <br/>
+                    審核開始時間: {createTime} <br/>
+                    "
                 };
 
                 var buEmail = item.Value.Select(obj => obj.EMail).ToList();
@@ -732,7 +732,7 @@ namespace BI.SPA_CostService
         {
             var qsmList = this._roleMgr.GetUserListInRole(ApprovalRole.QSM.ToID().Value);
             var qsmMailList = qsmList.Select(obj => obj.EMail).ToList();
-            var pageUrl = $"{ModuleConfig.EmailRootUrl}/SupplierApproval/Index";
+            var pageUrl = $"{ModuleConfig.EmailRootUrl}/SPA_ScoringInfo/Index";
 
             var createTime = approvalModel.CreateDate.ToString("yyyy-MM-dd HH:mm:ss");
             var firstApprovalTime = main.ApprovalList.OrderBy(obj => obj.CreateDate).Select(obj => obj.CreateDate).FirstOrDefault();
