@@ -144,11 +144,11 @@ $(function () {
         // 員工狀態欄位在「前期匯入」時，選項:新進、在職、離職、其他
         // 員工狀態欄位在「本期新增」時，選項:新進、其他
         if (objDetail.Source == fixText_PrevPeriod) {
-            detailArea.find("[name=EmpStatus] option[value=在職], option[value=離職]").show();
+            detailArea.find("[name=EmpStatus] option[value=在職], option[value=離職]").prop("disabled", false);
             detailArea.find("[name=EmpStatus]").trigger('change'); 
         }
         else {
-            detailArea.find("[name=EmpStatus] option[value=在職], option[value=離職]").hide();
+            detailArea.find("[name=EmpStatus] option[value=在職], option[value=離職]").prop("disabled", true);
             detailArea.find("[name=EmpStatus]").trigger('change'); 
         }
 
