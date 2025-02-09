@@ -499,15 +499,8 @@ namespace BI.Suppliers
 
                     // 如果是 User_GL 這關，而且是加簽人，將關卡名稱換掉
                     var lvl = ApprovalUtils.ParseApprovalLevel(approver.Level);
-                    if (lvl == ApprovalLevel.User_GL)
-                    {
-                        if (supplier != null)
-                        {
-                            var coSigns = JsonConvert.DeserializeObject<List<string>>(supplier.CoSignApprover);
-                            if (coSigns.Contains(approver.Approver))
-                                return ModuleConfig.CoSignApproverLevelName;
-                        }
-                    }
+                    if (supplier != null)
+                        return this.GetLevelDisplayName(approver.Approver, lvl, supplier.CoSignApprover);
 
                     return lvl.ToDisplayText();
                 }
@@ -517,6 +510,25 @@ namespace BI.Suppliers
                 this._logger.WriteError(ex);
                 return default;
             }
+        }
+
+        /// <summary> 取得要呈現的關卡名稱
+        /// (因為加簽的人，要顯示不同的關卡)
+        /// </summary>
+        /// <param name="approver"></param>
+        /// <param name="level"></param>
+        /// <param name="coSignApproverText"></param>
+        /// <returns></returns>
+        private string GetLevelDisplayName(string approver, ApprovalLevel level, string coSignApproverText)
+        {
+            if (level == ApprovalLevel.User_GL)
+            {
+                var coSigns = JsonConvert.DeserializeObject<List<string>>(coSignApproverText);
+                if (coSigns.Contains(approver))
+                    return ModuleConfig.CoSignApproverLevelName;
+            }
+
+            return level.ToDisplayText();
         }
         #endregion
 
@@ -1199,13 +1211,15 @@ namespace BI.Suppliers
 
 
                     //--- 新增審核資料 - 主管 ---
+                    var lvl = ApprovalLevel.User_GL;
+
                     // 建立新的申請資訊
                     var entity = new TET_SupplierApproval()
                     {
                         ID = Guid.NewGuid(),
                         SupplierID = dbModel.ID,
                         Type = ApprovalType.New.ToText(),
-                        Level = ApprovalLevel.User_GL.ToText(),
+                        Level = lvl.ToText(),
                         Description = $"{ApprovalType.New.ToText()}_{dbModel.CName}_{user.UnitName}_{user.FirstNameEN} {user.LastNameEN}",
                         Approver = leader.ID,
                         CreateUser = userID,
@@ -1215,7 +1229,8 @@ namespace BI.Suppliers
                     };
 
                     // 寄送通知信
-                    ApprovalMailUtil.SendNewVerifyMail(leader.EMail, entity, userID, cDate);
+                    var lvlName = GetLevelDisplayName(entity.Approver, lvl, dbModel.CoSignApprover);
+                    ApprovalMailUtil.SendNewVerifyMail(leader.EMail, entity, lvlName, userID, cDate);
                     context.TET_SupplierApproval.Add(entity);
                     //--- 新增審核資料 - 主管 ---
 
@@ -1233,7 +1248,7 @@ namespace BI.Suppliers
                             ID = Guid.NewGuid(),
                             SupplierID = dbModel.ID,
                             Type = ApprovalType.New.ToText(),
-                            Level = ApprovalLevel.User_GL.ToText(),
+                            Level = lvl.ToText(),
                             Description = $"{ApprovalType.New.ToText()}_{dbModel.CName}_{user.UnitName}_{user.FirstNameEN} {user.LastNameEN}",
                             Approver = approver,
                             CreateUser = userID,
@@ -1242,8 +1257,9 @@ namespace BI.Suppliers
                             ModifyDate = cDate,
                         };
 
+
                         // 寄送通知信
-                        ApprovalMailUtil.SendNewVerifyMail(email, entity_CoSign, userID, cDate);
+                        ApprovalMailUtil.SendNewVerifyMail(email, entity_CoSign, lvlName, userID, cDate);
                         context.TET_SupplierApproval.Add(entity_CoSign);
                     }
                     //--- 新增審核資料 - 加簽人 ---
