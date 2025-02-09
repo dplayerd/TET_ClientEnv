@@ -25,12 +25,14 @@ using System.Net;
 using System.Net.Http;
 using System.Web;
 using System.Web.Http;
+using BI.PaymentSuppliers;
 
 namespace Platform.WebSite.Controllers
 {
     [WebApiAuthorizeCore]
     public class SupplierApprovalApiController : ApiController
     {
+        private TET_PaymentSupplierManager _paymentSupplierMgr = new TET_PaymentSupplierManager();
         private TET_SupplierManager _supplierMgr = new TET_SupplierManager();
         private TET_SupplierApprovalManager _mgr = new TET_SupplierApprovalManager();
         private AllApprovalManager _approvalMgr = new AllApprovalManager();
@@ -66,7 +68,7 @@ namespace Platform.WebSite.Controllers
                         break;
 
                     case "PaymentSupplier":
-                        item.Level_Text = BI.PaymentSuppliers.Utils.ApprovalUtils.ParseApprovalLevel(item.Level).ToDisplayText();
+                        item.Level_Text = _paymentSupplierMgr.GetLevelDisplayName(item.ParentID, item.ID);
                         break;
 
                     case "PaymentSupplierRevision":

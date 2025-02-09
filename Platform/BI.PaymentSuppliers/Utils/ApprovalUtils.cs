@@ -23,13 +23,13 @@ namespace BI.PaymentSuppliers.Utils
 
             ApprovalLevel enm;
 
-            if (val == ApprovalLevel.User_GL.ToText())                  // User's Supervisor
+            if (val == ApprovalLevel.User_GL.ToString() || val == ApprovalLevel.User_GL.ToText())                   // User's Supervisor
                 enm = ApprovalLevel.User_GL;
-            else if (val == ApprovalLevel.ACC_First.ToText())           // ACC初審
+            else if (val == ApprovalLevel.ACC_First.ToString() || val == ApprovalLevel.ACC_First.ToText())          // ACC初審
                 enm = ApprovalLevel.ACC_First;
-            else if (val == ApprovalLevel.ACC_Second.ToText())          // ACC複審
+            else if (val == ApprovalLevel.ACC_Second.ToString() || val == ApprovalLevel.ACC_Second.ToText())        // ACC複審
                 enm = ApprovalLevel.ACC_Second;
-            else if (val == ApprovalLevel.ACC_Last.ToText())            // ACC覆核
+            else if (val == ApprovalLevel.ACC_Last.ToString() || val == ApprovalLevel.ACC_Last.ToText())            // ACC覆核
                 enm = ApprovalLevel.ACC_Last;
             else
                 enm = ApprovalLevel.Empty;

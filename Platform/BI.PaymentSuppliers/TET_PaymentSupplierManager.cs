@@ -12,6 +12,7 @@ using BI.PaymentSuppliers.Utils;
 using Platform.Auth;
 using BI.PaymentSuppliers.Validators;
 using BI.Shared;
+using Newtonsoft.Json;
 
 namespace BI.PaymentSuppliers
 {
@@ -472,7 +473,29 @@ namespace BI.PaymentSuppliers
                          ModifyDate = item.ModifyDate,
                      });
 
-            return query.ToList();
+            var result = query.ToList();
+
+
+            // 如果是 User_GL 這關，而且是加簽人，要把關卡名稱換了
+            var supplierCoSign =
+                (from item in context.TET_PaymentSupplier
+                 where item.ID == ID
+                 select item.CoSignApprover).FirstOrDefault();
+
+            if (supplierCoSign != null)
+            {
+                foreach (var ritem in result)
+                {
+                    if (ApprovalUtils.ParseApprovalLevel(ritem.Level) == ApprovalLevel.User_GL)
+                    {
+                        var coSigns = JsonConvert.DeserializeObject<List<string>>(supplierCoSign);
+                        if (coSigns.Contains(ritem.Approver))
+                            ritem.Level = ModuleConfig.CoSignApproverLevelName;
+                    }
+                }
+            }
+
+            return result;
         }
 
         /// <summary> 檢查供應商代碼是否已存在 </summary>
@@ -494,6 +517,67 @@ namespace BI.PaymentSuppliers
 
             var isExist = query.Any();
             return isExist;
+        }
+
+
+
+        /// <summary> 取得要呈現的關卡名稱
+        /// (因為加簽的人，要顯示不同的關卡)
+        /// </summary>
+        /// <param name="supplierId"></param>
+        /// <param name="approvalId"></param>
+        /// <returns></returns>
+        public string GetLevelDisplayName(Guid supplierId, Guid approvalId)
+        {
+            try
+            {
+                using (PlatformContextModel context = new PlatformContextModel())
+                {
+                    // Supplier
+                    var supplierQuery =
+                        (from item in context.TET_PaymentSupplier
+                         where item.ID == supplierId
+                         select new { item.CoSignApprover });
+
+                    var supplier = supplierQuery.FirstOrDefault();
+
+                    // Approver
+                    var appQuery =
+                        from item in context.TET_PaymentSupplierApproval
+                        where item.ID == approvalId
+                        select new
+                        {
+                            item.Level,
+                            item.Approver
+                        };
+                    var approver = appQuery.FirstOrDefault();
+
+
+                    // 任一查不到，關卡名稱用空字串
+                    if (supplier == null || approver == null)
+                        return string.Empty;
+
+
+                    // 如果是 User_GL 這關，而且是加簽人，將關卡名稱換掉
+                    var lvl = ApprovalUtils.ParseApprovalLevel(approver.Level);
+                    if (lvl == ApprovalLevel.User_GL)
+                    {
+                        if (supplier != null)
+                        {
+                            var coSigns = JsonConvert.DeserializeObject<List<string>>(supplier.CoSignApprover);
+                            if (coSigns.Contains(approver.Approver))
+                                return ModuleConfig.CoSignApproverLevelName;
+                        }
+                    }
+
+                    return lvl.ToDisplayText();
+                }
+            }
+            catch (Exception ex)
+            {
+                this._logger.WriteError(ex);
+                return default;
+            }
         }
         #endregion
 
@@ -863,7 +947,8 @@ namespace BI.PaymentSuppliers
                     };
 
                     // 寄送通知信
-                    ApprovalMailUtil.SendNewVerifyMail(leader.EMail, entity, userID, cDate);
+                    var lvlName = this.GetLevelDisplayName(leader.ID, ApprovalLevel.User_GL, dbModel.CoSignApprover);
+                    ApprovalMailUtil.SendNewVerifyMail(leader.EMail, entity, lvlName, userID, cDate);
                     context.TET_PaymentSupplierApproval.Add(entity);
                     //--- 新增審核資料 - 主管 ---
 
@@ -891,7 +976,8 @@ namespace BI.PaymentSuppliers
                         };
 
                         // 寄送通知信
-                        ApprovalMailUtil.SendNewVerifyMail(email, entity_CoSign, userID, cDate);
+                        var lvlName2 = this.GetLevelDisplayName(approver, ApprovalLevel.User_GL, dbModel.CoSignApprover);
+                        ApprovalMailUtil.SendNewVerifyMail(email, entity_CoSign, lvlName2, userID, cDate);
                         context.TET_PaymentSupplierApproval.Add(entity_CoSign);
                     }
                     //--- 新增審核資料 - 加簽人 ---
@@ -964,6 +1050,25 @@ namespace BI.PaymentSuppliers
                 this._logger.WriteError(ex);
                 throw;
             }
+        }
+
+        /// <summary> 取得要呈現的關卡名稱
+        /// (因為加簽的人，要顯示不同的關卡)
+        /// </summary>
+        /// <param name="approver"></param>
+        /// <param name="level"></param>
+        /// <param name="coSignApproverText"></param>
+        /// <returns></returns>
+        private string GetLevelDisplayName(string approver, ApprovalLevel level, string coSignApproverText)
+        {
+            if (level == ApprovalLevel.User_GL)
+            {
+                var coSigns = JsonConvert.DeserializeObject<List<string>>(coSignApproverText);
+                if (coSigns.Contains(approver))
+                    return ModuleConfig.CoSignApproverLevelName;
+            }
+
+            return level.ToDisplayText();
         }
         #endregion
     }

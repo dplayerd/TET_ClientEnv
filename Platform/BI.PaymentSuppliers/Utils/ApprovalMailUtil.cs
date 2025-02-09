@@ -45,10 +45,10 @@ namespace BI.PaymentSuppliers.Utils
         /// <summary> 寄信新的簽核人 </summary>
         /// <param name="receiverMail"></param>
         /// <param name="approvalModel"></param>
-        /// <param name="createTime"></param>
+        /// <param name="levelName"></param>
         /// <param name="userID">目前登入者</param>
         /// <param name="cDate">目前時間</param> 
-        internal static void SendNewVerifyMail(string receiverMail, TET_PaymentSupplierApproval approvalModel, string userID, DateTime cDate)
+        internal static void SendNewVerifyMail(string receiverMail, TET_PaymentSupplierApproval approvalModel, string levelName, string userID, DateTime cDate)
         {
             var pageUrl = $"{ModuleConfig.EmailRootUrl}/SupplierApproval/Index";
 
@@ -62,7 +62,7 @@ namespace BI.PaymentSuppliers.Utils
                 <br/>
                 流程名稱: 新增一般付款對象審核 <br/>
                 流程發起時間: {cDate.ToString("yyyy-MM-dd HH:mm:ss")} <br/>
-                審核關卡: {ApprovalLevel.User_GL.ToDisplayText()} <br/>
+                審核關卡: {levelName} <br/>
                 審核開始時間: {approvalModel.CreateDate.ToString("yyyy-MM-dd HH:mm:ss")} <br/>
                 "
             };
@@ -76,9 +76,10 @@ namespace BI.PaymentSuppliers.Utils
         /// <summary> 寄信新的簽核人 </summary>
         /// <param name="receiverMailList"></param>
         /// <param name="approvalModel"></param>
+        /// <param name="levelName"></param>
         /// <param name="userID">目前登入者</param>
         /// <param name="cDate">目前時間</param>
-        internal static void SendRevisionVerifyMail(List<string> receiverMailList, TET_PaymentSupplierApproval approvalModel, string userID, DateTime cDate)
+        internal static void SendRevisionVerifyMail(List<string> receiverMailList, TET_PaymentSupplierApproval approvalModel, string levelName, string userID, DateTime cDate)
         {
             var pageUrl = $"{ModuleConfig.EmailRootUrl}/SupplierApproval/Index";
 
@@ -92,7 +93,7 @@ namespace BI.PaymentSuppliers.Utils
                 <br/>
                 流程名稱: {ApprovalType.Modify.ToText()} <br/>
                 流程發起時間: {cDate.ToString("yyyy-MM-dd HH:mm:ss")} <br/>
-                審核關卡: {ApprovalLevel.User_GL.ToDisplayText()} <br/>
+                審核關卡: {levelName} <br/>
                 審核開始時間: {approvalModel.CreateDate.ToString("yyyy-MM-dd HH:mm:ss")} <br/>
                 "
             };

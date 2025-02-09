@@ -10,7 +10,7 @@ using BI.PaymentSuppliers.Models;
 using BI.PaymentSuppliers.Enums;
 using BI.PaymentSuppliers.Utils;
 using Platform.Auth;
-using System.Xml.Linq;
+using Newtonsoft.Json;
 using Platform.Auth.Models;
 using BI.PaymentSuppliers.Validators;
 
@@ -228,7 +228,8 @@ namespace BI.PaymentSuppliers
                         }
 
                         // 寄送通知信
-                        ApprovalMailUtil.SendRevisionVerifyMail(approverList.Select(obj => obj.EMail).ToList(), paymentsupplierApprovalList[0], userID, cDate);
+                        var lvlName = this.GetLevelDisplayName(paymentsupplierApprovalList[0].Approver, startFlow, dbModel.CoSignApprover);
+                        ApprovalMailUtil.SendRevisionVerifyMail(approverList.Select(obj => obj.EMail).ToList(), paymentsupplierApprovalList[0], lvlName, userID, cDate);
                         context.TET_PaymentSupplierApproval.AddRange(paymentsupplierApprovalList);
                     }
                     //--- 新增審核資料 ---
@@ -311,6 +312,26 @@ namespace BI.PaymentSuppliers
                 this._logger.WriteError(ex);
                 throw;
             }
+        }
+
+
+        /// <summary> 取得要呈現的關卡名稱
+        /// (因為加簽的人，要顯示不同的關卡)
+        /// </summary>
+        /// <param name="approver"></param>
+        /// <param name="level"></param>
+        /// <param name="coSignApproverText"></param>
+        /// <returns></returns>
+        private string GetLevelDisplayName(string approver, ApprovalLevel level, string coSignApproverText)
+        {
+            if (level == ApprovalLevel.User_GL)
+            {
+                var coSigns = JsonConvert.DeserializeObject<List<string>>(coSignApproverText);
+                if (coSigns.Contains(approver))
+                    return ModuleConfig.CoSignApproverLevelName;
+            }
+
+            return level.ToDisplayText();
         }
     }
 }

@@ -15,6 +15,7 @@ using BI.PaymentSuppliers.Validators;
 using Platform.Messages;
 using System.Xml.Linq;
 using BI.PaymentSuppliers.Models;
+using Newtonsoft.Json;
 
 namespace BI.PaymentSuppliers
 {
@@ -417,11 +418,22 @@ namespace BI.PaymentSuppliers
                             {
                                 var coSignList = this._userMgr.GetUserList_AccountModel(paymentsupplierModel.CoSignApprover);
                                 nextApporverList.AddRange(coSignList);
-                            }
 
-                            var accList = this.GetLevelApproverList(prevLevelModel, dbSupplierModel.CreateUser);
-                            nextApporverList.AddRange(accList);
-                            this.SendRejectToPrevMail(nextLevelName, accList, paymentsupplierModel, model, userID, cDate);
+                                var accList = this.GetLevelApproverList(prevLevelModel, dbSupplierModel.CreateUser);
+                                nextApporverList.AddRange(accList);
+
+                                foreach (var acc in accList)
+                                {
+                                    var lvlName = this.GetLevelDisplayName(acc.ID, prevLevelModel.Level, dbSupplierModel.CoSignApprover);
+                                    this.SendRejectToPrevMail(lvlName, new List<UserAccountModel>() { acc }, paymentsupplierModel, model, userID, cDate);
+                                }
+                            }
+                            else
+                            {
+                                var accList = this.GetLevelApproverList(prevLevelModel, dbSupplierModel.CreateUser);
+                                nextApporverList.AddRange(accList);
+                                this.SendRejectToPrevMail(nextLevelName, accList, paymentsupplierModel, model, userID, cDate);
+                            }
                         }
                         //--- 檢查審核階段決定信件: (審核關卡!=User_GL、審核結果=退回上一關) ---
                     }
@@ -820,6 +832,25 @@ namespace BI.PaymentSuppliers
                 default:
                     return new List<UserAccountModel>();
             }
+        }
+
+        /// <summary> 取得要呈現的關卡名稱
+        /// (因為加簽的人，要顯示不同的關卡)
+        /// </summary>
+        /// <param name="approver"></param>
+        /// <param name="level"></param>
+        /// <param name="coSignApproverText"></param>
+        /// <returns></returns>
+        private string GetLevelDisplayName(string approver, ApprovalLevel level, string coSignApproverText)
+        {
+            if (level == ApprovalLevel.User_GL)
+            {
+                var coSigns = JsonConvert.DeserializeObject<List<string>>(coSignApproverText);
+                if (coSigns.Contains(approver))
+                    return ModuleConfig.CoSignApproverLevelName;
+            }
+
+            return level.ToDisplayText();
         }
         #endregion
     }

@@ -49,6 +49,10 @@ namespace BI.PaymentSuppliers.Models
             get
             {
                 var lvl = ApprovalUtils.ParseApprovalLevel(this.Level);
+
+                if (lvl == ApprovalLevel.Empty)
+                    return this.Level;
+
                 return lvl.ToDisplayText();
             }
         }
