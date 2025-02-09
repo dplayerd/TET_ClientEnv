@@ -78,10 +78,10 @@ namespace BI.Suppliers.Enums
                     return "User's Supervisor";
 
                 case ApprovalLevel.SRI_SS:
-                    return "PQM_SS";
+                    return "採購_SS";
 
                 case ApprovalLevel.SRI_SS_GL:
-                    return "PQM_SS's Supervisor";
+                    return "採購_SS's Supervisor";
 
                 case ApprovalLevel.ACC_First:
                     return "ACC初審";

@@ -49,11 +49,15 @@ namespace BI.Suppliers.Models
             get
             {
                 var lvl = ApprovalUtils.ParseApprovalLevel(this.Level);
-                return lvl.ToDisplayText();
+
+                if (lvl == ApprovalLevel.Empty)
+                    return this.Level;
+                else
+                    return lvl.ToDisplayText();
             }
         }
 
-        public Guid ApprovalID { get { return this.ID; } set {  this.ID = value; } }
+        public Guid ApprovalID { get { return this.ID; } set { this.ID = value; } }
 
         /// <summary> CreateDate </summary>
         public string CreateDate_Text { get { return this.CreateDate.ToString("yyyy-MM-dd HH:mm:ss"); } }

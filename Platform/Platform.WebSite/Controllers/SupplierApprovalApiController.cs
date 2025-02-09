@@ -53,16 +53,16 @@ namespace Platform.WebSite.Controllers
             retList.recordsTotal = pager.TotalRow;
             retList.data = list;
 
-            foreach(var item in retList.data)
+            foreach (var item in retList.data)
             {
                 switch (item.ParentType)
                 {
                     case "Supplier":
-                        item.Level_Text = BI.Suppliers.Utils.ApprovalUtils.ParseApprovalLevel(item.Level).ToDisplayText();
+                        item.Level_Text = _supplierMgr.GetLevelDisplayName(item.ParentID, item.ID);
                         break;
 
                     case "Revision":
-                        item.Level_Text = BI.Suppliers.Utils.ApprovalUtils.ParseApprovalLevel(item.Level).ToDisplayText();
+                        item.Level_Text = _supplierMgr.GetLevelDisplayName(item.ParentID, item.ID);
                         break;
 
                     case "PaymentSupplier":

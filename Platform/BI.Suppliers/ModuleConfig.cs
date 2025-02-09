@@ -31,5 +31,10 @@ namespace BI.Suppliers
 
         /// <summary> 模組名稱 - SupplierRevision </summary>
         public const string ModuleName_SupplierRevision = "SupplierRevision";
+
+
+
+        /// <summary> 加簽人要顯示的名稱 </summary>
+        public const string CoSignApproverLevelName = "Co-Sign Approver";
     }
 }

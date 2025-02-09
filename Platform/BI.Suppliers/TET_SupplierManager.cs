@@ -13,6 +13,7 @@ using Platform.Auth;
 using BI.Suppliers.Validators;
 using BI.Shared;
 using BI.STQA.Models;
+using Newtonsoft.Json;
 
 namespace BI.Suppliers
 {
@@ -457,6 +458,66 @@ namespace BI.Suppliers
                 throw;
             }
         }
+
+
+        /// <summary> 取得要呈現的關卡名稱
+        /// (因為加簽的人，要顯示不同的關卡)
+        /// </summary>
+        /// <param name="supplierId"></param>
+        /// <param name="approvalId"></param>
+        /// <returns></returns>
+        public string GetLevelDisplayName(Guid supplierId, Guid approvalId)
+        {
+            try
+            {
+                using (PlatformContextModel context = new PlatformContextModel())
+                {
+                    // Supplier
+                    var supplierQuery =
+                        (from item in context.TET_Supplier
+                         where item.ID == supplierId
+                         select new { item.CoSignApprover });
+
+                    var supplier = supplierQuery.FirstOrDefault();
+
+                    // Approver
+                    var appQuery =
+                        from item in context.TET_SupplierApproval
+                        where item.ID == approvalId
+                        select new
+                        {
+                            item.Level,
+                            item.Approver
+                        };
+                    var approver = appQuery.FirstOrDefault();
+
+
+                    // 任一查不到，關卡名稱用空字串
+                    if (supplier == null || approver == null)
+                        return string.Empty;
+
+
+                    // 如果是 User_GL 這關，而且是加簽人，將關卡名稱換掉
+                    var lvl = ApprovalUtils.ParseApprovalLevel(approver.Level);
+                    if (lvl == ApprovalLevel.User_GL)
+                    {
+                        if (supplier != null)
+                        {
+                            var coSigns = JsonConvert.DeserializeObject<List<string>>(supplier.CoSignApprover);
+                            if (coSigns.Contains(approver.Approver))
+                                return ModuleConfig.CoSignApproverLevelName;
+                        }
+                    }
+
+                    return lvl.ToDisplayText();
+                }
+            }
+            catch (Exception ex)
+            {
+                this._logger.WriteError(ex);
+                return default;
+            }
+        }
         #endregion
 
         #region OtherRead
@@ -596,7 +657,30 @@ namespace BI.Suppliers
                          ModifyDate = item.ModifyDate,
                      });
 
-            return query.ToList();
+
+            var result = query.ToList();
+
+
+            // 如果是 User_GL 這關，而且是加簽人，要把關卡名稱換了
+            var supplierCoSign =
+                (from item in context.TET_Supplier
+                 where item.ID == ID
+                 select item.CoSignApprover).FirstOrDefault();
+
+            if (supplierCoSign != null)
+            {
+                foreach (var ritem in result)
+                {
+                    if (ApprovalUtils.ParseApprovalLevel(ritem.Level) == ApprovalLevel.User_GL)
+                    {
+                        var coSigns = JsonConvert.DeserializeObject<List<string>>(supplierCoSign);
+                        if (coSigns.Contains(ritem.Approver))
+                            ritem.Level = ModuleConfig.CoSignApproverLevelName;
+                    }
+                }
+            }
+
+            return result;
         }
 
         /// <summary> 取得最新版所有供應商的歸屬公司 </summary>

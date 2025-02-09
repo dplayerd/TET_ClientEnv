@@ -23,17 +23,17 @@ namespace BI.Suppliers.Utils
 
             ApprovalLevel enm;
 
-            if (val == ApprovalLevel.User_GL.ToText())                  // 供應商表單審核
+            if (val == ApprovalLevel.User_GL.ToString() || val == ApprovalLevel.User_GL.ToText())                   // 供應商表單審核
                 enm = ApprovalLevel.User_GL;
-            else if (val == ApprovalLevel.SRI_SS.ToText())              // 供應商表單初審
+            else if (val == ApprovalLevel.SRI_SS.ToString() || val == ApprovalLevel.SRI_SS.ToText())                // 供應商表單初審
                 enm = ApprovalLevel.SRI_SS;
-            else if (val == ApprovalLevel.SRI_SS_GL.ToText())           // 供應商表單覆審
+            else if (val == ApprovalLevel.SRI_SS_GL.ToString() || val == ApprovalLevel.SRI_SS_GL.ToText())          // 供應商表單覆審
                 enm = ApprovalLevel.SRI_SS_GL;
-            else if (val == ApprovalLevel.ACC_First.ToText())           // ACC初審
+            else if (val == ApprovalLevel.ACC_First.ToString() || val == ApprovalLevel.ACC_First.ToText())          // ACC初審
                 enm = ApprovalLevel.ACC_First;
-            else if (val == ApprovalLevel.ACC_Second.ToText())          // ACC複審
+            else if (val == ApprovalLevel.ACC_Second.ToString() || val == ApprovalLevel.ACC_Second.ToText())        // ACC複審
                 enm = ApprovalLevel.ACC_Second;
-            else if (val == ApprovalLevel.ACC_Last.ToText())            // ACC覆核
+            else if (val == ApprovalLevel.ACC_Last.ToString() || val == ApprovalLevel.ACC_Last.ToText())            // ACC覆核
                 enm = ApprovalLevel.ACC_Last;
             else
                 enm = ApprovalLevel.Empty;
