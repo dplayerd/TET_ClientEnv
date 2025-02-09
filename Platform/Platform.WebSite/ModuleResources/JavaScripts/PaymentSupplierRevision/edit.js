@@ -66,7 +66,7 @@ $(document).ready(function () {
         var template = approveTemplate.find("tbody").html();
 
         var newContent = $(template);
-        objApproval.Comment = objApproval.Comment.replace(/\n/g, "<br />");
+        objApproval.Comment = (objApproval.Comment ?? "").replace(/\n/g, "<br />");
         for (var key in objApproval) {
             newContent.find(`.${key}`).html(objApproval[key]);
         }
