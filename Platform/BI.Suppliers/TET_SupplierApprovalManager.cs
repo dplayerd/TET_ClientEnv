@@ -1022,7 +1022,7 @@ namespace BI.Suppliers
             var pageUrl = $"{ModuleConfig.EmailRootUrl}/SupplierApproval/Index";
             var createTime = approvalModel.CreateDate.ToString("yyyy-MM-dd HH:mm:ss");
 
-            var lvl = ApprovalUtils.ParseApprovalLevel(approvalModel.Level);
+            var lvl = ApprovalUtils.ParseApprovalLevel(nextLevel);
             var lvlName = this.GetLevelDisplayName(approvalModel.Approver, lvl);
 
             EMailContent content = new EMailContent()
@@ -1054,7 +1054,7 @@ namespace BI.Suppliers
             var pageUrl = $"{ModuleConfig.EmailRootUrl}/SupplierApproval/Index";
             var createTime = approvalModel.CreateDate.ToString("yyyy-MM-dd HH:mm:ss");
 
-            var lvl = ApprovalUtils.ParseApprovalLevel(approvalModel.Level);
+            var lvl = ApprovalUtils.ParseApprovalLevel(nextLevel);
             var lvlName = this.GetLevelDisplayName(approvalModel.Approver, lvl);
 
             EMailContent content = new EMailContent()
