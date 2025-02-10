@@ -1241,7 +1241,7 @@ namespace BI.Suppliers
                     {
                         string email = item.EMail;
                         string approver = item.EmpID;
-
+                        
                         // 建立新的申請資訊 
                         var entity_CoSign = new TET_SupplierApproval()
                         {
@@ -1259,7 +1259,8 @@ namespace BI.Suppliers
 
 
                         // 寄送通知信
-                        ApprovalMailUtil.SendNewVerifyMail(email, entity_CoSign, lvlName, userID, cDate);
+                        var lvlName1 = GetLevelDisplayName(entity_CoSign.Approver, lvl, dbModel.CoSignApprover);
+                        ApprovalMailUtil.SendNewVerifyMail(email, entity_CoSign, lvlName1, userID, cDate);
                         context.TET_SupplierApproval.Add(entity_CoSign);
                     }
                     //--- 新增審核資料 - 加簽人 ---

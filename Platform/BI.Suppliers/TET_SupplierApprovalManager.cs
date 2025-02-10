@@ -399,6 +399,7 @@ namespace BI.Suppliers
                     supplierModel.ApprovalList = approvalHistoryList;
                     supplierModel.ApprovalList.Add(model);              // 將目前的簽核也加入歷程中
                     string nextLevelName = string.Empty;
+                    string nextLevelDisplayName = string.Empty;
                     var nextApporverList = new List<UserAccountModel>();            // 產生下一階段簽核人
                     bool isCompleted = false;
                     bool isStart = false;
@@ -417,12 +418,20 @@ namespace BI.Suppliers
                         if (result == ApprovalResult.Agree)
                         {
                             if (!isCompleted)
+                            {
                                 nextLevelName = nextLevelModel?.Level.ToText();
+                                nextLevelDisplayName = nextLevelModel?.Level.ToDisplayText();
+                            }
+
                         }
                         else if (result == ApprovalResult.RejectToPrev)
                         {
                             if (!isStart)
+                            {
                                 nextLevelName = prevLevelModel?.Level.ToText();
+                                nextLevelDisplayName = nextLevelModel?.Level.ToDisplayText();
+                            }
+
                         }
                         //--- 下一審核階段 ---
 
@@ -463,7 +472,7 @@ namespace BI.Suppliers
                                     var accList = this.GetLevelApproverList(prevLevelModel, dbSupplierModel.CreateUser);
                                     nextApporverList.AddRange(accList);
 
-                                    foreach(var acc in accList)
+                                    foreach (var acc in accList)
                                     {
                                         var lvlName = this.GetLevelDisplayName(acc.ID, prevLevelModel.Level, dbSupplierModel.CoSignApprover);
                                         this.SendRejectToPrevMail(lvlName, new List<UserAccountModel>() { acc }, supplierModel, model, userID, cDate);
@@ -473,7 +482,7 @@ namespace BI.Suppliers
                                 {
                                     var accList = this.GetLevelApproverList(prevLevelModel, dbSupplierModel.CreateUser);
                                     nextApporverList.AddRange(accList);
-                                    this.SendRejectToPrevMail(nextLevelName, accList, supplierModel, model, userID, cDate);
+                                    this.SendRejectToPrevMail(nextLevelDisplayName, accList, supplierModel, model, userID, cDate);
                                 }
                             }
                             //--- 檢查審核階段決定信件: (審核關卡!=User_GL、審核結果=退回上一關) ---
@@ -495,21 +504,21 @@ namespace BI.Suppliers
                                     // 全部同意才前往下一關
                                     var accList = this.GetLevelApproverList(nextLevelModel, dbSupplierModel.CreateUser);
                                     nextApporverList.AddRange(accList);
-                                    this.SendAgreeMail(nextLevelName, accList, supplierModel, model, userID, cDate);
+                                    this.SendAgreeMail(nextLevelDisplayName, accList, supplierModel, model, userID, cDate);
                                 }
                             }
                             else if (cLevelModel.Level != ApprovalLevel.ACC_Last)
                             {
                                 var accList = this.GetLevelApproverList(nextLevelModel, dbSupplierModel.CreateUser);
                                 nextApporverList.AddRange(accList);
-                                this.SendAgreeMail(nextLevelName, accList, supplierModel, model, userID, cDate);
+                                this.SendAgreeMail(nextLevelDisplayName, accList, supplierModel, model, userID, cDate);
                             }
                             //--- 檢查審核階段決定信件: (審核關卡!= ACC覆核、審核結果=同意) ---
 
                             //--- 檢查審核階段決定信件: (審核關卡= ACC覆核、審核結果=同意) ---
                             if (cLevelModel.Level == ApprovalLevel.ACC_Last)
                             {
-                                SendCompleteMail(nextLevelName, supplierModel, model, userID, cDate);
+                                SendCompleteMail(nextLevelDisplayName, supplierModel, model, userID, cDate);
                             }
                             //--- 檢查審核階段決定信件: (審核關卡= ACC覆核、審核結果=同意) ---
                         }
@@ -519,7 +528,7 @@ namespace BI.Suppliers
                         //--- 檢查審核階段決定信件: (審核關卡= SRI_SS_GL、審核結果=同意、STQA Application欄位=Yes) ---
                         if (cLevelModel.Level == ApprovalLevel.SRI_SS_GL && result == ApprovalResult.Agree && supplierModel.STQAApplication == "YES")
                         {
-                            SendSTQAMail(nextLevelName, supplierModel, model, userID, cDate);
+                            SendSTQAMail(nextLevelDisplayName, supplierModel, model, userID, cDate);
                         }
                         //--- 檢查審核階段決定信件: (審核關卡= SRI_SS_GL、審核結果=同意、STQA Application欄位=Yes) ---
                     }
@@ -690,7 +699,7 @@ namespace BI.Suppliers
                             dbEntity = dicSuppliers[item.ID];
                         else
                         {
-                            dbEntity = new TET_Supplier() { ID = Guid.NewGuid(), CreateUser = cUser, CreateDate = cDate};
+                            dbEntity = new TET_Supplier() { ID = Guid.NewGuid(), CreateUser = cUser, CreateDate = cDate };
                             context.TET_Supplier.Add(dbEntity);
                         }
 
@@ -764,7 +773,7 @@ namespace BI.Suppliers
                     var dicSupplierApprovals = supplierApprovalQuery.ToDictionary(obj => obj.ID, obj => obj);
 
 
-                    foreach(var item in willSaveSupplierApproval)
+                    foreach (var item in willSaveSupplierApproval)
                     {
                         TET_SupplierApproval dbEntity;
 
@@ -833,12 +842,12 @@ namespace BI.Suppliers
                 Title = $"[審核退回通知] {approvalModel.Description}",
                 Body =
                 $@"
-流程名稱: 新增供應商審核 <br/>
-退件者: {approverName} <br/>
-退件意見: ${comment} <br/>
-<br/>          
-請點擊<a href=""{pageUrl}"" target=""_blank"">新供應商申請</a>追蹤此流程，謝謝 <br/>
-<br/>
+                流程名稱: 新增供應商審核 <br/>
+                退件者: {approverName} <br/>
+                退件意見: ${comment} <br/>
+                <br/>          
+                請點擊<a href=""{pageUrl}"" target=""_blank"">新供應商申請</a>追蹤此流程，謝謝 <br/>
+                <br/>
                 " + this.BuildApproveLogTable(supplierModel.ApprovalList)
             };
             MailPoolManager.WritePool(applicant.EMail, content, userID, cDate);
@@ -860,14 +869,14 @@ namespace BI.Suppliers
                 Title = $"[審核通知] {approvalModel.Description}",
                 Body =
                 $@"
-您好, <br/>
-請點「<a href=""{pageUrl}"" target=""_blank"">待審清單</a>」，謝謝 <br/>
-<br/>
-流程名稱: 新增供應商審核 <br/>
-流程發起時間: {supplierCreateTime} <br/>
-審核關卡: {nextLevel} <br/>
-審核開始時間: {createTime} <br/>
-<br/>
+                您好, <br/>
+                請點「<a href=""{pageUrl}"" target=""_blank"">待審清單</a>」，謝謝 <br/>
+                <br/>
+                流程名稱: 新增供應商審核 <br/>
+                流程發起時間: {supplierCreateTime} <br/>
+                審核關卡: {nextLevel} <br/>
+                審核開始時間: {createTime} <br/>
+                <br/>
                 " + this.BuildApproveLogTable(supplierModel.ApprovalList)
             };
 
@@ -891,14 +900,14 @@ namespace BI.Suppliers
                 Title = $"[審核通知] {approvalModel.Description}",
                 Body =
                 $@"
-您好, <br/>
-請點「<a href=""{pageUrl}"" target=""_blank"">待審清單</a>」，謝謝 <br/>
-<br/>
-流程名稱: 新增供應商審核 <br/>
-流程發起時間: {supplierCreateTime} <br/>
-審核關卡: {nextLevel} <br/>
-審核開始時間: {createTime} <br/>
-<br/>
+                您好, <br/>
+                請點「<a href=""{pageUrl}"" target=""_blank"">待審清單</a>」，謝謝 <br/>
+                <br/>
+                流程名稱: 新增供應商審核 <br/>
+                流程發起時間: {supplierCreateTime} <br/>
+                審核關卡: {nextLevel} <br/>
+                審核開始時間: {createTime} <br/>
+                <br/>
                 " + this.BuildApproveLogTable(supplierModel.ApprovalList)
             };
 
@@ -921,9 +930,9 @@ namespace BI.Suppliers
                 Title = $"[審核完成通知] 新增供應商審核完成通知_{supplierModel.CName}_{supplierModel.VenderCode}_{applicant.UnitName}_{applicant.FirstNameEN} {applicant.LastNameEN}",
                 Body =
                 $@"
-流程名稱: 新增供應商審核 <br/>
-請點擊<a href=""{pageUrl}"" target=""_blank"">新供應商申請</a>追蹤此流程，謝謝 <br/>
-<br/>
+                流程名稱: 新增供應商審核 <br/>
+                請點擊<a href=""{pageUrl}"" target=""_blank"">新供應商申請</a>追蹤此流程，謝謝 <br/>
+                <br/>
                 " + this.BuildApproveLogTable(supplierModel.ApprovalList)
             };
 
@@ -950,14 +959,14 @@ namespace BI.Suppliers
                 Title = $"[STQA實施要求通知信] {supplierModel.CName}_{applicant.UnitName}_{applicant.FirstNameEN} {applicant.LastNameEN}",
                 Body =
                 $@"
-您好, <br/>
-<br/>
-您申請新增的供應商需進行 STQA實施作業,請先填寫STQA實施要求書,進行STQA實施作業程序<br/>
-<br/>
-申請流程 : <br/>
-申請者填寫申請內容、供應商及交易物情報 ⇒ 申請者部門主管承認 ⇒ SS確認申請內容及情報完整性 ⇒ QSM主管判定STQA實施方式⇒ STQA-L確認Assessment項目及執行團隊成員 (Type1 & Type2) ⇒ QSM主管確認實施結果&結案<br/>
-<br/>
-*相關表格請到公司首頁內的[各式表格]下載,SRI>Assessment 實施要求書(供應商認定申請書)<br/>
+                您好, <br/>
+                <br/>
+                您申請新增的供應商需進行 STQA實施作業,請先填寫STQA實施要求書,進行STQA實施作業程序<br/>
+                <br/>
+                申請流程 : <br/>
+                申請者填寫申請內容、供應商及交易物情報 ⇒ 申請者部門主管承認 ⇒ SS確認申請內容及情報完整性 ⇒ QSM主管判定STQA實施方式⇒ STQA-L確認Assessment項目及執行團隊成員 (Type1 & Type2) ⇒ QSM主管確認實施結果&結案<br/>
+                <br/>
+                *相關表格請到公司首頁內的[各式表格]下載,SRI>Assessment 實施要求書(供應商認定申請書)<br/>
                 "
             };
 
