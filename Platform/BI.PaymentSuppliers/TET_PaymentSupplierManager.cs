@@ -87,7 +87,7 @@ namespace BI.PaymentSuppliers
                         CreateDate = item.CreateDate,
                         ModifyUser = item.ModifyUser,
                         ModifyDate = item.ModifyDate,
-                        IsActive=item.IsActive,
+                        IsActive = item.IsActive,
                     };
 
             return query;
@@ -259,7 +259,7 @@ namespace BI.PaymentSuppliers
                     // 原始查詢
                     var orgQuery =
                         from item in context.TET_PaymentSupplier
-                        where item.IsActive=="Active" && item.IsLastVersion == "Y"
+                        where item.IsActive == "Active" && item.IsLastVersion == "Y"
                         select item;
 
                     orgQuery = BuildQueryCondition(orgQuery, queryParams);  // 組合過濾條件
@@ -363,7 +363,6 @@ namespace BI.PaymentSuppliers
         #endregion
 
         #region OtherRead
-
         /// <summary> 是否能開啟一般付款對象資料 </summary>
         /// <param name="cUser"> 目前登入者 </param>
         /// <returns></returns>
@@ -560,20 +559,8 @@ namespace BI.PaymentSuppliers
 
                     // 如果是 User_GL 這關，而且是加簽人，將關卡名稱換掉
                     var lvl = ApprovalUtils.ParseApprovalLevel(approver.Level);
-                    if (lvl == ApprovalLevel.User_GL)
-                    {
-                        if (supplier != null)
-                        {
-                            // 如果沒有加簽者
-                            if (string.IsNullOrWhiteSpace(supplier.CoSignApprover) || string.Compare("[]", supplier.CoSignApprover, true) == 0)
-                                return lvl.ToDisplayText();
-
-
-                            var coSigns = JsonConvert.DeserializeObject<List<string>>(supplier.CoSignApprover);
-                            if (coSigns.Contains(approver.Approver))
-                                return ModuleConfig.CoSignApproverLevelName;
-                        }
-                    }
+                    if (supplier != null)
+                        return GetLevelDisplayName(approver.Approver, lvl, supplier.CoSignApprover);
 
                     return lvl.ToDisplayText();
                 }
@@ -936,6 +923,8 @@ namespace BI.PaymentSuppliers
 
 
                     //--- 新增審核資料 - 主管 ---
+                    var lvl = ApprovalLevel.User_GL;
+
                     // 建立新的申請資訊
                     var entity = new TET_PaymentSupplierApproval()
                     {
@@ -952,7 +941,7 @@ namespace BI.PaymentSuppliers
                     };
 
                     // 寄送通知信
-                    var lvlName = this.GetLevelDisplayName(leader.ID, ApprovalLevel.User_GL, dbModel.CoSignApprover);
+                    var lvlName = this.GetLevelDisplayName(leader.ID, lvl, dbModel.CoSignApprover);
                     ApprovalMailUtil.SendNewVerifyMail(leader.EMail, entity, lvlName, userID, cDate);
                     context.TET_PaymentSupplierApproval.Add(entity);
                     //--- 新增審核資料 - 主管 ---
@@ -971,7 +960,7 @@ namespace BI.PaymentSuppliers
                             ID = Guid.NewGuid(),
                             PSID = dbModel.ID,
                             Type = ApprovalType.New.ToText(),
-                            Level = ApprovalLevel.User_GL.ToText(),
+                            Level = lvl.ToText(),
                             Description = $"{ApprovalType.New.ToText()}_{dbModel.CName}_{user.UnitName}_{user.FirstNameEN} {user.LastNameEN}",
                             Approver = approver,
                             CreateUser = userID,
@@ -981,7 +970,7 @@ namespace BI.PaymentSuppliers
                         };
 
                         // 寄送通知信
-                        var lvlName2 = this.GetLevelDisplayName(approver, ApprovalLevel.User_GL, dbModel.CoSignApprover);
+                        var lvlName2 = this.GetLevelDisplayName(approver, lvl, dbModel.CoSignApprover);
                         ApprovalMailUtil.SendNewVerifyMail(email, entity_CoSign, lvlName2, userID, cDate);
                         context.TET_PaymentSupplierApproval.Add(entity_CoSign);
                     }

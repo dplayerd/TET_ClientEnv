@@ -1,5 +1,4 @@
-﻿using BI.PaymentSuppliers;
-using Platform.AbstractionClass;
+﻿using Platform.AbstractionClass;
 using Platform.LogService;
 using Platform.ORM;
 using Platform.Infra;
@@ -13,7 +12,6 @@ using BI.PaymentSuppliers.Flows;
 using Platform.Auth.Models;
 using BI.PaymentSuppliers.Validators;
 using Platform.Messages;
-using System.Xml.Linq;
 using BI.PaymentSuppliers.Models;
 using Newtonsoft.Json;
 
