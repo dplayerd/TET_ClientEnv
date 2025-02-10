@@ -467,14 +467,20 @@ namespace BI.Suppliers
                                     var coSignList = this._userMgr.GetUserList_AccountModel(supplierModel.CoSignApprover);
                                     nextApporverList.AddRange(coSignList);
 
-                                    var accList = this.GetLevelApproverList(prevLevelModel, dbSupplierModel.CreateUser);
-                                    nextApporverList.AddRange(accList);
+                                    foreach (var acc in coSignList)
+                                    {
+                                        var lvlName = this.GetLevelDisplayName(acc.ID, prevLevelModel.Level, dbSupplierModel.CoSignApprover);
+                                        this.SendRejectToPrevMail(lvlName, new List<UserAccountModel>() { acc }, supplierModel, model, userID, cDate);
+                                    }
 
+                                    var accList = this.GetLevelApproverList(prevLevelModel, dbSupplierModel.CreateUser);
                                     foreach (var acc in accList)
                                     {
                                         var lvlName = this.GetLevelDisplayName(acc.ID, prevLevelModel.Level, dbSupplierModel.CoSignApprover);
                                         this.SendRejectToPrevMail(lvlName, new List<UserAccountModel>() { acc }, supplierModel, model, userID, cDate);
                                     }
+
+                                    nextApporverList.AddRange(accList);
                                 }
                                 else
                                 {
@@ -1181,6 +1187,10 @@ namespace BI.Suppliers
         {
             if (level == ApprovalLevel.User_GL)
             {
+                // 如果沒有加簽者
+                if (string.IsNullOrWhiteSpace(coSignApproverText) || string.Compare("[]", coSignApproverText, true) == 0)
+                    return level.ToDisplayText();
+
                 var coSigns = JsonConvert.DeserializeObject<List<string>>(coSignApproverText);
                 if (coSigns.Contains(approver))
                     return ModuleConfig.CoSignApproverLevelName;

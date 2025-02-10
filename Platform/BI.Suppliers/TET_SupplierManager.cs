@@ -523,6 +523,10 @@ namespace BI.Suppliers
         {
             if (level == ApprovalLevel.User_GL)
             {
+                // 如果沒有加簽者
+                if (string.IsNullOrWhiteSpace(coSignApproverText) || string.Compare("[]", coSignApproverText, true) == 0)
+                    return level.ToDisplayText();
+
                 var coSigns = JsonConvert.DeserializeObject<List<string>>(coSignApproverText);
                 if (coSigns.Contains(approver))
                     return ModuleConfig.CoSignApproverLevelName;

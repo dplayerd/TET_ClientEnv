@@ -564,6 +564,11 @@ namespace BI.PaymentSuppliers
                     {
                         if (supplier != null)
                         {
+                            // 如果沒有加簽者
+                            if (string.IsNullOrWhiteSpace(supplier.CoSignApprover) || string.Compare("[]", supplier.CoSignApprover, true) == 0)
+                                return lvl.ToDisplayText();
+
+
                             var coSigns = JsonConvert.DeserializeObject<List<string>>(supplier.CoSignApprover);
                             if (coSigns.Contains(approver.Approver))
                                 return ModuleConfig.CoSignApproverLevelName;
@@ -1063,6 +1068,11 @@ namespace BI.PaymentSuppliers
         {
             if (level == ApprovalLevel.User_GL)
             {
+                // 如果沒有加簽者
+                if (string.IsNullOrWhiteSpace(coSignApproverText) || string.Compare("[]", coSignApproverText, true) == 0)
+                    return level.ToDisplayText();
+
+
                 var coSigns = JsonConvert.DeserializeObject<List<string>>(coSignApproverText);
                 if (coSigns.Contains(approver))
                     return ModuleConfig.CoSignApproverLevelName;
