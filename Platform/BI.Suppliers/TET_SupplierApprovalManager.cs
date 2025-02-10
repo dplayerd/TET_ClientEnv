@@ -788,6 +788,7 @@ namespace BI.Suppliers
                         dbEntity.Level = item.Level;
                         dbEntity.Result = item.Result;
                         dbEntity.Description = item.Description;
+                        dbEntity.Comment = item.Comment;
                         dbEntity.Approver = item.Approver;
                         dbEntity.ModifyUser = cUser;
                         dbEntity.ModifyDate = cDate;
@@ -1115,7 +1116,7 @@ namespace BI.Suppliers
             {
                 var approverInfo = this._userMgr.GetUser(item.Approver);
                 var lvl = ApprovalUtils.ParseApprovalLevel(item.Level);
-                string lvlName = this.GetLevelDisplayName(item.Approver, lvl, supplierModel.SupplierCategory_Text);
+                string lvlName = this.GetLevelDisplayName(item.Approver, lvl, supplierModel.CoSignApprover_Text);
                 mailBody +=
                 $@"
                     <tr>
