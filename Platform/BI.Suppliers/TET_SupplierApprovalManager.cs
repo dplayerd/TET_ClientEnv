@@ -1022,6 +1022,9 @@ namespace BI.Suppliers
             var pageUrl = $"{ModuleConfig.EmailRootUrl}/SupplierApproval/Index";
             var createTime = approvalModel.CreateDate.ToString("yyyy-MM-dd HH:mm:ss");
 
+            var lvl = ApprovalUtils.ParseApprovalLevel(approvalModel.Level);
+            var lvlName = this.GetLevelDisplayName(approvalModel.Approver, lvl);
+
             EMailContent content = new EMailContent()
             {
                 Title = $"[審核通知] {approvalModel.Description}",
@@ -1032,7 +1035,7 @@ namespace BI.Suppliers
 <br/>
 流程名稱: {ApprovalType.Modify.ToText()} <br/>
 流程發起時間: {supplierCreateTime} <br/>
-審核關卡: {nextLevel} <br/>
+審核關卡: {lvlName} <br/>
 審核開始時間: {createTime} <br/>
 <br/>
                 " + this.BuildApproveLogTable(supplierModel, supplierModel.ApprovalList)
@@ -1051,6 +1054,9 @@ namespace BI.Suppliers
             var pageUrl = $"{ModuleConfig.EmailRootUrl}/SupplierApproval/Index";
             var createTime = approvalModel.CreateDate.ToString("yyyy-MM-dd HH:mm:ss");
 
+            var lvl = ApprovalUtils.ParseApprovalLevel(approvalModel.Level);
+            var lvlName = this.GetLevelDisplayName(approvalModel.Approver, lvl);
+
             EMailContent content = new EMailContent()
             {
                 Title = $"[審核通知] {approvalModel.Description}",
@@ -1061,7 +1067,7 @@ namespace BI.Suppliers
 <br/>
 流程名稱: {ApprovalType.Modify.ToText()} <br/>
 流程發起時間: {supplierCreateTime} <br/>
-審核關卡: {nextLevel} <br/>
+審核關卡: {lvlName} <br/>
 審核開始時間: {createTime} <br/>
 <br/>
                 " + this.BuildApproveLogTable(supplierModel, supplierModel.ApprovalList)
@@ -1183,7 +1189,7 @@ namespace BI.Suppliers
         /// <param name="level"></param>
         /// <param name="coSignApproverText"></param>
         /// <returns></returns>
-        private string GetLevelDisplayName(string approver, ApprovalLevel level, string coSignApproverText)
+        private string GetLevelDisplayName(string approver, ApprovalLevel level, string coSignApproverText = "[]")
         {
             if (level == ApprovalLevel.User_GL)
             {
