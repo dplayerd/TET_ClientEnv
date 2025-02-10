@@ -422,7 +422,6 @@ namespace BI.Suppliers
                                 nextLevelName = nextLevelModel?.Level.ToText();
                                 nextLevelDisplayName = nextLevelModel?.Level.ToDisplayText();
                             }
-
                         }
                         else if (result == ApprovalResult.RejectToPrev)
                         {
@@ -431,7 +430,6 @@ namespace BI.Suppliers
                                 nextLevelName = prevLevelModel?.Level.ToText();
                                 nextLevelDisplayName = nextLevelModel?.Level.ToDisplayText();
                             }
-
                         }
                         //--- 下一審核階段 ---
 
@@ -848,7 +846,7 @@ namespace BI.Suppliers
                 <br/>          
                 請點擊<a href=""{pageUrl}"" target=""_blank"">新供應商申請</a>追蹤此流程，謝謝 <br/>
                 <br/>
-                " + this.BuildApproveLogTable(supplierModel.ApprovalList)
+                " + this.BuildApproveLogTable(supplierModel, supplierModel.ApprovalList)
             };
             MailPoolManager.WritePool(applicant.EMail, content, userID, cDate);
         }
@@ -877,7 +875,7 @@ namespace BI.Suppliers
                 審核關卡: {nextLevel} <br/>
                 審核開始時間: {createTime} <br/>
                 <br/>
-                " + this.BuildApproveLogTable(supplierModel.ApprovalList)
+                " + this.BuildApproveLogTable(supplierModel, supplierModel.ApprovalList)
             };
 
             var mailList = receiverMailList.Select(obj => obj.EMail).ToList();
@@ -908,7 +906,7 @@ namespace BI.Suppliers
                 審核關卡: {nextLevel} <br/>
                 審核開始時間: {createTime} <br/>
                 <br/>
-                " + this.BuildApproveLogTable(supplierModel.ApprovalList)
+                " + this.BuildApproveLogTable(supplierModel, supplierModel.ApprovalList)
             };
 
             var mailList = receiverMailList.Select(obj => obj.EMail).ToList();
@@ -933,7 +931,7 @@ namespace BI.Suppliers
                 流程名稱: 新增供應商審核 <br/>
                 請點擊<a href=""{pageUrl}"" target=""_blank"">新供應商申請</a>追蹤此流程，謝謝 <br/>
                 <br/>
-                " + this.BuildApproveLogTable(supplierModel.ApprovalList)
+                " + this.BuildApproveLogTable(supplierModel, supplierModel.ApprovalList)
             };
 
             MailPoolManager.WritePool(applicant.EMail, content, userID, cDate);
@@ -1000,7 +998,7 @@ namespace BI.Suppliers
 <br/>          
 請點擊<a href=""{pageUrl}"" target=""_blank"">供應商改版申請</a>追蹤此流程，謝謝 <br/>
 <br/>
-                " + this.BuildApproveLogTable(supplierModel.ApprovalList)
+                " + this.BuildApproveLogTable(supplierModel, supplierModel.ApprovalList)
             };
 
             MailPoolManager.WritePool(applicant.EMail, content, userID, cDate);
@@ -1030,7 +1028,7 @@ namespace BI.Suppliers
 審核關卡: {nextLevel} <br/>
 審核開始時間: {createTime} <br/>
 <br/>
-                " + this.BuildApproveLogTable(supplierModel.ApprovalList)
+                " + this.BuildApproveLogTable(supplierModel, supplierModel.ApprovalList)
             };
 
             var mailList = receiverMailList.Select(obj => obj.EMail).ToList();
@@ -1059,7 +1057,7 @@ namespace BI.Suppliers
 審核關卡: {nextLevel} <br/>
 審核開始時間: {createTime} <br/>
 <br/>
-                " + this.BuildApproveLogTable(supplierModel.ApprovalList)
+                " + this.BuildApproveLogTable(supplierModel, supplierModel.ApprovalList)
             };
 
             var mailList = receiverMailList.Select(obj => obj.EMail).ToList();
@@ -1084,7 +1082,7 @@ namespace BI.Suppliers
 流程名稱: {ApprovalType.Modify.ToText()} <br/>
 請點擊<a href=""{pageUrl}"" target=""_blank"">新供應商申請</a>追蹤此流程，謝謝 <br/>
 <br/>
-                " + BuildApproveLogTable(supplierModel.ApprovalList)
+                " + BuildApproveLogTable(supplierModel, supplierModel.ApprovalList)
             };
 
             MailPoolManager.WritePool(applicant.EMail, content, userID, cDate);
@@ -1093,9 +1091,10 @@ namespace BI.Suppliers
 
         #region Shared
         /// <summary> 組合簽核紀錄 </summary>
+        /// <param name="supplierModel"></param>
         /// <param name="approvalList"></param>
         /// <returns></returns>
-        private string BuildApproveLogTable(List<TET_SupplierApprovalModel> approvalList)
+        private string BuildApproveLogTable(TET_SupplierModel supplierModel, List<TET_SupplierApprovalModel> approvalList)
         {
             // 表頭
             var mailBody =
@@ -1115,11 +1114,13 @@ namespace BI.Suppliers
             foreach (var item in approvalList)
             {
                 var approverInfo = this._userMgr.GetUser(item.Approver);
+                var lvl = ApprovalUtils.ParseApprovalLevel(item.Level);
+                string lvlName = this.GetLevelDisplayName(item.Approver, lvl, supplierModel.SupplierCategory_Text);
                 mailBody +=
                 $@"
                     <tr>
                         <td>{approverInfo?.FirstNameEN} {approverInfo?.LastNameEN}</td>
-                        <td>{item.Level}</td>
+                        <td>{lvlName}</td>
                         <td>{item.CreateDate.ToString("yyyy/MM/dd HH:mm:ss")}</td>
                         <td>{item.ModifyDate.ToString("yyyy/MM/dd HH:mm:ss")}</td>
                         <td>{item.Result}</td>
