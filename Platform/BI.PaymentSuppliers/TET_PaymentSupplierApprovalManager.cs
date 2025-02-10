@@ -565,7 +565,7 @@ namespace BI.PaymentSuppliers
                 <br/>          
                 請點擊<a href=""{pageUrl}"" target=""_blank"">付款單位申請</a>追蹤此流程，謝謝 <br/>
                 <br/>
-                " + this.BuildApproveLogTable(supplierModel.ApprovalList)
+                " + this.BuildApproveLogTable(supplierModel,supplierModel.ApprovalList)
             };
             MailPoolManager.WritePool(applicant.EMail, content, userID, cDate);
         }
@@ -594,7 +594,7 @@ namespace BI.PaymentSuppliers
                 審核關卡: {nextLevel} <br/>
                 審核開始時間: {createTime} <br/>
                 <br/>
-                " + this.BuildApproveLogTable(supplierModel.ApprovalList)
+                " + this.BuildApproveLogTable(supplierModel,supplierModel.ApprovalList)
             };
 
             var mailList = receiverMailList.Select(obj => obj.EMail).ToList();
@@ -625,7 +625,7 @@ namespace BI.PaymentSuppliers
                 審核關卡: {nextLevel} <br/>
                 審核開始時間: {createTime} <br/>
                 <br/>
-                " + this.BuildApproveLogTable(supplierModel.ApprovalList)
+                " + this.BuildApproveLogTable(supplierModel,supplierModel.ApprovalList)
             };
 
             var mailList = receiverMailList.Select(obj => obj.EMail).ToList();
@@ -650,7 +650,7 @@ namespace BI.PaymentSuppliers
                 流程名稱: 新增一般付款對象審核 <br/>
                 請點擊<a href=""{pageUrl}"" target=""_blank"">一般付款對象申請</a>追蹤此流程，謝謝 <br/>
                 <br/>
-                " + this.BuildApproveLogTable(supplierModel.ApprovalList)
+                " + this.BuildApproveLogTable(supplierModel,supplierModel.ApprovalList)
             };
 
             MailPoolManager.WritePool(applicant.EMail, content, userID, cDate);
@@ -684,7 +684,7 @@ namespace BI.PaymentSuppliers
                 <br/>          
                 請點擊<a href=""{pageUrl}"" target=""_blank"">一般付款對象資訊異動申請</a>追蹤此流程，謝謝 <br/>
                 <br/>
-                " + this.BuildApproveLogTable(supplierModel.ApprovalList)
+                " + this.BuildApproveLogTable(supplierModel,supplierModel.ApprovalList)
             };
 
             MailPoolManager.WritePool(applicant.EMail, content, userID, cDate);
@@ -717,7 +717,7 @@ namespace BI.PaymentSuppliers
                 審核關卡: {lvlName} <br/>
                 審核開始時間: {createTime} <br/>
                 <br/>
-                " + this.BuildApproveLogTable(supplierModel.ApprovalList)
+                " + this.BuildApproveLogTable(supplierModel,supplierModel.ApprovalList)
             };
 
             var mailList = receiverMailList.Select(obj => obj.EMail).ToList();
@@ -749,7 +749,7 @@ namespace BI.PaymentSuppliers
                 審核關卡: {lvlName} <br/>
                 審核開始時間: {createTime} <br/>
                 <br/>
-                " + this.BuildApproveLogTable(supplierModel.ApprovalList)
+                " + this.BuildApproveLogTable(supplierModel,supplierModel.ApprovalList)
             };
 
             var mailList = receiverMailList.Select(obj => obj.EMail).ToList();
@@ -774,7 +774,7 @@ namespace BI.PaymentSuppliers
                 流程名稱: {ApprovalType.Modify.ToText()} <br/>
                 請點擊<a href=""{pageUrl}"" target=""_blank"">一般付款對象資訊異動申請</a>追蹤此流程，謝謝 <br/>
                 <br/>
-                " + BuildApproveLogTable(supplierModel.ApprovalList)
+                " + BuildApproveLogTable(supplierModel,supplierModel.ApprovalList)
             };
 
             MailPoolManager.WritePool(applicant.EMail, content, userID, cDate);
@@ -785,7 +785,7 @@ namespace BI.PaymentSuppliers
         /// <summary> 組合簽核紀錄 </summary>
         /// <param name="approvalList"></param>
         /// <returns></returns>
-        private string BuildApproveLogTable(List<TET_PaymentSupplierApprovalModel> approvalList)
+        private string BuildApproveLogTable(TET_PaymentSupplierModel paymentsupplierModel, List<TET_PaymentSupplierApprovalModel> approvalList)
         {
             // 表頭
             var mailBody =
@@ -805,11 +805,13 @@ namespace BI.PaymentSuppliers
             foreach (var item in approvalList)
             {
                 var approverInfo = this._userMgr.GetUser(item.Approver);
+                var lvl = ApprovalUtils.ParseApprovalLevel(item.Level);
+                string lvlName = this.GetLevelDisplayName(item.Approver, lvl, paymentsupplierModel.CoSignApprover_Text);
                 mailBody +=
                 $@"
                     <tr>
                         <td>{approverInfo?.FirstNameEN} {approverInfo?.LastNameEN}</td>
-                        <td>{item.Level}</td>
+                        <td>{lvlName}</td>
                         <td>{item.CreateDate.ToString("yyyy/MM/dd HH:mm:ss")}</td>
                         <td>{item.ModifyDate.ToString("yyyy/MM/dd HH:mm:ss")}</td>
                         <td>{item.Result}</td>
