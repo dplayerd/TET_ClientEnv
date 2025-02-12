@@ -72,7 +72,7 @@ namespace Platform.WebSite.Controllers
                         break;
 
                     case "PaymentSupplierRevision":
-                        item.Level_Text = BI.PaymentSuppliers.Utils.ApprovalUtils.ParseApprovalLevel(item.Level).ToDisplayText();
+                        item.Level_Text = _paymentSupplierMgr.GetLevelDisplayName(item.ParentID, item.ID);
                         break;
 
                     case "SPA":

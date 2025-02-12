@@ -57,7 +57,7 @@ namespace BI.PaymentSuppliers.Models
             }
         }
 
-        public Guid ApprovalID { get { return this.ID; } set {  this.ID = value; } }
+        public Guid ApprovalID { get { return this.ID; } set { this.ID = value; } }
 
         /// <summary> CreateDate </summary>
         public string CreateDate_Text { get { return this.CreateDate.ToString("yyyy-MM-dd HH:mm:ss"); } }

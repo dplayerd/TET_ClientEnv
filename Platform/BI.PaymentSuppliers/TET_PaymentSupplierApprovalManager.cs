@@ -1,5 +1,4 @@
-﻿using BI.PaymentSuppliers;
-using Platform.AbstractionClass;
+﻿using Platform.AbstractionClass;
 using Platform.LogService;
 using Platform.ORM;
 using Platform.Infra;
@@ -13,7 +12,6 @@ using BI.PaymentSuppliers.Flows;
 using Platform.Auth.Models;
 using BI.PaymentSuppliers.Validators;
 using Platform.Messages;
-using System.Xml.Linq;
 using BI.PaymentSuppliers.Models;
 using Newtonsoft.Json;
 
@@ -360,6 +358,7 @@ namespace BI.PaymentSuppliers
                     paymentsupplierModel.ApprovalList = approvalHistoryList;
                     paymentsupplierModel.ApprovalList.Add(model);              // 將目前的簽核也加入歷程中
                     string nextLevelName = string.Empty;
+                    string nextLevelDisplayName = string.Empty;
                     var nextApporverList = new List<UserAccountModel>();            // 產生下一階段簽核人
                     bool isCompleted = false;
                     bool isStart = false;
@@ -376,12 +375,18 @@ namespace BI.PaymentSuppliers
                     if (result == ApprovalResult.Agree)
                     {
                         if (!isCompleted)
+                        {
                             nextLevelName = nextLevelModel?.Level.ToText();
+                            nextLevelDisplayName = nextLevelModel?.Level.ToDisplayText();
+                        }
                     }
                     else if (result == ApprovalResult.RejectToPrev)
                     {
                         if (!isStart)
+                        {
                             nextLevelName = prevLevelModel?.Level.ToText();
+                            nextLevelDisplayName = nextLevelModel?.Level.ToDisplayText();
+                        }
                     }
                     //--- 下一審核階段 ---
 
@@ -419,20 +424,27 @@ namespace BI.PaymentSuppliers
                                 var coSignList = this._userMgr.GetUserList_AccountModel(paymentsupplierModel.CoSignApprover);
                                 nextApporverList.AddRange(coSignList);
 
+                                foreach (var acc in coSignList)
+                                {
+                                    var lvlName = this.GetLevelDisplayName(acc.ID, prevLevelModel.Level, dbSupplierModel.CoSignApprover);
+                                    this.SendRejectToPrevMail(lvlName, new List<UserAccountModel>() { acc }, paymentsupplierModel, model, userID, cDate);
+                                }
+
                                 var accList = this.GetLevelApproverList(prevLevelModel, dbSupplierModel.CreateUser);
-                                nextApporverList.AddRange(accList);
 
                                 foreach (var acc in accList)
                                 {
                                     var lvlName = this.GetLevelDisplayName(acc.ID, prevLevelModel.Level, dbSupplierModel.CoSignApprover);
                                     this.SendRejectToPrevMail(lvlName, new List<UserAccountModel>() { acc }, paymentsupplierModel, model, userID, cDate);
                                 }
+
+                                nextApporverList.AddRange(accList);
                             }
                             else
                             {
                                 var accList = this.GetLevelApproverList(prevLevelModel, dbSupplierModel.CreateUser);
                                 nextApporverList.AddRange(accList);
-                                this.SendRejectToPrevMail(nextLevelName, accList, paymentsupplierModel, model, userID, cDate);
+                                this.SendRejectToPrevMail(nextLevelDisplayName, accList, paymentsupplierModel, model, userID, cDate);
                             }
                         }
                         //--- 檢查審核階段決定信件: (審核關卡!=User_GL、審核結果=退回上一關) ---
@@ -451,21 +463,21 @@ namespace BI.PaymentSuppliers
                                 // 全部同意才前往下一關
                                 var accList = this.GetLevelApproverList(nextLevelModel, dbSupplierModel.CreateUser);
                                 nextApporverList.AddRange(accList);
-                                this.SendAgreeMail(nextLevelName, accList, paymentsupplierModel, model, userID, cDate);
+                                this.SendAgreeMail(nextLevelDisplayName, accList, paymentsupplierModel, model, userID, cDate);
                             }
                         }
                         else if (cLevelModel.Level != ApprovalLevel.ACC_Last)
                         {
                             var accList = this.GetLevelApproverList(nextLevelModel, dbSupplierModel.CreateUser);
                             nextApporverList.AddRange(accList);
-                            this.SendAgreeMail(nextLevelName, accList, paymentsupplierModel, model, userID, cDate);
+                            this.SendAgreeMail(nextLevelDisplayName, accList, paymentsupplierModel, model, userID, cDate);
                         }
                         //--- 檢查審核階段決定信件: (審核關卡!= ACC覆核、審核結果=同意) ---
 
                         //--- 檢查審核階段決定信件: (審核關卡= ACC覆核、審核結果=同意) ---
                         if (cLevelModel.Level == ApprovalLevel.ACC_Last)
                         {
-                            SendCompleteMail(nextLevelName, paymentsupplierModel, model, userID, cDate);
+                            SendCompleteMail(nextLevelDisplayName, paymentsupplierModel, model, userID, cDate);
                         }
                         //--- 檢查審核階段決定信件: (審核關卡= ACC覆核、審核結果=同意) ---
                     }
@@ -553,7 +565,7 @@ namespace BI.PaymentSuppliers
                 <br/>          
                 請點擊<a href=""{pageUrl}"" target=""_blank"">付款單位申請</a>追蹤此流程，謝謝 <br/>
                 <br/>
-                " + this.BuildApproveLogTable(supplierModel.ApprovalList)
+                " + this.BuildApproveLogTable(supplierModel,supplierModel.ApprovalList)
             };
             MailPoolManager.WritePool(applicant.EMail, content, userID, cDate);
         }
@@ -582,7 +594,7 @@ namespace BI.PaymentSuppliers
                 審核關卡: {nextLevel} <br/>
                 審核開始時間: {createTime} <br/>
                 <br/>
-                " + this.BuildApproveLogTable(supplierModel.ApprovalList)
+                " + this.BuildApproveLogTable(supplierModel,supplierModel.ApprovalList)
             };
 
             var mailList = receiverMailList.Select(obj => obj.EMail).ToList();
@@ -613,7 +625,7 @@ namespace BI.PaymentSuppliers
                 審核關卡: {nextLevel} <br/>
                 審核開始時間: {createTime} <br/>
                 <br/>
-                " + this.BuildApproveLogTable(supplierModel.ApprovalList)
+                " + this.BuildApproveLogTable(supplierModel,supplierModel.ApprovalList)
             };
 
             var mailList = receiverMailList.Select(obj => obj.EMail).ToList();
@@ -638,7 +650,7 @@ namespace BI.PaymentSuppliers
                 流程名稱: 新增一般付款對象審核 <br/>
                 請點擊<a href=""{pageUrl}"" target=""_blank"">一般付款對象申請</a>追蹤此流程，謝謝 <br/>
                 <br/>
-                " + this.BuildApproveLogTable(supplierModel.ApprovalList)
+                " + this.BuildApproveLogTable(supplierModel,supplierModel.ApprovalList)
             };
 
             MailPoolManager.WritePool(applicant.EMail, content, userID, cDate);
@@ -672,7 +684,7 @@ namespace BI.PaymentSuppliers
                 <br/>          
                 請點擊<a href=""{pageUrl}"" target=""_blank"">一般付款對象資訊異動申請</a>追蹤此流程，謝謝 <br/>
                 <br/>
-                " + this.BuildApproveLogTable(supplierModel.ApprovalList)
+                " + this.BuildApproveLogTable(supplierModel,supplierModel.ApprovalList)
             };
 
             MailPoolManager.WritePool(applicant.EMail, content, userID, cDate);
@@ -689,6 +701,9 @@ namespace BI.PaymentSuppliers
             var pageUrl = $"{ModuleConfig.EmailRootUrl}/SupplierApproval/Index";
             var createTime = approvalModel.CreateDate.ToString("yyyy-MM-dd HH:mm:ss");
 
+            var lvl = ApprovalUtils.ParseApprovalLevel(nextLevel);
+            var lvlName = this.GetLevelDisplayName(approvalModel.Approver, lvl);
+
             EMailContent content = new EMailContent()
             {
                 Title = $"[審核通知] {approvalModel.Description}",
@@ -699,10 +714,10 @@ namespace BI.PaymentSuppliers
                 <br/>
                 流程名稱: {ApprovalType.Modify.ToText()} <br/>
                 流程發起時間: {supplierCreateTime} <br/>
-                審核關卡: {nextLevel} <br/>
+                審核關卡: {lvlName} <br/>
                 審核開始時間: {createTime} <br/>
                 <br/>
-                " + this.BuildApproveLogTable(supplierModel.ApprovalList)
+                " + this.BuildApproveLogTable(supplierModel,supplierModel.ApprovalList)
             };
 
             var mailList = receiverMailList.Select(obj => obj.EMail).ToList();
@@ -718,6 +733,9 @@ namespace BI.PaymentSuppliers
             var pageUrl = $"{ModuleConfig.EmailRootUrl}/SupplierApproval/Index";
             var createTime = approvalModel.CreateDate.ToString("yyyy-MM-dd HH:mm:ss");
 
+            var lvl = ApprovalUtils.ParseApprovalLevel(nextLevel);
+            var lvlName = this.GetLevelDisplayName(approvalModel.Approver, lvl);
+
             EMailContent content = new EMailContent()
             {
                 Title = $"[審核通知] {approvalModel.Description}",
@@ -728,10 +746,10 @@ namespace BI.PaymentSuppliers
                 <br/>
                 流程名稱: {ApprovalType.Modify.ToText()} <br/>
                 流程發起時間: {supplierCreateTime} <br/>
-                審核關卡: {nextLevel} <br/>
+                審核關卡: {lvlName} <br/>
                 審核開始時間: {createTime} <br/>
                 <br/>
-                " + this.BuildApproveLogTable(supplierModel.ApprovalList)
+                " + this.BuildApproveLogTable(supplierModel,supplierModel.ApprovalList)
             };
 
             var mailList = receiverMailList.Select(obj => obj.EMail).ToList();
@@ -756,7 +774,7 @@ namespace BI.PaymentSuppliers
                 流程名稱: {ApprovalType.Modify.ToText()} <br/>
                 請點擊<a href=""{pageUrl}"" target=""_blank"">一般付款對象資訊異動申請</a>追蹤此流程，謝謝 <br/>
                 <br/>
-                " + BuildApproveLogTable(supplierModel.ApprovalList)
+                " + BuildApproveLogTable(supplierModel,supplierModel.ApprovalList)
             };
 
             MailPoolManager.WritePool(applicant.EMail, content, userID, cDate);
@@ -767,7 +785,7 @@ namespace BI.PaymentSuppliers
         /// <summary> 組合簽核紀錄 </summary>
         /// <param name="approvalList"></param>
         /// <returns></returns>
-        private string BuildApproveLogTable(List<TET_PaymentSupplierApprovalModel> approvalList)
+        private string BuildApproveLogTable(TET_PaymentSupplierModel paymentsupplierModel, List<TET_PaymentSupplierApprovalModel> approvalList)
         {
             // 表頭
             var mailBody =
@@ -787,11 +805,13 @@ namespace BI.PaymentSuppliers
             foreach (var item in approvalList)
             {
                 var approverInfo = this._userMgr.GetUser(item.Approver);
+                var lvl = ApprovalUtils.ParseApprovalLevel(item.Level);
+                string lvlName = this.GetLevelDisplayName(item.Approver, lvl, paymentsupplierModel.CoSignApprover_Text);
                 mailBody +=
                 $@"
                     <tr>
                         <td>{approverInfo?.FirstNameEN} {approverInfo?.LastNameEN}</td>
-                        <td>{item.Level}</td>
+                        <td>{lvlName}</td>
                         <td>{item.CreateDate.ToString("yyyy/MM/dd HH:mm:ss")}</td>
                         <td>{item.ModifyDate.ToString("yyyy/MM/dd HH:mm:ss")}</td>
                         <td>{item.Result}</td>
@@ -841,7 +861,7 @@ namespace BI.PaymentSuppliers
         /// <param name="level"></param>
         /// <param name="coSignApproverText"></param>
         /// <returns></returns>
-        private string GetLevelDisplayName(string approver, ApprovalLevel level, string coSignApproverText)
+        private string GetLevelDisplayName(string approver, ApprovalLevel level, string coSignApproverText = "[]")
         {
             if (level == ApprovalLevel.User_GL)
             {
