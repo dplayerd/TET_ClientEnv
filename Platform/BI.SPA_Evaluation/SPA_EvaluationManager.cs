@@ -480,7 +480,7 @@ namespace BI.SPA_Evaluation
                         var bu = param_buList.Where(obj => obj.Item == item.BU).FirstOrDefault().ID.ToString();
                         var serviceFor = param_serviceForList.Where(obj => obj.Item == item.ServiceFor).FirstOrDefault().ID.ToString();
                         var assessmentItem = param_assessmentItemList.Where(obj => obj.Item == item.ServiceItem).FirstOrDefault().ID.ToString();
-                        var spaLevel = param_serviceForList.Where(obj => obj.Item == item.PerformanceLevel).FirstOrDefault()?.ID.ToString();
+                        var spaLevel = param_spaLevelList.Where(obj => obj.Item == item.PerformanceLevel).FirstOrDefault()?.ID.ToString();
 
                         var dbEntity =
                             (from obj in context.TET_SupplierSPA
