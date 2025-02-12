@@ -70,7 +70,7 @@ namespace BI.AllApproval
             {
                 using (PlatformContextModel context = new PlatformContextModel())
                 {
-                    if (model.Type == "新增供應商審核" || model.Type == "供應商改版審核")
+                    if (model.Type == "新增供應商審核" || model.Type == "供應商資訊異動審核")
                     {
                         var dbModel =
                         (from item in context.TET_SupplierApproval 
@@ -106,6 +106,70 @@ namespace BI.AllApproval
                     {
                         var dbModel =
                         (from item in context.TET_SupplierSTQAApproval
+                         where item.ID == model.ID
+                         select item).FirstOrDefault();
+
+                        if (dbModel == null)
+                            throw new NullReferenceException($"{model.ID} don't exists.");
+
+                        dbModel.Approver = model.Approver;
+                        dbModel.ModifyUser = userID;
+                        dbModel.ModifyDate = cDate;
+
+                        context.SaveChanges();
+                    }
+                    else if (model.Type == "新增一般付款對象審核" || model.Type == "一般付款對象資訊異動審核")
+                    {
+                        var dbModel =
+                        (from item in context.TET_PaymentSupplierApproval
+                         where item.ID == model.ID
+                         select item).FirstOrDefault();
+
+                        if (dbModel == null)
+                            throw new NullReferenceException($"{model.ID} don't exists.");
+
+                        dbModel.Approver = model.Approver;
+                        dbModel.ModifyUser = userID;
+                        dbModel.ModifyDate = cDate;
+
+                        context.SaveChanges();
+                    }
+                    else if (model.Type == "Cost&Service資料審核")
+                    {
+                        var dbModel =
+                        (from item in context.TET_SPA_CostServiceApproval
+                         where item.ID == model.ID
+                         select item).FirstOrDefault();
+
+                        if (dbModel == null)
+                            throw new NullReferenceException($"{model.ID} don't exists.");
+
+                        dbModel.Approver = model.Approver;
+                        dbModel.ModifyUser = userID;
+                        dbModel.ModifyDate = cDate;
+
+                        context.SaveChanges();
+                    }
+                    else if (model.Type == "SPA評鑑計分資料審核")
+                    {
+                        var dbModel =
+                        (from item in context.TET_SPA_ScoringInfoApproval
+                         where item.ID == model.ID
+                         select item).FirstOrDefault();
+
+                        if (dbModel == null)
+                            throw new NullReferenceException($"{model.ID} don't exists.");
+
+                        dbModel.Approver = model.Approver;
+                        dbModel.ModifyUser = userID;
+                        dbModel.ModifyDate = cDate;
+
+                        context.SaveChanges();
+                    }
+                    else if (model.Type == "違規紀錄資料審核")
+                    {
+                        var dbModel =
+                        (from item in context.TET_SPA_ViolationApproval
                          where item.ID == model.ID
                          select item).FirstOrDefault();
 
