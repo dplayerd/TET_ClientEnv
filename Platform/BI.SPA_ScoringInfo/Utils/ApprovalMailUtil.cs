@@ -29,12 +29,12 @@ namespace BI.SPA_ScoringInfo.Utils
                 Title = $"[審核中止通知] {titleText}",
                 Body =
                 $@"
-您好，<br/>
-<br/>
-此流程已由申請人中止，謝謝<br/>
-<br/>
-中止原因<br/>
-{reason.ReplaceNewLine(true)}
+                您好，<br/>
+                <br/>
+                此流程已由申請人中止，謝謝<br/>
+                <br/>
+                中止原因<br/>
+                {reason.ReplaceNewLine(true)}
                 "
             };
 
@@ -68,7 +68,8 @@ namespace BI.SPA_ScoringInfo.Utils
                 "
             };
 
-            MailPoolManager.WriteMailWithCC(new List<string>() { receiver.EMail }, new List<string>() { cc.EMail }, content, userID, cDate);
+            //MailPoolManager.WriteMailWithCC(new List<string>() { receiver.EMail }, new List<string>() { cc.EMail }, content, userID, cDate);
+            MailPoolManager.WriteMailWithCC(new List<string>() { receiver.EMail }, new List<string>(), content, userID, cDate);
         }
 
     }
