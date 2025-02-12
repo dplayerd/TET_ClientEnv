@@ -603,7 +603,8 @@ namespace BI.SPA_ScoringInfo
 
             var mailList = receiverMailList.Select(obj => obj.EMail).ToList();
             var ccMailList = ccList.Select(obj => obj.EMail).ToList();
-            MailPoolManager.WriteMailWithCC(mailList, ccMailList, content, userID, cDate);
+            //MailPoolManager.WriteMailWithCC(mailList, ccMailList, content, userID, cDate);
+            MailPoolManager.WriteMailWithCC(mailList, new List<string>(), content, userID, cDate);
         }
 
         /// <summary> (審核關卡=QSM、審核結果=同意) </summary>
@@ -635,7 +636,8 @@ namespace BI.SPA_ScoringInfo
 
             var mailList = receiverMailList.Select(obj => obj.EMail).ToList();
             var ccMailList = new List<string>();
-            MailPoolManager.WriteMailWithCC(mailList, ccMailList, content, userID, cDate);
+            //MailPoolManager.WriteMailWithCC(mailList, ccMailList, content, userID, cDate);
+            MailPoolManager.WriteMailWithCC(mailList, new List<string>(), content, userID, cDate);
         }
 
         /// <summary> (審核關卡= QSM、審核結果=同意) </summary>
