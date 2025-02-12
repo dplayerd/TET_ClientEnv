@@ -44,12 +44,12 @@ $(document).ready(function () {
                     { data: 'BUText', title: '評鑑單位', width: '130px' },
                     //{ data: 'InfoFillUserInfos', title: '計分資料填寫者' },
                     {
-                        title: '計分資料填寫者', width: '190px', data: function (row, type, set, meta) {
+                        title: '計分資料填寫者', width: '350px', data: function (row, type, set, meta) {
                         return row.InfoFillUserInfos.join(', ');
                     } },
-                    { data: 'InfoConfirm', title: '計分資料確認者', width: '190px' },
-                    { data: 'Lv1Apprvoer', title: '第一關審核者', width: '190px' },
-                    { data: 'Lv2Apprvoer', title: '第二關審核者', width: '190px' },
+                    { data: 'InfoConfirm', title: '計分資料確認者', width: '230px' },
+                    { data: 'Lv1Apprvoer', title: '第一關審核者', width: '230px' },
+                    { data: 'Lv2Apprvoer', title: '第二關審核者', width: '230px' },
                     {
                         title: "",
                         width: '100px',
