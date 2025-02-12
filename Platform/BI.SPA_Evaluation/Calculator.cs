@@ -35,11 +35,11 @@ namespace BI.SPA_Evaluation
         private const string _fixText_PIP = "PIP";
         private const string _fixText_PPE = "PPE";
 
-        private const string _fixTextScoreLevel1 = "I";
-        private const string _fixTextScoreLevel2 = "II";
-        private const string _fixTextScoreLevel3 = "III";
-        private const string _fixTextScoreLevel4 = "IV";
-        private const string _fixTextScoreLevel5 = "V";
+        private const string _fixTextScoreLevel1 = "Ⅰ";
+        private const string _fixTextScoreLevel2 = "Ⅱ";
+        private const string _fixTextScoreLevel3 = "Ⅲ";
+        private const string _fixTextScoreLevel4 = "Ⅳ";
+        private const string _fixTextScoreLevel5 = "Ⅴ";
 
         private const string _fixTextSelfTraining1 = "完全由供應商自行訓練";
         private const string _fixTextSelfTraining2 = "部分人員須由TEL代訓";
