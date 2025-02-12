@@ -724,7 +724,8 @@ namespace BI.SPA_CostService
 
             var mailList = receiverMailList.Select(obj => obj.EMail).ToList();
             var ccMailList = new List<string>();
-            MailPoolManager.WriteMailWithCC(mailList, ccMailList, content, userID, cDate);
+            //MailPoolManager.WriteMailWithCC(mailList, ccMailList, content, userID, cDate);
+            MailPoolManager.WriteMailWithCC(mailList, new List<string>(), content, userID, cDate);
         }
 
 
