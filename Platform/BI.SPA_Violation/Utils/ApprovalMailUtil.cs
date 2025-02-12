@@ -49,7 +49,7 @@ namespace BI.SPA_Violation.Utils
         /// <param name="cDate">目前時間</param> 
         internal static void SendNewVerifyMail(UserAccountModel receiver, TET_SPA_ViolationApproval approvalModel, TET_SPA_Violation main, string userID, DateTime cDate)
         {
-            UserRoleManager _roleMgr = new UserRoleManager(); 
+            UserRoleManager _roleMgr = new UserRoleManager();
             var qsmList = _roleMgr.GetUserListInRole(ApprovalRole.QSM.ToID().Value);
             var qsmMailList = qsmList.Select(obj => obj.EMail).ToList();
             var pageUrl = $"{ModuleConfig.EmailRootUrl}/SupplierApproval/Index";
@@ -72,7 +72,8 @@ namespace BI.SPA_Violation.Utils
             var Email = new List<string>();
             Email.Add(receiver.EMail);
 
-            MailPoolManager.WriteMailWithCC(Email, qsmMailList, content, userID, cDate);
+            //MailPoolManager.WriteMailWithCC(Email, qsmMailList, content, userID, cDate);
+            MailPoolManager.WriteMailWithCC(Email, new List<string>(), content, userID, cDate);
         }
 
         /// <summary> 寄信新的簽核人 </summary>
@@ -107,7 +108,8 @@ namespace BI.SPA_Violation.Utils
             var Email = new List<string>();
             Email.Add(receiver.EMail);
 
-            MailPoolManager.WriteMailWithCC(Email, qsmMailList, content, userID, cDate);
+            //MailPoolManager.WriteMailWithCC(Email, qsmMailList, content, userID, cDate)
+            MailPoolManager.WriteMailWithCC(Email, new List<string>(), content, userID, cDate);
         }
     }
 }
