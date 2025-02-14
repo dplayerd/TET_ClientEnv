@@ -19,6 +19,8 @@ namespace BI.Suppliers
 {
     public class TET_SupplierApprovalManager
     {
+        private const int _retryLimit = 3;
+
         private Logger _logger = new Logger();
         private TET_SupplierContactManager _contactMgr = new TET_SupplierContactManager();
         private TET_SupplierAttachmentManager _attachmentMgr = new TET_SupplierAttachmentManager();
@@ -672,7 +674,6 @@ namespace BI.Suppliers
         #endregion
 
         #region Save
-
         /// <summary> 為了避免版本衝突問題，所以將 Entity 挪至此處存檔 </summary>
         /// <param name="supplierModel"></param>
         /// <param name="willSaveSupplier"></param>
@@ -682,148 +683,161 @@ namespace BI.Suppliers
         /// <param name="cDate"></param>
         private void SaveContents(TET_SupplierModel supplierModel, List<TET_Supplier> willSaveSupplier, List<TET_SupplierApproval> willSaveSupplierApproval, List<TET_SupplierApproval> willDeleteSupplierApproval, string cUser, DateTime cDate)
         {
-            try
+            Exception error = null;
+            for (int i = 0; i < _retryLimit; i++)
             {
-                using (PlatformContextModel context = new PlatformContextModel())
+                try
                 {
-                    // 更新或新增供應商資料
-                    var supplierIds = willSaveSupplier.Select(obj => obj.ID).ToList();
-                    var supplierQuery =
-                        from item in context.TET_Supplier
-                        where supplierIds.Contains(item.ID)
-                        select item;
-
-                    var dicSuppliers = supplierQuery.ToDictionary(obj => obj.ID, obj => obj);
-
-                    foreach (var item in willSaveSupplier)
+                    using (PlatformContextModel context = new PlatformContextModel())
                     {
-                        TET_Supplier dbEntity;
+                        // 更新或新增供應商資料
+                        var supplierIds = willSaveSupplier.Select(obj => obj.ID).ToList();
+                        var supplierQuery =
+                            from item in context.TET_Supplier
+                            where supplierIds.Contains(item.ID)
+                            select item;
 
-                        if (dicSuppliers.ContainsKey(item.ID))
-                            dbEntity = dicSuppliers[item.ID];
-                        else
+                        var dicSuppliers = supplierQuery.ToDictionary(obj => obj.ID, obj => obj);
+
+                        foreach (var item in willSaveSupplier)
                         {
-                            dbEntity = new TET_Supplier() { ID = Guid.NewGuid(), CreateUser = cUser, CreateDate = cDate };
-                            context.TET_Supplier.Add(dbEntity);
+                            TET_Supplier dbEntity;
+
+                            if (dicSuppliers.ContainsKey(item.ID))
+                                dbEntity = dicSuppliers[item.ID];
+                            else
+                            {
+                                dbEntity = new TET_Supplier() { ID = Guid.NewGuid(), CreateUser = cUser, CreateDate = cDate };
+                                context.TET_Supplier.Add(dbEntity);
+                            }
+
+                            dbEntity.CoSignApprover = item.CoSignApprover;
+                            dbEntity.IsSecret = item.IsSecret;
+                            dbEntity.IsNDA = item.IsNDA;
+                            dbEntity.ApplyReason = item.ApplyReason;
+                            dbEntity.BelongTo = item.BelongTo;
+                            dbEntity.VenderCode = item.VenderCode;
+                            dbEntity.SupplierCategory = item.SupplierCategory;
+                            dbEntity.BusinessCategory = item.BusinessCategory;
+                            dbEntity.BusinessAttribute = item.BusinessAttribute;
+                            dbEntity.SearchKey = item.SearchKey;
+                            dbEntity.RelatedDept = item.RelatedDept;
+                            dbEntity.Buyer = item.Buyer;
+                            dbEntity.RegisterDate = item.RegisterDate;
+                            dbEntity.CName = item.CName;
+                            dbEntity.EName = item.EName;
+                            dbEntity.Country = item.Country;
+                            dbEntity.TaxNo = item.TaxNo;
+                            dbEntity.Address = item.Address;
+                            dbEntity.OfficeTel = item.OfficeTel;
+                            dbEntity.ISO = item.ISO;
+                            dbEntity.Email = item.Email;
+                            dbEntity.Website = item.Website;
+                            dbEntity.CapitalAmount = item.CapitalAmount;
+                            dbEntity.MainProduct = item.MainProduct;
+                            dbEntity.Employees = item.Employees;
+                            dbEntity.Charge = item.Charge;
+                            dbEntity.PaymentTerm = item.PaymentTerm;
+                            dbEntity.BillingDocument = item.BillingDocument;
+                            dbEntity.Incoterms = item.Incoterms;
+                            dbEntity.Remark = item.Remark;
+                            dbEntity.BankCountry = item.BankCountry;
+                            dbEntity.BankName = item.BankName;
+                            dbEntity.BankCode = item.BankCode;
+                            dbEntity.BankBranchName = item.BankBranchName;
+                            dbEntity.BankBranchCode = item.BankBranchCode;
+                            dbEntity.Currency = item.Currency;
+                            dbEntity.BankAccountName = item.BankAccountName;
+                            dbEntity.BankAccountNo = item.BankAccountNo;
+                            dbEntity.CompanyCity = item.CompanyCity;
+                            dbEntity.BankAddress = item.BankAddress;
+                            dbEntity.SwiftCode = item.SwiftCode;
+                            dbEntity.NDANo = item.NDANo;
+                            dbEntity.Contract = item.Contract;
+                            dbEntity.IsSign1 = item.IsSign1;
+                            dbEntity.SignDate1 = item.SignDate1;
+                            dbEntity.IsSign2 = item.IsSign2;
+                            dbEntity.SignDate2 = item.SignDate2;
+                            dbEntity.STQAApplication = item.STQAApplication;
+                            dbEntity.KeySupplier = item.KeySupplier;
+                            dbEntity.Version = item.Version;
+                            dbEntity.RevisionType = item.RevisionType;
+                            dbEntity.IsLastVersion = item.IsLastVersion;
+                            dbEntity.ApproveStatus = item.ApproveStatus;
+                            dbEntity.ModifyUser = item.ModifyUser;
+                            dbEntity.ModifyDate = item.ModifyDate;
+                            dbEntity.IsActive = item.IsActive;
                         }
 
-                        dbEntity.CoSignApprover = item.CoSignApprover;
-                        dbEntity.IsSecret = item.IsSecret;
-                        dbEntity.IsNDA = item.IsNDA;
-                        dbEntity.ApplyReason = item.ApplyReason;
-                        dbEntity.BelongTo = item.BelongTo;
-                        dbEntity.VenderCode = item.VenderCode;
-                        dbEntity.SupplierCategory = item.SupplierCategory;
-                        dbEntity.BusinessCategory = item.BusinessCategory;
-                        dbEntity.BusinessAttribute = item.BusinessAttribute;
-                        dbEntity.SearchKey = item.SearchKey;
-                        dbEntity.RelatedDept = item.RelatedDept;
-                        dbEntity.Buyer = item.Buyer;
-                        dbEntity.RegisterDate = item.RegisterDate;
-                        dbEntity.CName = item.CName;
-                        dbEntity.EName = item.EName;
-                        dbEntity.Country = item.Country;
-                        dbEntity.TaxNo = item.TaxNo;
-                        dbEntity.Address = item.Address;
-                        dbEntity.OfficeTel = item.OfficeTel;
-                        dbEntity.ISO = item.ISO;
-                        dbEntity.Email = item.Email;
-                        dbEntity.Website = item.Website;
-                        dbEntity.CapitalAmount = item.CapitalAmount;
-                        dbEntity.MainProduct = item.MainProduct;
-                        dbEntity.Employees = item.Employees;
-                        dbEntity.Charge = item.Charge;
-                        dbEntity.PaymentTerm = item.PaymentTerm;
-                        dbEntity.BillingDocument = item.BillingDocument;
-                        dbEntity.Incoterms = item.Incoterms;
-                        dbEntity.Remark = item.Remark;
-                        dbEntity.BankCountry = item.BankCountry;
-                        dbEntity.BankName = item.BankName;
-                        dbEntity.BankCode = item.BankCode;
-                        dbEntity.BankBranchName = item.BankBranchName;
-                        dbEntity.BankBranchCode = item.BankBranchCode;
-                        dbEntity.Currency = item.Currency;
-                        dbEntity.BankAccountName = item.BankAccountName;
-                        dbEntity.BankAccountNo = item.BankAccountNo;
-                        dbEntity.CompanyCity = item.CompanyCity;
-                        dbEntity.BankAddress = item.BankAddress;
-                        dbEntity.SwiftCode = item.SwiftCode;
-                        dbEntity.NDANo = item.NDANo;
-                        dbEntity.Contract = item.Contract;
-                        dbEntity.IsSign1 = item.IsSign1;
-                        dbEntity.SignDate1 = item.SignDate1;
-                        dbEntity.IsSign2 = item.IsSign2;
-                        dbEntity.SignDate2 = item.SignDate2;
-                        dbEntity.STQAApplication = item.STQAApplication;
-                        dbEntity.KeySupplier = item.KeySupplier;
-                        dbEntity.Version = item.Version;
-                        dbEntity.RevisionType = item.RevisionType;
-                        dbEntity.IsLastVersion = item.IsLastVersion;
-                        dbEntity.ApproveStatus = item.ApproveStatus;
-                        dbEntity.ModifyUser = item.ModifyUser;
-                        dbEntity.ModifyDate = item.ModifyDate;
-                        dbEntity.IsActive = item.IsActive;
-                    }
 
 
+                        // 更新或新增供應商簽核資料
+                        var supplierApprovalIds = willSaveSupplierApproval.Select(obj => obj.ID).ToList();
+                        var supplierApprovalQuery =
+                            from item in context.TET_SupplierApproval
+                            where supplierApprovalIds.Contains(item.ID)
+                            select item;
 
-                    // 更新或新增供應商簽核資料
-                    var supplierApprovalIds = willSaveSupplierApproval.Select(obj => obj.ID).ToList();
-                    var supplierApprovalQuery =
-                        from item in context.TET_SupplierApproval
-                        where supplierApprovalIds.Contains(item.ID)
-                        select item;
-
-                    var dicSupplierApprovals = supplierApprovalQuery.ToDictionary(obj => obj.ID, obj => obj);
+                        var dicSupplierApprovals = supplierApprovalQuery.ToDictionary(obj => obj.ID, obj => obj);
 
 
-                    foreach (var item in willSaveSupplierApproval)
-                    {
-                        TET_SupplierApproval dbEntity;
-
-                        if (dicSupplierApprovals.ContainsKey(item.ID))
-                            dbEntity = dicSupplierApprovals[item.ID];
-                        else
+                        foreach (var item in willSaveSupplierApproval)
                         {
-                            dbEntity = new TET_SupplierApproval() { ID = Guid.NewGuid(), CreateUser = cUser, CreateDate = cDate };
-                            context.TET_SupplierApproval.Add(dbEntity);
+                            TET_SupplierApproval dbEntity;
+
+                            if (dicSupplierApprovals.ContainsKey(item.ID))
+                                dbEntity = dicSupplierApprovals[item.ID];
+                            else
+                            {
+                                dbEntity = new TET_SupplierApproval() { ID = Guid.NewGuid(), CreateUser = cUser, CreateDate = cDate };
+                                context.TET_SupplierApproval.Add(dbEntity);
+                            }
+
+                            dbEntity.SupplierID = item.SupplierID;
+                            dbEntity.Type = item.Type;
+                            dbEntity.Level = item.Level;
+                            dbEntity.Result = item.Result;
+                            dbEntity.Description = item.Description;
+                            dbEntity.Comment = item.Comment;
+                            dbEntity.Approver = item.Approver;
+                            dbEntity.ModifyUser = cUser;
+                            dbEntity.ModifyDate = cDate;
                         }
 
-                        dbEntity.SupplierID = item.SupplierID;
-                        dbEntity.Type = item.Type;
-                        dbEntity.Level = item.Level;
-                        dbEntity.Result = item.Result;
-                        dbEntity.Description = item.Description;
-                        dbEntity.Comment = item.Comment;
-                        dbEntity.Approver = item.Approver;
-                        dbEntity.ModifyUser = cUser;
-                        dbEntity.ModifyDate = cDate;
+
+                        // 刪除供應商簽核資料
+                        supplierApprovalIds = willDeleteSupplierApproval.Select(obj => obj.ID).ToList();
+                        supplierApprovalQuery =
+                            from item in context.TET_SupplierApproval
+                            where supplierApprovalIds.Contains(item.ID)
+                            select item;
+
+                        var willDeleteList = supplierApprovalQuery.ToList();
+                        context.TET_SupplierApproval.RemoveRange(willDeleteList);
+
+
+                        // 寫入附件和聯絡人
+                        _contactMgr.WriteTET_SupplierContact(context, supplierModel.ID.Value, supplierModel.ContactList, cUser, cDate);                                        // 寫入供應商聯絡人
+                        _attachmentMgr.WriteTET_SupplierAttachment(context, supplierModel.ID.Value, supplierModel.AttachmentList, supplierModel.UploadFiles, cUser, cDate);    // 寫入附件
+
+                        context.SaveChanges();
+
+                        // 如果儲存成功，就跳過，不再重複執行
+                        break;
                     }
-
-
-                    // 刪除供應商簽核資料
-                    supplierApprovalIds = willDeleteSupplierApproval.Select(obj => obj.ID).ToList();
-                    supplierApprovalQuery =
-                        from item in context.TET_SupplierApproval
-                        where supplierApprovalIds.Contains(item.ID)
-                        select item;
-
-                    var willDeleteList = supplierApprovalQuery.ToList();
-                    context.TET_SupplierApproval.RemoveRange(willDeleteList);
-
-
-                    // 寫入附件和聯絡人
-                    _contactMgr.WriteTET_SupplierContact(context, supplierModel.ID.Value, supplierModel.ContactList, cUser, cDate);                                        // 寫入供應商聯絡人
-                    _attachmentMgr.WriteTET_SupplierAttachment(context, supplierModel.ID.Value, supplierModel.AttachmentList, supplierModel.UploadFiles, cUser, cDate);    // 寫入附件
-
-                    context.SaveChanges();
                 }
+                catch (Exception ex)
+                {
+                    // 如果出錯了，還是記錄下來備查
+                    this._logger.WriteError(ex);
+                    error = ex;
+                }
+
             }
-            catch (Exception ex)
-            {
-                this._logger.WriteError(ex);
-                throw;
-            }
+
+            // 結束後有任何錯誤，就拋出去
+            if (error != null)
+                throw error;
         }
         #endregion
 
