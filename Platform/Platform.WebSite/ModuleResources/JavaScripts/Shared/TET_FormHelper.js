@@ -213,11 +213,9 @@ function focusToFirstValidFail(mainForm) {
 
 // 初始化 Select2
 $(document).ready(function () {
-    setTimeout(function () {
-        // basic
-        $('.select2').select2({
-            placeholder: "請選擇",
-            allowClear: true
-        });
-    }, 200);
+    // basic select2
+    $('.select2').select2({
+        placeholder: "請選擇",
+        allowClear: true
+    });
 });
