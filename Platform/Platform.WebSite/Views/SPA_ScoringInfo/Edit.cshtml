@@ -51,13 +51,20 @@
     var TabVisiable = this.ViewBag.TabVisiable as TabVisiableModel;
     var tabConfig = JsonConvert.SerializeObject(new
     {
-        tab1 = TabVisiable.Tab1,
-        tab2 = TabVisiable.Tab2,
-        tab3 = TabVisiable.Tab3,
-        tab4 = TabVisiable.Tab4,
-        tab5 = TabVisiable.Tab5,
-        tab6 = TabVisiable.Tab6,
-        tab7 = TabVisiable.Tab7,
+        //tab1 = TabVisiable.Tab1,
+        //tab2 = TabVisiable.Tab2,
+        //tab3 = TabVisiable.Tab3,
+        //tab4 = TabVisiable.Tab4,
+        //tab5 = TabVisiable.Tab5,
+        //tab6 = TabVisiable.Tab6,
+        //tab7 = TabVisiable.Tab7,
+        tab1 = true,
+        tab2 = true,
+        tab3 = true,
+        tab4 = true,
+        tab5 = true,
+        tab6 = true,
+        tab7 = true,
     });
 
     // 欄位顯示和編輯設定
@@ -951,6 +958,13 @@
 
     <script src="~/Content/assets/plugins/custom/bootstrap-table/bootstrap-table.min.js"></script>
     <script src="~/Content/assets/plugins/custom/bootstrap-table/extensions/fixed-columns/bootstrap-table-fixed-columns.min.js"></script>
+
+    <style>
+        /*修正 Select2 因為在 Tab 還在隱藏狀態就初始化，導致畫面跑版的錯誤*/
+        .select2-container {
+            width: 100% !important;
+        }
+    </style>
 
     <script>
         var viewMode = '@mode';
