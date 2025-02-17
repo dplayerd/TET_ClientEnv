@@ -57,7 +57,7 @@
 
                 <div class="col-3">
                     <label for="inpBU" class="col-form-label">評鑑單位</label>
-                    <select id="inpBU" name="inpBU" class="form-control form-control-sm selectpicker" multiple data-live-search="true" title="請選擇">
+                    <select id="inpBU" name="inpBU" class="form-control form-control-sm select2" multiple title="請選擇">
                         @foreach (var pair in paramList_BU)
                         {
                             <option value="@pair.Key">@pair.Text</option>
@@ -67,7 +67,7 @@
 
                 <div class="col-3">
                     <label for="inpServiceFor" class="col-form-label">服務對象</label>
-                    <select id="inpServiceFor" name="inpServiceFor" class="form-control form-control-sm selectpicker" multiple data-live-search="true" title="請選擇">
+                    <select id="inpServiceFor" name="inpServiceFor" class="form-control form-control-sm select2" multiple title="請選擇">
                         @foreach (var pair in paramList_ServiceFor)
                         {
                             <option value="@pair.Key">@pair.Text</option>
@@ -77,7 +77,7 @@
 
                 <div class="col-3">
                     <label for="inpServiceItem" class="col-form-label">評鑑項目</label>
-                    <select id="inpServiceItem" name="inpServiceItem" class="form-control form-control-sm selectpicker" multiple data-live-search="true" title="請選擇">
+                    <select id="inpServiceItem" name="inpServiceItem" class="form-control form-control-sm select2" multiple title="請選擇">
                         @foreach (var pair in paramList_ServiceItem)
                         {
                             <option value="@pair.Key">@pair.Text</option>
@@ -87,7 +87,7 @@
 
                 <div class="col-3">
                     <label for="inpBelongTo" class="col-form-label">受評供應商</label>
-                    <select id="inpBelongTo" name="inpBelongTo" class="form-control form-control-sm selectpicker" multiple data-live-search="true" style="width: 20em;" title="請選擇">
+                    <select id="inpBelongTo" name="inpBelongTo" class="form-control form-control-sm select2" multiple title="請選擇">
                         @foreach (var pair in paramList_BelongTo)
                         {
                             <option value="@pair.Key">@pair.Text</option>
@@ -97,7 +97,7 @@
 
                 <div class="col-3">
                     <label for="inpApproveStatus" class="col-form-label">審核狀態</label>
-                    <select id="inpApproveStatus" name="inpApproveStatus" class="form-control form-control-sm selectpicker" multiple data-live-search="true" title="請選擇">
+                    <select id="inpApproveStatus" name="inpApproveStatus" class="form-control form-control-sm select2" multiple title="請選擇">
                         @foreach (var pair in paramList_ApproveStatus)
                         {
                             <option value="@pair.Key">@pair.Text</option>
@@ -137,7 +137,7 @@
 @Html.Resource(
     @<text>
         <script src="~/Content/assets/plugins/custom/datatables/datatables.bundle.js?v=@DateTimeExtensions.GetJS_V_Text()"></script>
-        <script src="~/ModuleResources/JavaScripts/Shared/FormHelper.js?v=@DateTimeExtensions.GetJS_V_Text()"></script>
+        <script src="~/ModuleResources/JavaScripts/Shared/TET_FormHelper.js?v=@DateTimeExtensions.GetJS_V_Text()"></script>
         <script src="~/ModuleResources/JavaScripts/SPA_ScoringInfo/index.js?v=@DateTimeExtensions.GetJS_V_Text()"></script>
 
         <style>
