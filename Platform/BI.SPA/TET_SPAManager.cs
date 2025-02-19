@@ -39,16 +39,13 @@ namespace BI.SPA
             {
                 using (PlatformContextModel context = new PlatformContextModel())
                 {
-                    string completedText = ApprovalStatus.Completed.ToText();
-
                     var orgQuery =
                         from item in context.TET_SupplierSPA
                         from item1 in context.TET_Parameters
                         from item2 in context.TET_Parameters
                         from item3 in context.TET_Parameters
                         from item4 in context.TET_Parameters
-                        where item.ApproveStatus == completedText &&
-                              item.ServiceFor == item1.ID.ToString() &&
+                        where item.ServiceFor == item1.ID.ToString() &&
                               item.AssessmentItem == item2.ID.ToString() &&
                               item.PerformanceLevel == item3.ID.ToString() &&
                               item.BU == item4.ID.ToString()
@@ -77,48 +74,6 @@ namespace BI.SPA
                             item.ModifyUser,
                             item.ModifyDate
                         };
-
-                    orgQuery =
-                        orgQuery.Union(
-                            from item in context.TET_SupplierSPA
-                            from item1 in context.TET_Parameters
-                            from item2 in context.TET_Parameters
-                            from item3 in context.TET_Parameters
-                            from item4 in context.TET_Parameters
-                            where
-                                item.ApproveStatus != completedText &&
-                                (item.CreateUser == userID || item.ModifyUser == userID) &&
-                                item.ServiceFor == item1.ID.ToString() &&
-                                item.AssessmentItem == item2.ID.ToString() &&
-                                item.PerformanceLevel == item3.ID.ToString() &&
-                                item.BU == item4.ID.ToString()
-                            select new
-                            {
-                                item.ID,
-                                item.BelongTo,
-                                item.Period,
-                                BUID = item4.ID,
-                                BU=item4.Item,
-                                ServiceFor = item1.Item,
-                                AssessmentItemID = item2.ID,
-                                AssessmentItem = item2.Item,
-                                PerformanceLevelID = item3.ID,
-                                PerformanceLevel = item3.Item,
-                                TotalScore = item.TotalScore,
-                                TScore = item.TScore,
-                                DScore = item.DScore,
-                                QScore = item.QScore,
-                                CScore = item.CScore,
-                                SScore = item.SScore,
-                                SPAComment = item.Comment,
-                                item.ApproveStatus,
-                                item.CreateUser,
-                                item.CreateDate,
-                                item.ModifyUser,
-                                item.ModifyDate
-                            });
-
-
 
                     //--- 組合過濾條件 ---
                     if (belongTo != null && belongTo.Length > 0)
@@ -409,13 +364,16 @@ namespace BI.SPA
             {
                 using (PlatformContextModel context = new PlatformContextModel())
                 {
+                    string completedText = ApprovalStatus.Completed.ToText();
+
                     var orgQuery =
                         from item in context.TET_SupplierSPA
                         from item1 in context.TET_Parameters
                         from item2 in context.TET_Parameters
                         from item3 in context.TET_Parameters
                         from item4 in context.TET_Parameters
-                        where item.ServiceFor == item1.ID.ToString() &&
+                        where item.ApproveStatus == completedText && 
+                              item.ServiceFor == item1.ID.ToString() &&
                               item.AssessmentItem == item2.ID.ToString() &&
                               item.PerformanceLevel == item3.ID.ToString() &&
                               item.BU == item4.ID.ToString()
@@ -547,13 +505,16 @@ namespace BI.SPA
             {
                 using (PlatformContextModel context = new PlatformContextModel())
                 {
+                    string completedText = ApprovalStatus.Completed.ToText();
+
                     var orgQuery =
                         from item in context.TET_SupplierSPA
                         from item1 in context.TET_Parameters
                         from item2 in context.TET_Parameters
                         from item3 in context.TET_Parameters
                         from item4 in context.TET_Parameters
-                        where item.ServiceFor == item1.ID.ToString() &&
+                        where item.ApproveStatus == completedText && 
+                              item.ServiceFor == item1.ID.ToString() &&
                               item.AssessmentItem == item2.ID.ToString() &&
                               item.PerformanceLevel == item3.ID.ToString() &&
                               item.BU == item4.ID.ToString()
