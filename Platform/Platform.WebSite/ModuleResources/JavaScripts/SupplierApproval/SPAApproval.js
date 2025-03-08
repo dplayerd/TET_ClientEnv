@@ -60,6 +60,12 @@ $(document).ready(function () {
         var formData = new FormData();
         formData.append("Main", JSON.stringify(inputData));
 
+        // 鎖定畫面
+        $.blockUI({
+            css: { backgroundColor: '#AAA', color: '#fff' },
+            message: '<h1>處理中，請稍候</h1>'
+        });
+
         $.ajax({
             url: submitApiUrl,
             method: "POST",
@@ -70,6 +76,9 @@ $(document).ready(function () {
             success: function (data) {
                 alert("送出成功");
                 location.href = listPageUrl;
+
+                // 解鎖畫面
+                $.unblockUI();
             },
             error: function (data) {
                 if (data.responseJSON == undefined || data.responseJSON.Message == null)
@@ -83,6 +92,9 @@ $(document).ready(function () {
                         alert(data.responseJSON.ExceptionMessage);
                     }
                 }
+
+                // 解鎖畫面
+                $.unblockUI();
             }
         });
     });
