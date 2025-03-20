@@ -452,6 +452,12 @@ $(function () {
             }
         }
 
+        // 鎖定畫面
+        $.blockUI({
+            css: { backgroundColor: '#AAA', color: '#fff' },
+            message: '<h1>處理中，請稍候</h1>'
+        });
+
         $.ajax({
             url: submitApiUrl,
             method: "POST",
@@ -462,6 +468,9 @@ $(function () {
             success: function (data) {
                 alert("送出成功");
                 location.href = listPageUrl;
+
+                // 解鎖畫面
+                $.unblockUI();
             },
             error: function (data) {
                 if (data.responseJSON == undefined || data.responseJSON.Message == null)
@@ -475,6 +484,9 @@ $(function () {
                         alert(data.responseJSON.ExceptionMessage);
                     }
                 }
+
+                // 解鎖畫面
+                $.unblockUI();
             }
         });
     });
@@ -503,6 +515,12 @@ $(function () {
         if (!isCreateMode)
             url = modifyApiUrl;
 
+        // 鎖定畫面
+        $.blockUI({
+            css: { backgroundColor: '#AAA', color: '#fff' },
+            message: '<h1>處理中，請稍候</h1>'
+        });
+
         $.ajax({
             url: url,
             method: "POST",
@@ -515,6 +533,9 @@ $(function () {
 
                 // 跳回列表頁
                 location.href = listPageUrl;
+
+                // 解鎖畫面
+                $.unblockUI();
             },
             error: function (data) {
                 if (data.responseJSON == undefined || data.responseJSON.Message == null)
@@ -528,6 +549,9 @@ $(function () {
                         alert(data.responseJSON.ExceptionMessage);
                     }
                 }
+
+                // 解鎖畫面
+                $.unblockUI();
             }
         });
     });
