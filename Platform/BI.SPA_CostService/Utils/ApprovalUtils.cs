@@ -23,11 +23,11 @@ namespace BI.SPA_CostService.Utils
 
             ApprovalLevel enm;
 
-            if (val == ApprovalLevel.BU.ToText())               // BU 人員
+            if (val == ApprovalLevel.BU.ToString() || val == ApprovalLevel.BU.ToText())               // BU 人員
                 enm = ApprovalLevel.BU;
-            else if (val == ApprovalLevel.QSM.ToText())         // QSM
+            else if (val == ApprovalLevel.QSM.ToString() || val == ApprovalLevel.QSM.ToText())         // QSM
                 enm = ApprovalLevel.QSM;
-            else if (val == ApprovalLevel.SRI_SS_GL.ToText())   // 供應商表單覆審
+            else if (val == ApprovalLevel.SRI_SS_GL.ToString() || val == ApprovalLevel.SRI_SS_GL.ToText())   // 採購主管
                 enm = ApprovalLevel.SRI_SS_GL;
             else
                 enm = ApprovalLevel.Empty;

@@ -136,7 +136,7 @@ namespace BI.SPA_CostService
                         };
 
                         // 寄送通知信
-                        ApprovalMailUtil.SendNewVerifyMail(user, item, entityApproval, dbModel, userID, cDate);
+                        ApprovalMailUtil.SendNewVerifyMail(user, item, entityApproval, dbModel, ApprovalLevel.SRI_SS_GL.ToDisplayText(), userID, cDate);
                         context.TET_SPA_CostServiceApproval.Add(entityApproval);
                     }
                     //--- 新增審核資料 ---

@@ -47,9 +47,10 @@ namespace BI.SPA_CostService.Utils
         /// <param name="receiver"> 簽核人 </param>
         /// <param name="approvalModel"> 簽核資訊 </param>
         /// <param name="main"></param>
+        /// <param name="levelName"></param>
         /// <param name="userID">目前登入者</param>
         /// <param name="cDate">目前時間</param> 
-        internal static void SendNewVerifyMail(UserModel applicant, UserAccountModel receiver, TET_SPA_CostServiceApproval approvalModel, TET_SPA_CostService main, string userID, DateTime cDate)
+        internal static void SendNewVerifyMail(UserModel applicant, UserAccountModel receiver, TET_SPA_CostServiceApproval approvalModel, TET_SPA_CostService main, string levelName, string userID, DateTime cDate)
         {
             var pageUrl = $"{ModuleConfig.EmailRootUrl}/SupplierApproval/Index";
 
@@ -63,7 +64,7 @@ namespace BI.SPA_CostService.Utils
                 <br/>
                 流程名稱: Cost&Service資料審核 <br/>
                 流程發起時間: {cDate.ToString("yyyy-MM-dd HH:mm:ss")} <br/>
-                審核關卡: {approvalModel.Level} <br/>
+                審核關卡: {levelName} <br/>
                 審核開始時間: {approvalModel.CreateDate.ToString("yyyy-MM-dd HH:mm:ss")} <br/>
                 "
             };

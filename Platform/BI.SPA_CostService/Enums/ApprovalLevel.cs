@@ -57,7 +57,7 @@ namespace BI.SPA_CostService.Enums
             switch (enm)
             {
                 case ApprovalLevel.SRI_SS_GL:
-                    return "PQM_SS's Supervisor";
+                    return "採購_SS's Supervisor";
 
                 case ApprovalLevel.BU:
                     return "BU 人員";
