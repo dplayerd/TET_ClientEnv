@@ -13,7 +13,6 @@ namespace Platform.Auth
     {
         private Logger _logger = new Logger();
 
-
         #region Read
         /// <summary> 取得角色清單 </summary>
         /// <param name="caption"> 包含文字 </param>
@@ -84,6 +83,45 @@ namespace Platform.Auth
                     //----- 附加查詢條件 -----
                     if (!string.IsNullOrWhiteSpace(caption))
                         query = query.Where(obj => obj.Name.Contains(caption));
+                    //----- 附加查詢條件 -----
+
+                    var list = query.ProcessPager(pager).ToList();
+                    return list;
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.WriteError(ex);
+                return default;
+            }
+        }
+
+        /// <summary> 取得角色清單 </summary>
+        /// <param name="caption"> 包含文字 </param>
+        /// <param name="pager"> 分頁資訊 </param>
+        /// <returns></returns>
+        public List<RoleModel> GetRoleGeneralUserList(Pager pager)
+        {
+            try
+            {
+                using (PlatformContextModel context = new PlatformContextModel())
+                {
+                    var query =
+                        from obj in context.Roles
+                        orderby obj.CreateDate descending
+                        select new RoleModel()
+                        {
+                            ID = obj.ID,
+                            Name = obj.Name,
+                            IsEnable = obj.IsEnable,
+                            CreateDate = obj.CreateDate,
+                            CreateUser = obj.CreateUser,
+                            ModifyDate = obj.ModifyDate,
+                            ModifyUser = obj.ModifyUser,
+                        };
+
+                    //----- 附加查詢條件 -----
+                    query = query.Where(obj => obj.Name == "一般使用者");
                     //----- 附加查詢條件 -----
 
                     var list = query.ProcessPager(pager).ToList();

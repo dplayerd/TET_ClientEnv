@@ -2,21 +2,29 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Web.Mvc;
+using Platform.AbstractionClass;
+using Platform.Auth;
+using Platform.Auth.Models;
 using Platform.Portal.Models;
 using Platform.WebSite.Filters;
 using Platform.WebSite.Models;
+using Platform.WebSite.Services;
 
 namespace Platform.WebSite.Controllers
 {
     [AuthorizeCore]
     public class HomeController : BaseMVCController
     {
+        private RoleManager _roleMgr = new RoleManager();
+        UserRoleManager _userRoleMgr = new UserRoleManager();
+
         // GET: Home
         //[SessionAuthorizeAttribute]
         public ActionResult Index()
         {
-            this.InitAction();
+            this.TryAddRole();
 
+            this.InitAction();
 
             SiteViewModel siteViewModel = (SiteViewModel)this.ViewBag.MasterInfo;
 
@@ -87,6 +95,25 @@ namespace Platform.WebSite.Controllers
             pageList = pageList.Distinct().ToList();
 
             return View(pageList);
+        }
+
+        private void TryAddRole()
+        {
+            // 取得登入者
+            var cUser = UserProfileService.GetCurrentUser();
+
+            if (cUser != null)
+            {
+                // 當登入者不具備一般使用者身份時，為其加入該角色
+                var roleList = this._roleMgr.GetRoleGeneralUserList(Pager.GetDefaultPager());
+                if (roleList.Any())
+                {
+                    if (!_userRoleMgr.IsRole(cUser.ID, roleList[0].ID))
+                    {
+                        _userRoleMgr.MapUserAndRole(new string[] { cUser.ID }, new Guid[] { roleList[0].ID }, cUser.ID, DateTime.Now);
+                    }
+                }
+            }
         }
     }
 }
