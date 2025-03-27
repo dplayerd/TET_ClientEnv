@@ -16,6 +16,7 @@ namespace BI.SPA_ScoringInfo.Utils
         private const string _fixText_FE = "FE";
         private const string _fixText_Startup_DSS = "Startup(DSS)";
         private const string _fixText_Non_startup_DSS_ = "Non-startup(DSS)";
+        private const string _fixText_Modification = "Modification";
 
         /// <summary> 透過評鑑項目以及 PO Source 來決定頁籤是否隱藏 </summary>
         /// <param name="model"></param>
@@ -69,6 +70,14 @@ namespace BI.SPA_ScoringInfo.Utils
             }
 
             if (IsMatch(model, _fixText_Non_startup_DSS_, _fixText_Local))
+            {
+                retObj.Tab2 = true;
+                retObj.Tab3 = true;
+                retObj.Tab6 = true;
+                retObj.Tab7 = true;
+            }
+
+            if (IsMatch(model, _fixText_Modification, _fixText_Local))
             {
                 retObj.Tab2 = true;
                 retObj.Tab3 = true;
