@@ -430,7 +430,7 @@ $(function () {
     }
 
     // 尋找並隱藏所有 ID 為 tab 的 div
-    $("#" + firstEnabledTab).addClass("active");
+    $("#" + firstEnabledTab).addClass("active").addClass('show');
 
     // 尋找並隱藏所有 href 包含有 tab 的 link
     $("a[href$=" + firstEnabledTab + "]").addClass("active");
