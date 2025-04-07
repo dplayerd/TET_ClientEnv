@@ -87,7 +87,7 @@ namespace Platform.WebSite.Services
                 return null;
 
             // 設定快取
-            if (HttpContext.Current.Items == null || HttpContext.Current.Items[_currentUserKey] != null)
+            if (HttpContext.Current.Items != null && HttpContext.Current.Items[_currentUserKey] != null)
                 return (UserAccountModel)HttpContext.Current.Items[_currentUserKey];
 
             if (HttpContext.Current.User == null)
