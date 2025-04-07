@@ -87,15 +87,21 @@ namespace Platform.WebSite.Services
                 return null;
 
             // 設定快取
-            if (HttpContext.Current.Items[_currentUserKey] != null)
+            if (HttpContext.Current.Items == null || HttpContext.Current.Items[_currentUserKey] != null)
                 return (UserAccountModel)HttpContext.Current.Items[_currentUserKey];
 
             if (HttpContext.Current.User == null)
                 return null;
 
             var user = HttpContext.Current.User;
-            bool isAuthed = HttpContext.Current.Request.IsAuthenticated;
 
+            if (user == null)
+                return null;
+
+            if (HttpContext.Current.Request == null)
+                return null;
+
+            bool isAuthed = HttpContext.Current.Request.IsAuthenticated;
             if (isAuthed && user != null)
             {
                 var identity = HttpContext.Current.User.Identity as FormsIdentity;
