@@ -41,11 +41,11 @@ $(document).ready(function () {
                 },
                 columns: [
                     { data: 'VenderCode', title: '<span class="columnHeaderWhite">供應商代碼<br/>ERP Supplier No.<span>', width: '150px' },
-                    { data: 'CName', title: '中文名稱<br/>Chinese Name', width: '350px' },
-                    { data: 'EName', title: '英文名稱<br/>English Name' },
-                    { data: 'TaxNo', title: '統一編號<br/>Tax ID Number', width: '140px' },
+                    { data: 'CName', title: '中文名稱<br/>Chinese Name', width: '240px' },
+                    { data: 'EName', title: '英文名稱<br/>English Name', width: '240px' },
+                    { data: 'TaxNo', title: '統一編號<br/>Tax ID Number', width: '120px' },
                     {
-                        title: '審核關卡<br/>Level', width: '200px',
+                        title: '審核關卡<br/>Level', width: '150px',
                         data: function (row, type, set, meta) {
                             if (row.ApproveStatus == null || row.ApproveStatus.length == 0)
                                 return "";
@@ -53,7 +53,7 @@ $(document).ready(function () {
                                 return row.Level_Text;
                         }
                     },
-                    { data: 'ApproveStatus', title: '審核狀態<br/>Approve Status', width: '200px' },
+                    { data: 'ApproveStatus', title: '審核狀態<br/>Approve Status', width: '150px' },
                     {
                         title: "",
                         width: '100px',
@@ -115,6 +115,3 @@ $(document).ready(function () {
 
     SupplierAjaxDataTable.init(ObjInit);
 });
-
-
-
