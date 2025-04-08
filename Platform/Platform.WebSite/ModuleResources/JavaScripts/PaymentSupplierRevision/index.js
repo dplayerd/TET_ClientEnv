@@ -41,8 +41,8 @@ $(document).ready(function () {
                 },
                 columns: [
                     { data: 'VenderCode', title: '<span class="columnHeaderWhite">供應商代碼<br/>ERP Supplier No.<span>', width: '120px' },
-                    { data: 'CName', title: '中文名稱<br/>Chinese Name', width: '180px' },
-                    { data: 'EName', title: '英文名稱<br/>English Name' },
+                    { data: 'CName', title: '中文名稱<br/>Chinese Name', width: '220px' },
+                    { data: 'EName', title: '英文名稱<br/>English Name', width: '180px' },
                     { data: 'TaxNo', title: '統一編號<br/>Tax ID Number', width: '80px' },
                     //{ data: 'IdNo', title: '身分證字號<br/>ID Number', width: '60px' },
                     { data: 'Version', title: '版本號碼<br/>Version', width: '100px' },
@@ -178,6 +178,3 @@ $(document).ready(function () {
 
     SupplierAjaxDataTable.init(ObjInit);
 });
-
-
-
