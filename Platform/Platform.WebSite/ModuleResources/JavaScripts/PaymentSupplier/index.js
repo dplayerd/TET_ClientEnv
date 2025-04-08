@@ -41,10 +41,10 @@ $(document).ready(function () {
                 },
                 columns: [
                     { data: 'VenderCode', title: '<span class="columnHeaderWhite">供應商代碼<br/>ERP Supplier No.<span>', width: '150px' },
-                    { data: 'CName', title: '中文名稱<br/>Chinese Name', width: '200px' },
-                    { data: 'EName', title: '英文名稱<br/>English Name' },
-                    { data: 'TaxNo', title: '統一編號<br/>Tax ID Number', width: '100px' },
-                    { data: 'IdNo', title: '身分證字號<br/>ID Number', width: '100px' },
+                    { data: 'CName', title: '中文名稱<br/>Chinese Name', width: '250px' },
+                    { data: 'EName', title: '英文名稱<br/>English Name', width: '200px' },
+                    { data: 'TaxNo', title: '統一編號<br/>Tax ID Number', width: '120px' },
+                    { data: 'IdNo', title: '身分證字號<br/>ID Number', width: '120px' },
                     {
                         title: '審核關卡<br/>Level', width: '150px',
                         data: function (row, type, set, meta) {
@@ -116,6 +116,3 @@ $(document).ready(function () {
 
     SupplierAjaxDataTable.init(ObjInit);
 });
-
-
-
