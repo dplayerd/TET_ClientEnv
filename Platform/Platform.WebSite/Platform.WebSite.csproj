@@ -373,6 +373,7 @@
     <Compile Include="Models\SiteViewModel.cs" />
     <Compile Include="Models\UserProfileViewModel.cs" />
     <Compile Include="Models\WebApiDataContainer.cs" />
+    <Compile Include="Models\WebSiteConfig.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Services\MediaFileSampleDataService.cs" />
     <Compile Include="Services\ModuleService.cs" />

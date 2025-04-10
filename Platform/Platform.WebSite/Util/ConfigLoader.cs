@@ -1,4 +1,5 @@
 ﻿using Platform.Infra;
+using Platform.WebSite.Models;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
@@ -47,6 +48,18 @@ namespace Platform.WebSite.Util
             BI.SPA.ModuleConfig.EmailRootUrl = EmailRootUrl;
             BI.PaymentSuppliers.ModuleConfig.EmailRootUrl = EmailRootUrl;
             // --- Email Configs ---
+
+
+            // --- WebSiteConfig ---
+            string loginSource = ReadStringConfig("LoginSource");
+
+            if (string.Compare("Standard", loginSource, true) == 0)
+                WebSiteConfig.LoginType = LoginSource.Standard;
+            else if (string.Compare("AD", loginSource, true) == 0)
+                WebSiteConfig.LoginType = LoginSource.AD;
+            else
+                WebSiteConfig.LoginType = LoginSource.AD;
+            // --- WebSiteConfig ---
         }
 
         private static int ReadIntConfig(string configName)

@@ -11,6 +11,7 @@ using Platform.Auth.Models;
 using Platform.FileSystem;
 using Platform.WebSite.Models;
 using System.Runtime.CompilerServices;
+using Platform.LogService;
 
 namespace Platform.WebSite.Services
 {
@@ -83,38 +84,70 @@ namespace Platform.WebSite.Services
         /// <returns></returns>
         private static UserAccountModel GetIdentityModel()
         {
-            if (HttpContext.Current == null)
-                return null;
-
-            // 設定快取
-            if (HttpContext.Current.Items != null && HttpContext.Current.Items[_currentUserKey] != null)
-                return (UserAccountModel)HttpContext.Current.Items[_currentUserKey];
-
-            if (HttpContext.Current.User == null)
-                return null;
-
-            var user = HttpContext.Current.User;
-
-            if (user == null)
-                return null;
-
-            if (HttpContext.Current.Request == null)
-                return null;
-
-            bool isAuthed = HttpContext.Current.Request.IsAuthenticated;
-            if (isAuthed && user != null)
+            try
             {
-                var identity = HttpContext.Current.User.Identity as FormsIdentity;
-                var usermodel = JsonConvert.DeserializeObject<UserAccountModel>(identity.Ticket.UserData);
+                if (HttpContext.Current == null)
+                    return null;
 
                 // 設定快取
-                HttpContext.Current.Items[_currentUserKey] = usermodel;
-                return usermodel;
+                if (HttpContext.Current.Items != null && HttpContext.Current.Items[_currentUserKey] != null)
+                    return (UserAccountModel)HttpContext.Current.Items[_currentUserKey];
+
+                if (HttpContext.Current.User == null)
+                    return null;
+
+                var user = HttpContext.Current.User;
+
+                if (user == null)
+                    return null;
+
+                if (HttpContext.Current.Request == null)
+                    return null;
+
+                bool isAuthed = HttpContext.Current.Request.IsAuthenticated;
+                if (isAuthed && user != null)
+                {
+                    if (WebSiteConfig.LoginType == LoginSource.Standard)
+                    {
+                        var identity = HttpContext.Current.User.Identity as FormsIdentity;
+                        var usermodel = JsonConvert.DeserializeObject<UserAccountModel>(identity.Ticket.UserData);
+
+                        // 設定快取
+                        HttpContext.Current.Items[_currentUserKey] = usermodel;
+                        return usermodel;
+                    }
+                    else
+                    {
+                        //TET Login
+                        var loginMgr = new LoginManager();
+                        var empId = GetEmpID(HttpContext.Current.User.Identity.Name);
+                        var usermodel = loginMgr.TryLogin(empId, "", out string msg);
+
+                        // 設定快取
+                        HttpContext.Current.Items[_currentUserKey] = usermodel;
+                        return usermodel;
+                    }
+                }
+                else
+                {
+                    return null;
+                }
             }
-            else
+            catch (Exception ex)
             {
-                return null;
+                new Logger().WriteError(ex);
+                return default;
             }
+        }
+
+
+        private static string GetEmpID(string ReqStr)
+        {
+            string[] tempD = { "\\" };
+            string[] s = ReqStr.Split(tempD, StringSplitOptions.RemoveEmptyEntries);
+
+            return s[s.Length - 1];
+            //return "192126";
         }
         #endregion
 
