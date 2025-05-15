@@ -179,7 +179,7 @@ width=1920,height=880,left=0,top=0`;
 
         //-- 調整按鈕是否顯示 --
         if (viewMode == 'Detail') {
-            if (objFormData["IsAllApproved"] && objFormData["Status"]=='進行中')
+            if (objFormData["Status"]=='進行中')
                 $(btnCalculateSelector).prop("disabled", false);
             else
                 $(btnCalculateSelector).prop("disabled", true);
