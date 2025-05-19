@@ -135,6 +135,8 @@ namespace BI.SPA_Evaluation
         {
             // 目前登入者是否具 QSM 身份
             bool isQSM = this._userRoleMgr.IsRole(userID, BI.SPA_Evaluation.Enums.ApprovalRole.QSM.ToID().Value);
+            bool isSS = this._userRoleMgr.IsRole(userID, BI.SPA_Evaluation.Enums.ApprovalRole.SRI_SS.ToID().Value);
+            bool isSS_GL = this._userRoleMgr.IsRole(userID, BI.SPA_Evaluation.Enums.ApprovalRole.SRI_SS_GL.ToID().Value);
 
             var setupList = this._setupMgr.GetList(new List<Guid>(), new List<Guid>(), userID, cDate, new Pager() { AllowPaging = false });
 
@@ -177,8 +179,8 @@ namespace BI.SPA_Evaluation
                     foreach (var item in list)
                     {
                         item.IsQSM = isQSM;
-                        // 若登入者擁有QSM角色，可查詢全部資料。
-                        if (isQSM)
+                        // 若登入者擁有QSM角色、SRI_SS、SRI_SS_GL，可查詢全部資料。
+                        if (isQSM || isSS || isSS_GL)
                             retList.Add(item);
                         else
                         {
