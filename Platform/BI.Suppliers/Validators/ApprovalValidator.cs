@@ -63,7 +63,7 @@ namespace BI.Suppliers.Validators
             new ApprovalValidConfig() { Disabled =  true, Required = false, EditAtLevel = "",          ColumnName = "BankAddress",       ColumnTitle = "銀行地址" },
             new ApprovalValidConfig() { Disabled =  true, Required = false, EditAtLevel = "",          ColumnName = "SwiftCode",         ColumnTitle = "SWIFT CODE " },
             new ApprovalValidConfig() { Disabled =  true, Required = false, EditAtLevel = "",          ColumnName = "CompanyCity",       ColumnTitle = "公司註冊地城市" },
-            new ApprovalValidConfig() { Disabled =  true, Required = false, EditAtLevel = _SRI_SS,     ColumnName = "NDANo",             ColumnTitle = "NDA審查書號碼" },
+            new ApprovalValidConfig() { Disabled =  true, Required = false, EditAtLevel = _SRI_SS,     ColumnName = "NDANo",             ColumnTitle = "保密條款相關合約審查書號碼" },
             new ApprovalValidConfig() { Disabled =  true, Required = false, EditAtLevel = _SRI_SS,     ColumnName = "Contract",          ColumnTitle = "合約(Y/N)" },
             new ApprovalValidConfig() { Disabled =  true, Required = false, EditAtLevel = _SRI_SS,     ColumnName = "KeySupplier",       ColumnTitle = "主要供應商" },
             new ApprovalValidConfig() { Disabled =  true, Required = false, EditAtLevel = _SRI_SS,     ColumnName = "IsSign1",           ColumnTitle = "行為準則承諾書" },

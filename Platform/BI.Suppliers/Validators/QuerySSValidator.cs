@@ -37,7 +37,7 @@ namespace BI.Suppliers.Validators
             new ValidateConfig() { Required =   true, CanEdit = true, Name = "BillingDocument", Title = "請款憑證" },
             new ValidateConfig() { Required =   true, CanEdit = true, Name = "MainProduct",     Title = "主要產品/服務項目" },
             new ValidateConfig() { Required =  false, CanEdit = true, Name = "Remark",          Title = "供應商相關備註" },
-            new ValidateConfig() { Required =  false, CanEdit = true, Name = "NDANo",           Title = "NDA審查書號碼" },
+            new ValidateConfig() { Required =  false, CanEdit = true, Name = "NDANo",           Title = "保密條款相關合約審查書號碼" },
             new ValidateConfig() { Required =  false, CanEdit = true, Name = "Contract",        Title = "合約(Y/N)" },
             new ValidateConfig() { Required =  false, CanEdit = true, Name = "SignDate1",       Title = "行為準則承諾書簽屬日期" },
             new ValidateConfig() { Required =  false, CanEdit = true, Name = "SignDate2",       Title = "承攬商安全衛生環保承諾書簽屬日期" },

@@ -59,7 +59,7 @@ namespace BI.Suppliers.Validators
                 new ValidateConfig() { Required = false, CanEdit =  true, Name = "BankAddress",          Title = "銀行地址" },
                 new ValidateConfig() { Required = false, CanEdit =  true, Name = "SwiftCode",            Title = "SWIFT CODE" },
                 new ValidateConfig() { Required = false, CanEdit =  true, Name = "CompanyCity",          Title = "公司註冊地城市" },
-                new ValidateConfig() { Required = false, CanEdit =  true, Name = "NDANo",                Title = "NDA審查書號碼" },
+                new ValidateConfig() { Required = false, CanEdit =  true, Name = "NDANo",                Title = "保密條款相關合約審查書號碼" },
                 new ValidateConfig() { Required = false, CanEdit =  true, Name = "Contract",             Title = "合約(Y/N)" },
                 new ValidateConfig() { Required = false, CanEdit = false, Name = "KeySupplier",          Title = "主要供應商" },
                 new ValidateConfig() { Required = false, CanEdit = false, Name = "SignDate1",            Title = "行為準則承諾書簽屬日期" },
