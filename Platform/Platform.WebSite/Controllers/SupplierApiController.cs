@@ -507,7 +507,7 @@ namespace Platform.WebSite.Controllers
 
 
             var dbModel = this._mgr.GetTET_Supplier(model.ID.Value);
-            if(dbModel == null)
+            if (dbModel == null)
                 return BadRequest("Supplier is required.");
 
             dbModel.RelatedDept = model.RelatedDept;
@@ -585,7 +585,7 @@ namespace Platform.WebSite.Controllers
                 // 嘗試轉換
                 List<string> msgList = new List<string>();
                 List<TET_SupplierTradeModel> list = ReadTradeExcel(HttpContext.Current.Request.Files[0], out msgList);
-                if(msgList.Any())
+                if (msgList.Any())
                 {
                     return BadRequest(JsonConvert.SerializeObject(msgList));
                 }
@@ -600,7 +600,7 @@ namespace Platform.WebSite.Controllers
         }
 
         [HttpGet]
-        public IHttpActionResult ExportSupplierExcel([FromUri]bool isSS, [FromUri]TempPager inputParameters)
+        public IHttpActionResult ExportSupplierExcel([FromUri] bool isSS, [FromUri] TempPager inputParameters)
         {
             DateTime cTime = DateTime.Now;
 
@@ -632,7 +632,7 @@ namespace Platform.WebSite.Controllers
         private MemoryStream BuildOutputExcel(List<TET_SupplierModel> list, List<TET_SupplierTradeModel> tradeList, List<TET_SupplierSTQAModel> stqaList, List<TET_SupplierContactModel> contactList, bool isSS)
         {
             // 讀取範本 xlsx 檔案
-            var templatePath = 
+            var templatePath =
                 isSS
                     ? HttpContext.Current.Server.MapPath("~/ModuleResources/Other/Supplier/供應商資料匯出範本(採購).xlsx")
                     : HttpContext.Current.Server.MapPath("~/ModuleResources/Other/Supplier/供應商資料匯出範本.xlsx");
@@ -658,7 +658,8 @@ namespace Platform.WebSite.Controllers
             ISheet sheet_1 = workbook.GetSheet("供應商資料");
             // 從第 3 列開始填入資料
             int rowIndex = 1;
-            foreach (var item in list)
+            var supplierlist = list.OrderBy(obj => obj.VenderCode);
+            foreach (var item in supplierlist)
             {
                 // 交易紀錄，如果是採購就可以看到全部紀錄，否則只能看最新年度
                 string tradeText;
@@ -672,109 +673,112 @@ namespace Platform.WebSite.Controllers
                     tradeText = this._tradeManager.GetLastYearOfTrade(item.VenderCode)?.ToString();
                 }
 
-                // STQA 紀錄
-                var supplierStqaList = stqaList.Where(obj => obj.BelongTo == item.BelongTo).ToList();
-                TET_SupplierSTQAModel stqa = supplierStqaList.FirstOrDefault();
-                int stqaIndex = 0;
+                rowIndex += 1;
+                IRow row = sheet_1.CreateRow(rowIndex);
 
-                do
-                {
-                    rowIndex += 1;
-                    IRow row = sheet_1.CreateRow(rowIndex);
+                row.CreateCell(00).SetStyle(normalStyle).SetCellValue(item.RegisterDate);                             // 登錄日期
+                row.CreateCell(01).SetStyle(normalStyle).SetCellValue(item.IsActive);                                 // 是否啟用
+                row.CreateCell(02).SetStyle(normalStyle).SetCellValue(item.VenderCode);                               // 供應商代碼
+                row.CreateCell(03).SetStyle(normalStyle).SetCellValue(item.BelongTo);                                 // 歸屬公司名稱
+                row.CreateCell(04).SetStyle(normalStyle).SetCellValue(string.Join(",", item.SupplierCategoryFullNameList));       // 廠商類別
+                row.CreateCell(05).SetStyle(normalStyle).SetCellValue(string.Join(",", item.BusinessCategoryFullNameList));       // 交易主類別
+                row.CreateCell(06).SetStyle(normalStyle).SetCellValue(string.Join(",", item.BusinessAttributeFullNameList));      // 交易子類別
+                row.CreateCell(07).SetStyle(normalStyle).SetCellValue(string.Join(",", item.RelatedDeptFullNameList));            // 相關BU
+                row.CreateCell(09).SetStyle(normalStyle).SetCellValue(item.CName);                                    // 供應商中文名稱
+                row.CreateCell(10).SetStyle(normalStyle).SetCellValue(item.EName);                                    // 供應商英文名稱
+                row.CreateCell(11).SetStyle(normalStyle).SetCellValue(string.Join(",", item.CountryFullNameList));          // 國家別
+                row.CreateCell(12).SetStyle(normalStyle).SetCellValue(item.TaxNo);                                    // 統一編號
+                row.CreateCell(13).SetStyle(normalStyle).SetCellValue(item.Address);                                  // 供應商地址
+                row.CreateCell(14).SetStyle(normalStyle).SetCellValue(item.OfficeTel);                                // 供應商電話
+                row.CreateCell(15).SetStyle(normalStyle).SetCellValue(item.Email);                                    // 供應商Email
+                row.CreateCell(16).SetStyle(normalStyle).SetCellValue(item.Website);                                  // 供應商網站
+                row.CreateCell(17).SetStyle(normalStyle).SetCellValue(item.ISO);                                      // ISO認證
+                row.CreateCell(18).SetStyle(normalStyle).SetCellValue(item.CapitalAmount);                            // 資本額
+                row.CreateCell(19).SetStyle(normalStyle).SetCellValue(item.Charge);                                   // 公司負責人
+                row.CreateCell(20).SetStyle(normalStyle).SetCellValue(item.Employees);                                // 員工人數
+                row.CreateCell(21).SetStyle(normalStyle).SetCellValue(string.Join(",", item.PaymentTermFullNameList));      // 付款條件
+                row.CreateCell(22).SetStyle(normalStyle).SetCellValue(string.Join(",", item.IncotermsFullNameList));      // 交易條件
+                row.CreateCell(23).SetStyle(normalStyle).SetCellValue(string.Join(",", item.BillingDocumentFullNameList));      // 請款憑證
+                row.CreateCell(24).SetStyle(wrapStyle).SetCellValue(item.MainProduct);                                // 主要產品/服務項目
+                row.CreateCell(25).SetStyle(wrapStyle).SetCellValue(item.Remark);                                     // 供應商相關備註
+                row.CreateCell(26).SetStyle(normalStyle).SetCellValue(item.BankName);                                 // 銀行名稱
+                row.CreateCell(27).SetStyle(normalStyle).SetCellValue(item.BankCode);                                 // 銀行代碼
+                row.CreateCell(28).SetStyle(normalStyle).SetCellValue(item.BankBranchName);                           // 分行名稱
+                row.CreateCell(29).SetStyle(normalStyle).SetCellValue(item.BankBranchCode);                           // 分行代碼
+                row.CreateCell(30).SetStyle(normalStyle).SetCellValue(item.BankAccountNo);                            // 匯款帳號
+                row.CreateCell(31).SetStyle(normalStyle).SetCellValue(item.BankAccountName);                          // 帳戶名稱
+                row.CreateCell(32).SetStyle(normalStyle).SetCellValue(string.Join(",", item.CurrencyFullNameList));   // 匯款幣別
+                row.CreateCell(33).SetStyle(normalStyle).SetCellValue(string.Join(",", item.BankCountryFullNameList));          // 銀行國別
+                row.CreateCell(34).SetStyle(normalStyle).SetCellValue(item.BankAddress);                              // 銀行地址
+                row.CreateCell(35).SetStyle(normalStyle).SetCellValue(item.SwiftCode);                                // SWIFT CODE
+                row.CreateCell(36).SetStyle(normalStyle).SetCellValue(item.CompanyCity);                              // 公司註冊地城市
+                row.CreateCell(37).SetStyle(normalStyle).SetCellValue(item.NDANo);                                    // NDA號碼
+                row.CreateCell(38).SetStyle(normalStyle).SetCellValue(item.Contract);                                 // 合約(Y/N)
+                row.CreateCell(39).SetStyle(normalStyle).SetCellValue(item.SignDate1?.ToString("yyyy-MM-dd"));        // 行為準則承諾書簽屬日期
+                row.CreateCell(40).SetStyle(normalStyle).SetCellValue(item.SignDate2?.ToString("yyyy-MM-dd"));        // 承攬商安全衛生環保承諾書簽屬日期
+                row.CreateCell(41).SetStyle(normalStyle).SetCellValue(string.Join(",", item.KeySupplierFullNameList));          // 供應商狀態
+                row.CreateCell(42).SetStyle(normalStyle).SetCellValue(item.IsSTQA);                                   // STQA 認證
 
-                    row.CreateCell(00).SetStyle(normalStyle).SetCellValue(item.RegisterDate);                             // 登錄日期
-                    row.CreateCell(01).SetStyle(normalStyle).SetCellValue(item.IsActive);                                 // 是否啟用
-                    row.CreateCell(02).SetStyle(normalStyle).SetCellValue(item.VenderCode);                               // 供應商代碼
-                    row.CreateCell(03).SetStyle(normalStyle).SetCellValue(item.BelongTo);                                 // 歸屬公司名稱
-                    row.CreateCell(04).SetStyle(normalStyle).SetCellValue(string.Join(",", item.SupplierCategoryFullNameList));       // 廠商類別
-                    row.CreateCell(05).SetStyle(normalStyle).SetCellValue(string.Join(",", item.BusinessCategoryFullNameList));       // 交易主類別
-                    row.CreateCell(06).SetStyle(normalStyle).SetCellValue(string.Join(",", item.BusinessAttributeFullNameList));      // 交易子類別
-                    row.CreateCell(07).SetStyle(normalStyle).SetCellValue(string.Join(",", item.RelatedDeptFullNameList));            // 相關BU
-                    row.CreateCell(09).SetStyle(normalStyle).SetCellValue(item.CName);                                    // 供應商中文名稱
-                    row.CreateCell(10).SetStyle(normalStyle).SetCellValue(item.EName);                                    // 供應商英文名稱
-                    row.CreateCell(11).SetStyle(normalStyle).SetCellValue(string.Join(",", item.CountryFullNameList));          // 國家別
-                    row.CreateCell(12).SetStyle(normalStyle).SetCellValue(item.TaxNo);                                    // 統一編號
-                    row.CreateCell(13).SetStyle(normalStyle).SetCellValue(item.Address);                                  // 供應商地址
-                    row.CreateCell(14).SetStyle(normalStyle).SetCellValue(item.OfficeTel);                                // 供應商電話
-                    row.CreateCell(15).SetStyle(normalStyle).SetCellValue(item.Email);                                    // 供應商Email
-                    row.CreateCell(16).SetStyle(normalStyle).SetCellValue(item.Website);                                  // 供應商網站
-                    row.CreateCell(17).SetStyle(normalStyle).SetCellValue(item.ISO);                                      // ISO認證
-                    row.CreateCell(18).SetStyle(normalStyle).SetCellValue(item.CapitalAmount);                            // 資本額
-                    row.CreateCell(19).SetStyle(normalStyle).SetCellValue(item.Charge);                                   // 公司負責人
-                    row.CreateCell(20).SetStyle(normalStyle).SetCellValue(item.Employees);                                // 員工人數
-                    row.CreateCell(21).SetStyle(normalStyle).SetCellValue(string.Join(",", item.PaymentTermFullNameList));      // 付款條件
-                    row.CreateCell(22).SetStyle(normalStyle).SetCellValue(string.Join(",", item.IncotermsFullNameList));      // 交易條件
-                    row.CreateCell(23).SetStyle(normalStyle).SetCellValue(string.Join(",", item.BillingDocumentFullNameList));      // 請款憑證
-                    row.CreateCell(24).SetStyle(wrapStyle).SetCellValue(item.MainProduct);                                // 主要產品/服務項目
-                    row.CreateCell(25).SetStyle(wrapStyle).SetCellValue(item.Remark);                                     // 供應商相關備註
-                    row.CreateCell(26).SetStyle(normalStyle).SetCellValue(item.BankName);                                 // 銀行名稱
-                    row.CreateCell(27).SetStyle(normalStyle).SetCellValue(item.BankCode);                                 // 銀行代碼
-                    row.CreateCell(28).SetStyle(normalStyle).SetCellValue(item.BankBranchName);                           // 分行名稱
-                    row.CreateCell(29).SetStyle(normalStyle).SetCellValue(item.BankBranchCode);                           // 分行代碼
-                    row.CreateCell(30).SetStyle(normalStyle).SetCellValue(item.BankAccountNo);                            // 匯款帳號
-                    row.CreateCell(31).SetStyle(normalStyle).SetCellValue(item.BankAccountName);                          // 帳戶名稱
-                    row.CreateCell(32).SetStyle(normalStyle).SetCellValue(string.Join(",", item.CurrencyFullNameList));   // 匯款幣別
-                    row.CreateCell(33).SetStyle(normalStyle).SetCellValue(string.Join(",", item.BankCountryFullNameList));          // 銀行國別
-                    row.CreateCell(34).SetStyle(normalStyle).SetCellValue(item.BankAddress);                              // 銀行地址
-                    row.CreateCell(35).SetStyle(normalStyle).SetCellValue(item.SwiftCode);                                // SWIFT CODE
-                    row.CreateCell(36).SetStyle(normalStyle).SetCellValue(item.CompanyCity);                              // 公司註冊地城市
-                    row.CreateCell(37).SetStyle(normalStyle).SetCellValue(item.NDANo);                                    // NDA號碼
-                    row.CreateCell(38).SetStyle(normalStyle).SetCellValue(item.Contract);                                 // 合約(Y/N)
-                    row.CreateCell(39).SetStyle(normalStyle).SetCellValue(item.SignDate1?.ToString("yyyy-MM-dd"));        // 行為準則承諾書簽屬日期
-                    row.CreateCell(40).SetStyle(normalStyle).SetCellValue(item.SignDate2?.ToString("yyyy-MM-dd"));        // 承攬商安全衛生環保承諾書簽屬日期
-                    row.CreateCell(41).SetStyle(normalStyle).SetCellValue(string.Join(",", item.KeySupplierFullNameList));          // 供應商狀態
-                    row.CreateCell(42).SetStyle(normalStyle).SetCellValue(item.IsSTQA);                                   // STQA 認證
+                string buyerText = string.Join(", ", item.BuyerFullNameList);
+                row.CreateCell(08).SetStyle(normalStyle).SetCellValue(buyerText);                                     // 採購擔當
 
-
-
-                    string buyerText = string.Join(", ", item.BuyerFullNameList);
-                    row.CreateCell(08).SetStyle(normalStyle).SetCellValue(buyerText);                                     // 採購擔當
-
-
-                    row.CreateCell(50).SetStyle(wrapStyle).SetCellValue(tradeText);                                       // 交易資訊
-                    
-                    if (stqa != null)
-                    {
-                        row.CreateCell(43).SetStyle(normalStyle).SetCellValue(stqa.Purpose);                              // STQA 理由
-                        row.CreateCell(44).SetStyle(normalStyle).SetCellValue(stqa.BusinessTerm);                         // Purpose 業務類別
-                        row.CreateCell(45).SetStyle(normalStyle).SetCellValue(stqa.Type);                                 // STQA 方式
-                        row.CreateCell(46).SetStyle(normalStyle).SetCellValue(stqa.Date?.ToString("yyyy-MM-dd"));         // 完成日期
-                        row.CreateCell(47).SetStyle(normalStyle).SetCellValue(stqa.UnitALevel);                           // Unit - A Level
-                        row.CreateCell(48).SetStyle(normalStyle).SetCellValue(stqa.UnitCLevel);                           // Unit - C Level
-                        row.CreateCell(49).SetStyle(normalStyle).SetCellValue(stqa.UnitDLevel);                           // Unit - D Level
-
-                        stqaIndex += 1;
-                    }
-                    stqa = supplierStqaList.ElementAtOrDefault(stqaIndex);
-                }
-                while (stqa != null);
+                row.CreateCell(43).SetStyle(wrapStyle).SetCellValue(tradeText);                                       // 交易資訊
             }
 
 
             // 取得工作表
             ISheet sheet_2 = workbook.GetSheet("供應商聯絡人");
-            // 從第 3 列開始填入資料
+            // 從第 2 列開始填入資料
             rowIndex = 0;
-            foreach (var item in contactList)
+            foreach (var item in supplierlist)
             {
-                rowIndex += 1;
-                IRow row = sheet_2.CreateRow(rowIndex);
+                var cotactlist = contactList.Where(obj => obj.SupplierID == item.ID).ToList();
 
-                var supplier = list.Where(obj => obj.ID == item.SupplierID).FirstOrDefault();
+                foreach (var item1 in cotactlist)
+                {
+                    rowIndex += 1;
+                    IRow row = sheet_2.CreateRow(rowIndex);
 
-                row.CreateCell(0).SetStyle(normalStyle).SetCellValue(supplier.VenderCode);    // 供應商代碼 
-                row.CreateCell(1).SetStyle(normalStyle).SetCellValue(supplier.CName);         // 供應商中文名稱
-                row.CreateCell(2).SetStyle(normalStyle).SetCellValue(item.ContactName);       // 姓名
-                row.CreateCell(3).SetStyle(normalStyle).SetCellValue(item.ContactTitle);      // 職稱
-                row.CreateCell(4).SetStyle(normalStyle).SetCellValue(item.ContactTel);        // 電話
-                row.CreateCell(5).SetStyle(normalStyle).SetCellValue(item.ContactEmail);      // Email
-                row.CreateCell(6).SetStyle(wrapStyle).SetCellValue(item.ContactRemark);       // 備註（產品／區域）
+                    row.CreateCell(0).SetStyle(normalStyle).SetCellValue(item.VenderCode);    // 供應商代碼 
+                    row.CreateCell(1).SetStyle(normalStyle).SetCellValue(item.CName);         // 供應商中文名稱
+                    row.CreateCell(2).SetStyle(normalStyle).SetCellValue(item1.ContactName);       // 姓名
+                    row.CreateCell(3).SetStyle(normalStyle).SetCellValue(item1.ContactTitle);      // 職稱
+                    row.CreateCell(4).SetStyle(normalStyle).SetCellValue(item1.ContactTel);        // 電話
+                    row.CreateCell(5).SetStyle(normalStyle).SetCellValue(item1.ContactEmail);      // Email
+                    row.CreateCell(6).SetStyle(wrapStyle).SetCellValue(item1.ContactRemark);       // 備註（產品／區域）
+                }
+            }
+
+            // 取得工作表
+            ISheet sheet_3 = workbook.GetSheet("供應商STQA資訊");
+
+            // 從第 2 列開始填入資料
+            rowIndex = 0;
+            foreach (var item in supplierlist)
+            {
+                var stqalist = stqaList.Where(obj => obj.BelongTo == item.BelongTo).ToList();
+
+                foreach (var item2 in stqalist)
+                {
+                    rowIndex += 1;
+                    IRow row = sheet_3.CreateRow(rowIndex);
+
+                    row.CreateCell(0).SetStyle(normalStyle).SetCellValue(item.VenderCode);    // 供應商代碼 
+                    row.CreateCell(1).SetStyle(normalStyle).SetCellValue(item.CName);         // 供應商中文名稱
+                    row.CreateCell(2).SetStyle(normalStyle).SetCellValue(item2.Purpose);                              // STQA 理由
+                    row.CreateCell(3).SetStyle(normalStyle).SetCellValue(item2.BusinessTerm);                         // Purpose 業務類別
+                    row.CreateCell(4).SetStyle(normalStyle).SetCellValue(item2.Type);                                 // STQA 方式
+                    row.CreateCell(5).SetStyle(normalStyle).SetCellValue(item2.Date?.ToString("yyyy-MM-dd"));         // 完成日期
+                    row.CreateCell(6).SetStyle(normalStyle).SetCellValue(item2.UnitALevel);                           // Unit - A Level
+                    row.CreateCell(7).SetStyle(normalStyle).SetCellValue(item2.UnitCLevel);                           // Unit - C Level
+                    row.CreateCell(8).SetStyle(normalStyle).SetCellValue(item2.UnitDLevel);                           // Unit - D Level
+                }
             }
 
             // 儲存新的 Excel 檔案
             var msOutput = new MemoryStream();
             workbook.Write(msOutput);
-            
+
             var msNewOutput = new MemoryStream(msOutput.ToArray());
             return msNewOutput;
         }
