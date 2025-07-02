@@ -498,8 +498,8 @@ namespace Platform.WebSite.Controllers
 
                 row.CreateCell(00).SetStyle(normalStyle).SetCellValue(periodText);
                 row.CreateCell(01).SetStyle(normalStyle).SetCellValue(item.BU);
-                row.CreateCell(03).SetStyle(normalStyle).SetCellValue(item.ServiceItem);
-                row.CreateCell(02).SetStyle(normalStyle).SetCellValue(item.ServiceFor);
+                row.CreateCell(02).SetStyle(normalStyle).SetCellValue(item.ServiceItem);
+                row.CreateCell(03).SetStyle(normalStyle).SetCellValue(item.ServiceFor);
                 row.CreateCell(04).SetStyle(normalStyle).SetCellValue(item.BelongTo);
 
                 row.CreateCell(05).SetStyle(normalStyle).SetCellValue(item.POSource);
