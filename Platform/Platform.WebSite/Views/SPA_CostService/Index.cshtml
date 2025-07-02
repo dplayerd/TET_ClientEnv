@@ -125,5 +125,13 @@
             var exportExcelApiUrl = '@exportExcelApiUrl';
             var hasSamePeriodApiUrl = platformEnvironment.hostUrl + "@hasSamePeriodApiUrl";
         </script>
+
+        <script>
+            $(document).ready(function () {
+                $("#inpApproveStatus").select2({
+                    allowClear: true
+                });
+            });
+        </script>
     </text>
 , "customScripts")

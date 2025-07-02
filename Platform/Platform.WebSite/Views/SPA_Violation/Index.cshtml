@@ -116,6 +116,14 @@
             var hasSamePeriodApiUrl = platformEnvironment.hostUrl + "@hasSamePeriodApiUrl";
             var canApproveApiUrl = platformEnvironment.hostUrl + "@canApproveApiUrl";
         </script>
+
+        <script>
+            $(document).ready(function () {
+                $("#inpApproveStatus").select2({
+                    allowClear: true
+                });
+            });
+        </script>
     </text>
 , "customScripts")
 
