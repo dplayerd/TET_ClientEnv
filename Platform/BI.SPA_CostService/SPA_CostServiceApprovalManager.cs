@@ -733,6 +733,7 @@ namespace BI.SPA_CostService
         {
             var qsmList = this._roleMgr.GetUserListInRole(ApprovalRole.QSM.ToID().Value);
             var qsmMailList = qsmList.Select(obj => obj.EMail).ToList();
+            var datePeriod = PeriodUtil.ParsePeriod(main.Period);
             var pageUrl = $"{ModuleConfig.EmailRootUrl}/SPA_ScoringInfo/Index";
 
             var createTime = approvalModel.CreateDate.ToString("yyyy-MM-dd HH:mm:ss");
@@ -748,7 +749,9 @@ namespace BI.SPA_CostService
                     $@"
                     您好,
                     <br/>
-                    請點擊「<a href=""{pageUrl}"" target=""_blank"">供應商SPA評鑑計分資料維護</a>」填寫計分資料，謝謝待審清單，謝謝 <br/>
+                    評鑑範圍：{main.Period} ({datePeriod.StartDate?.ToString("yyyy-MM-dd")} ~ {datePeriod.EndDate?.ToString("yyyy-MM-dd")})期間供應商所提供之服務表現。<br/>
+                    <br/>
+                    填寫資料請點擊「<a href=""{pageUrl}"" target=""_blank"">供應商SPA評鑑計分資料維護</a>」連結，謝謝。
                     "
                 };
 
