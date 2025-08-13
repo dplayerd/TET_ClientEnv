@@ -148,8 +148,8 @@ namespace BI.Suppliers
                     else
                         dbModel.SwiftCode = null;
 
-                    dbModel.NDANo = model.NDANo;
-                    dbModel.Contract = model.Contract;
+                    //dbModel.NDANo = model.NDANo;
+                    //dbModel.Contract = model.Contract;
                     dbModel.ModifyUser = userID;
                     dbModel.ModifyDate = cDate;
 

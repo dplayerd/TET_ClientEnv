@@ -65,7 +65,7 @@ namespace BI.Suppliers.Validators
             new ValidConfig() { RequiredOnCreate = false, RequiredOnModify = false, ShowOnCreate =  true, ShowOnModify =  true, ColumnName = "CompanyCity",     ColumnTitle = "公司註冊地城市" },
             new ValidConfig() { RequiredOnCreate = false, RequiredOnModify = false, ShowOnCreate =  true, ShowOnModify =  true, ColumnName = "BankAddress",     ColumnTitle = "銀行地址" },
             new ValidConfig() { RequiredOnCreate = false, RequiredOnModify = false, ShowOnCreate =  true, ShowOnModify =  true, ColumnName = "SwiftCode",       ColumnTitle = "SWIFT CODE" },
-            new ValidConfig() { RequiredOnCreate = false, RequiredOnModify = false, ShowOnCreate =  true, ShowOnModify =  true, ColumnName = "NDANo",           ColumnTitle = "NDA號碼" },
+            new ValidConfig() { RequiredOnCreate = false, RequiredOnModify = false, ShowOnCreate =  true, ShowOnModify =  true, ColumnName = "NDANo",           ColumnTitle = "保密條款相關合約審查書號碼" },
         };
 
         /// <summary> 取得全部設定 </summary>
