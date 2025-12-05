@@ -144,7 +144,7 @@ namespace Platform.WebSite.Controllers
             if (!validResult)
                 msgList.AddRange(tempMsgList);
             var validFileResult = PaymentSupplierAttachmentValidator.Valid(model.AttachmentList, model.UploadFiles, out tempMsgList);
-            if (!validResult)
+            if (!validFileResult)
                 msgList.AddRange(tempMsgList);
 
             if (!validResult || !validFileResult)
@@ -200,7 +200,7 @@ namespace Platform.WebSite.Controllers
             if (!validResult)
                 msgList.AddRange(tempMsgList);
             var validFileResult = PaymentSupplierAttachmentValidator.Valid(model.AttachmentList, model.UploadFiles, out tempMsgList);
-            if (!validResult)
+            if (!validFileResult)
                 msgList.AddRange(tempMsgList);
 
             if (!validResult || !validFileResult)
