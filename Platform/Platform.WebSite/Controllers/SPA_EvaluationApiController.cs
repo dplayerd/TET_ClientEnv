@@ -119,7 +119,7 @@ namespace Platform.WebSite.Controllers
             var response = Request.CreateResponse(HttpStatusCode.OK);
             response.Content = new StreamContent(newMsOutput);
             response.Content.Headers.ContentDisposition = new System.Net.Http.Headers.ContentDispositionHeaderValue("attachment");
-            response.Content.Headers.ContentDisposition.FileName = "供應商SPA評鑑資料匯出範本.xlsx";
+            response.Content.Headers.ContentDisposition.FileName = "供應商SPA評鑑資料匯出.xlsx";
             response.Content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/octet-stream");
 
             return ResponseMessage(response);
@@ -168,24 +168,24 @@ namespace Platform.WebSite.Controllers
 
                 row.CreateCell(05).SetStyle(normalStyle).SetCellValue(item.PerformanceLevel);   // Perfornamce Level
                 row.CreateCell(06).SetStyle(normalStyle).SetCellValue(item.TotalScore);         // Total Score
-                row.CreateCell(07).SetStyle(normalStyle).SetCellValue(item.TScore);             // T Score
-                row.CreateCell(08).SetStyle(normalStyle).SetCellValue(item.DScore);             // D Score
-                row.CreateCell(09).SetStyle(normalStyle).SetCellValue(item.QScore);             // Q Score
-                row.CreateCell(10).SetStyle(normalStyle).SetCellValue(item.CScore);             // C Score
-                row.CreateCell(11).SetStyle(normalStyle).SetCellValue(item.SScore);             // S Score
+                row.CreateCell(07).SetStyle(normalStyle).SetCellValue((item.TScore != "NA") ? item.TScore : "");             // T Score
+                row.CreateCell(08).SetStyle(normalStyle).SetCellValue((item.DScore != "NA") ? item.TScore : "");             // D Score
+                row.CreateCell(09).SetStyle(normalStyle).SetCellValue((item.QScore != "NA") ? item.TScore : "");             // Q Score
+                row.CreateCell(10).SetStyle(normalStyle).SetCellValue((item.CScore != "NA") ? item.TScore : "");             // C Score
+                row.CreateCell(11).SetStyle(normalStyle).SetCellValue((item.SScore != "NA") ? item.TScore : "");             // S Score
 
                 row.CreateCell(12).SetStyle(normalStyle).SetCellValue(item.ServiceItem);        // 評鑑項目
 
-                row.CreateCell(13).SetStyle(normalStyle).SetCellValue(item.TScore1);             // T Score1
-                row.CreateCell(14).SetStyle(normalStyle).SetCellValue(item.TScore2);             // T Score2
-                row.CreateCell(15).SetStyle(normalStyle).SetCellValue(item.DScore1);             // D Score1
-                row.CreateCell(16).SetStyle(normalStyle).SetCellValue(item.DScore2);             // D Score2
-                row.CreateCell(17).SetStyle(normalStyle).SetCellValue(item.QScore1);             // Q Score1
-                row.CreateCell(18).SetStyle(normalStyle).SetCellValue(item.QScore2);             // Q Score2
-                row.CreateCell(19).SetStyle(normalStyle).SetCellValue(item.CScore1);             // C Score1
-                row.CreateCell(20).SetStyle(normalStyle).SetCellValue(item.CScore2);             // C Score2
-                row.CreateCell(21).SetStyle(normalStyle).SetCellValue(item.SScore1);             // S Score1
-                row.CreateCell(22).SetStyle(normalStyle).SetCellValue(item.SScore2);             // S Score2
+                row.CreateCell(13).SetStyle(normalStyle).SetCellValue((item.TScore1 != "NA") ? item.TScore : "");             // T Score1
+                row.CreateCell(14).SetStyle(normalStyle).SetCellValue((item.TScore2 != "NA") ? item.TScore : "");             // T Score2
+                row.CreateCell(15).SetStyle(normalStyle).SetCellValue((item.DScore1 != "NA") ? item.TScore : "");             // D Score1
+                row.CreateCell(16).SetStyle(normalStyle).SetCellValue((item.DScore2 != "NA") ? item.TScore : "");             // D Score2
+                row.CreateCell(17).SetStyle(normalStyle).SetCellValue((item.QScore1 != "NA") ? item.TScore : "");             // Q Score1
+                row.CreateCell(18).SetStyle(normalStyle).SetCellValue((item.QScore2 != "NA") ? item.TScore : "");             // Q Score2
+                row.CreateCell(19).SetStyle(normalStyle).SetCellValue((item.CScore1 != "NA") ? item.TScore : "");             // C Score1
+                row.CreateCell(20).SetStyle(normalStyle).SetCellValue((item.CScore2 != "NA") ? item.TScore : "");             // C Score2
+                row.CreateCell(21).SetStyle(normalStyle).SetCellValue((item.SScore1 != "NA") ? item.TScore : "");             // S Score1
+                row.CreateCell(22).SetStyle(normalStyle).SetCellValue((item.SScore2 != "NA") ? item.TScore : "");             // S Score2
             }                                                                    
 
             // 儲存新的 Excel 檔案

@@ -27,6 +27,7 @@ namespace BI.SPA_Evaluation
         private const string _fixText_DSS_non_startup = "Non-startup(DSS)";
         private const string _fixText_DSS_startup = "Startup(DSS)";
         private const string _fixText_Modification = "Modification";
+        private const string _fixText_Local = "Local";
         const string _fixText_CT = "CT";
         private const string _fixText_EmpStatus1 = "在職";
         private const string _fixText_EmpStatus2 = "離職";
@@ -416,34 +417,38 @@ namespace BI.SPA_Evaluation
             //  ([TET_SPA_ScoringInfoModule2].[OnTime]=Yes / [TET_SPA_ScoringInfoModule2].[OnTime]=Yes or No)
             if (IsTextInArray(model.ServiceItem, new string[] { _fixText_Startup, _fixText_DSS_startup, _fixText_DSS_non_startup, _fixText_Modification }))
             {
-                // 除數
-                var divisorList = model.Module2List.Where(obj => IsTextInArray(obj.OnTime, new string[] { _fixText_Yes, _fixText_No }));
-
-                // 被除數
-                var dividendList = model.Module2List.Where(obj => IsTextInArray(obj.OnTime, new string[] { _fixText_Yes }));
-
-                if (divisorList.Any())
+                // POSource=Local
+                if (model.POSource == _fixText_Local)
                 {
-                    rVal = (decimal)dividendList.Count() / (decimal)divisorList.Count();
+                    // 除數
+                    var divisorList = model.Module2List.Where(obj => IsTextInArray(obj.OnTime, new string[] { _fixText_Yes, _fixText_No }));
 
-                    //  R = 1: 4分
-                    //  0.9 ≦ R < 1: 3分
-                    //  0.7 ≦ R < 0.9: 2分
-                    //  0.5 ≦ R < 0.7: 1分
-                    //  R < 0.5: 0分
-                    if (rVal == 1M)
-                        result = 4;
-                    else if (rVal >= 0.9M && rVal < 1M)
-                        result = 3;
-                    else if (rVal >= 0.7M && rVal < 0.9M)
-                        result = 2;
-                    else if (rVal >= 0.5M && rVal < 0.7M)
-                        result = 1;
-                    else if (rVal <= 0.5M)
+                    // 被除數
+                    var dividendList = model.Module2List.Where(obj => IsTextInArray(obj.OnTime, new string[] { _fixText_Yes }));
+
+                    if (divisorList.Any())
+                    {
+                        rVal = (decimal)dividendList.Count() / (decimal)divisorList.Count();
+
+                        //  R = 1: 4分
+                        //  0.9 ≦ R < 1: 3分
+                        //  0.7 ≦ R < 0.9: 2分
+                        //  0.5 ≦ R < 0.7: 1分
+                        //  R < 0.5: 0分
+                        if (rVal == 1M)
+                            result = 4;
+                        else if (rVal >= 0.9M && rVal < 1M)
+                            result = 3;
+                        else if (rVal >= 0.7M && rVal < 0.9M)
+                            result = 2;
+                        else if (rVal >= 0.5M && rVal < 0.7M)
+                            result = 1;
+                        else if (rVal <= 0.5M)
+                            result = 0;
+                    }
+                    else
                         result = 0;
                 }
-                else
-                    result = 0;
             }
             else if (IsTextInArray(model.ServiceItem, new string[] { _fixText_Safety }))
             {
