@@ -430,10 +430,82 @@ namespace Platform.WebSite.Controllers
             if (string.IsNullOrWhiteSpace(cUser.ID))
                 throw new UnauthorizedAccessException();
 
-            // Active
+            var inp = HttpContext.Current.Request.Form["Main"];
+            TET_SupplierModel model;
+
+            // 嘗試做反序列化，如果錯誤的話丟 Bad Request
             try
             {
-                this._mgr.ActiveTET_Supplier(id, cUser.ID, cTime);
+                model = JsonConvert.DeserializeObject<TET_SupplierModel>(inp);
+                if (model == null)
+                    return BadRequest("Supplier is required.");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest("Supplier is required.");
+            }
+
+            // 取得本次上傳的附件
+            if (HttpContext.Current.Request.Files.AllKeys.Any())
+            {
+                foreach (var key in HttpContext.Current.Request.Files.AllKeys)
+                {
+                    var httpPostedFile = HttpContext.Current.Request.Files[key];
+                    var fileContent = UploadUtil.ConvertToFileContent(httpPostedFile);
+
+                    model.UploadFiles.Add(fileContent);
+                }
+            }
+
+            var dbModel = this._mgr.GetTET_Supplier(model.ID.Value);
+            if (dbModel == null)
+                return BadRequest("Supplier is required.");
+            model.IsActive = "Active";
+            dbModel.RelatedDept = model.RelatedDept;
+            dbModel.BelongTo = model.BelongTo;
+            dbModel.SupplierCategory = model.SupplierCategory;
+            dbModel.BusinessCategory = model.BusinessCategory;
+            dbModel.BusinessAttribute = model.BusinessAttribute;
+            dbModel.Buyer = model.Buyer;
+            dbModel.EName = model.EName;
+            dbModel.PaymentTerm = model.PaymentTerm;
+            dbModel.NDANo = model.NDANo;
+            dbModel.Contract = model.Contract;
+            dbModel.Buyer = model.Buyer;
+            dbModel.SearchKey = model.SearchKey;
+            dbModel.Country = model.Country;
+            dbModel.Address = model.Address;
+            dbModel.OfficeTel = model.OfficeTel;
+            dbModel.Email = model.Email;
+            dbModel.Website = model.Website;
+            dbModel.ISO = model.ISO;
+            dbModel.CapitalAmount = model.CapitalAmount;
+            dbModel.Employees = model.Employees;
+            dbModel.Incoterms = model.Incoterms;
+            dbModel.BillingDocument = model.BillingDocument;
+            dbModel.MainProduct = model.MainProduct;
+            dbModel.Remark = model.Remark;
+            dbModel.SignDate1 = model.SignDate1;
+            dbModel.SignDate2 = model.SignDate2;
+            dbModel.KeySupplier = model.KeySupplier;
+            dbModel.IsActive = model.IsActive;
+
+            dbModel.AttachmentList = model.AttachmentList;
+            dbModel.UploadFiles = model.UploadFiles;
+            dbModel.ContactList = model.ContactList;
+
+            // 驗證正確性
+            List<string> msgList, msgList2;
+            var validResult = SupplierValidator.ValidModify(dbModel, out msgList);
+            var validFileResult = SupplierAttachmentValidator.Valid(model.AttachmentList, model.UploadFiles, out msgList2);
+
+            if (!validResult || !validFileResult)
+                return BadRequest(JsonConvert.SerializeObject(msgList.Union(msgList2)));
+
+            // 修改
+            try
+            {
+                this._mgr.ModifyTET_Supplier_QuerySS(model, cUser.ID, cTime);
             }
             catch (Exception ex)
             {
@@ -453,10 +525,82 @@ namespace Platform.WebSite.Controllers
             if (string.IsNullOrWhiteSpace(cUser.ID))
                 throw new UnauthorizedAccessException();
 
-            // Active
+            var inp = HttpContext.Current.Request.Form["Main"];
+            TET_SupplierModel model;
+
+            // 嘗試做反序列化，如果錯誤的話丟 Bad Request
             try
             {
-                this._mgr.InactiveTET_Supplier(id, cUser.ID, cTime);
+                model = JsonConvert.DeserializeObject<TET_SupplierModel>(inp);
+                if (model == null)
+                    return BadRequest("Supplier is required.");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest("Supplier is required.");
+            }
+
+            // 取得本次上傳的附件
+            if (HttpContext.Current.Request.Files.AllKeys.Any())
+            {
+                foreach (var key in HttpContext.Current.Request.Files.AllKeys)
+                {
+                    var httpPostedFile = HttpContext.Current.Request.Files[key];
+                    var fileContent = UploadUtil.ConvertToFileContent(httpPostedFile);
+
+                    model.UploadFiles.Add(fileContent);
+                }
+            }
+
+            var dbModel = this._mgr.GetTET_Supplier(model.ID.Value);
+            if (dbModel == null)
+                return BadRequest("Supplier is required.");
+            model.IsActive = "Inactive";
+            dbModel.RelatedDept = model.RelatedDept;
+            dbModel.BelongTo = model.BelongTo;
+            dbModel.SupplierCategory = model.SupplierCategory;
+            dbModel.BusinessCategory = model.BusinessCategory;
+            dbModel.BusinessAttribute = model.BusinessAttribute;
+            dbModel.Buyer = model.Buyer;
+            dbModel.EName = model.EName;
+            dbModel.PaymentTerm = model.PaymentTerm;
+            dbModel.NDANo = model.NDANo;
+            dbModel.Contract = model.Contract;
+            dbModel.Buyer = model.Buyer;
+            dbModel.SearchKey = model.SearchKey;
+            dbModel.Country = model.Country;
+            dbModel.Address = model.Address;
+            dbModel.OfficeTel = model.OfficeTel;
+            dbModel.Email = model.Email;
+            dbModel.Website = model.Website;
+            dbModel.ISO = model.ISO;
+            dbModel.CapitalAmount = model.CapitalAmount;
+            dbModel.Employees = model.Employees;
+            dbModel.Incoterms = model.Incoterms;
+            dbModel.BillingDocument = model.BillingDocument;
+            dbModel.MainProduct = model.MainProduct;
+            dbModel.Remark = model.Remark;
+            dbModel.SignDate1 = model.SignDate1;
+            dbModel.SignDate2 = model.SignDate2;
+            dbModel.KeySupplier = model.KeySupplier;
+            dbModel.IsActive = model.IsActive;
+
+            dbModel.AttachmentList = model.AttachmentList;
+            dbModel.UploadFiles = model.UploadFiles;
+            dbModel.ContactList = model.ContactList;
+
+            // 驗證正確性
+            List<string> msgList, msgList2;
+            var validResult = SupplierValidator.ValidModify(dbModel, out msgList);
+            var validFileResult = SupplierAttachmentValidator.Valid(model.AttachmentList, model.UploadFiles, out msgList2);
+
+            if (!validResult || !validFileResult)
+                return BadRequest(JsonConvert.SerializeObject(msgList.Union(msgList2)));
+
+            // 修改
+            try
+            {
+                this._mgr.ModifyTET_Supplier_QuerySS(model, cUser.ID, cTime);
             }
             catch (Exception ex)
             {
@@ -505,11 +649,11 @@ namespace Platform.WebSite.Controllers
                 }
             }
 
-
             var dbModel = this._mgr.GetTET_Supplier(model.ID.Value);
             if (dbModel == null)
                 return BadRequest("Supplier is required.");
 
+            model.IsActive = "Active";
             dbModel.RelatedDept = model.RelatedDept;
             dbModel.BelongTo = model.BelongTo;
             dbModel.SupplierCategory = model.SupplierCategory;

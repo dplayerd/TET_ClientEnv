@@ -1043,6 +1043,7 @@ namespace BI.Suppliers
                     dbModel.SignDate1 = model.SignDate1;
                     dbModel.SignDate2 = model.SignDate2;
                     dbModel.KeySupplier = model.KeySupplier;
+                    dbModel.IsActive = model.IsActive;
 
                     dbModel.ModifyUser = userID;
                     dbModel.ModifyDate = cDate;
@@ -1087,78 +1088,6 @@ namespace BI.Suppliers
                     this._attachmentMgr.DeleteTET_SupplierAttachment(context, id, userID, cDate);
 
                     context.TET_Supplier.Remove(dbModel);
-                    context.SaveChanges();
-                }
-            }
-            catch (Exception ex)
-            {
-                this._logger.WriteError(ex);
-                throw;
-            }
-        }
-
-        /// <summary> Active 供應商資料 </summary>
-        /// <param name="id">主鍵</param>
-        /// <param name="userID">目前登入者</param>
-        /// <param name="cDate">目前時間</param>
-        public void ActiveTET_Supplier(Guid id, string userID, DateTime cDate)
-        {
-            if (id == Guid.Empty || string.IsNullOrWhiteSpace(userID))
-                throw new ArgumentNullException("ID, UserID is required");
-
-            try
-            {
-                using (PlatformContextModel context = new PlatformContextModel())
-                {
-                    var dbModel =
-                    (from item in context.TET_Supplier
-                     where item.ID == id
-                     select item).FirstOrDefault();
-
-                    // 資料如果不存在，就視為已刪除
-                    if (dbModel == null)
-                        return;
-
-                    dbModel.IsActive = "Active";
-                    dbModel.ModifyUser = userID;
-                    dbModel.ModifyDate = cDate;
-
-                    context.SaveChanges();
-                }
-            }
-            catch (Exception ex)
-            {
-                this._logger.WriteError(ex);
-                throw;
-            }
-        }
-
-        /// <summary> Active 供應商資料 </summary>
-        /// <param name="id">主鍵</param>
-        /// <param name="userID">目前登入者</param>
-        /// <param name="cDate">目前時間</param>
-        public void InactiveTET_Supplier(Guid id, string userID, DateTime cDate)
-        {
-            if (id == Guid.Empty || string.IsNullOrWhiteSpace(userID))
-                throw new ArgumentNullException("ID, UserID is required");
-
-            try
-            {
-                using (PlatformContextModel context = new PlatformContextModel())
-                {
-                    var dbModel =
-                    (from item in context.TET_Supplier
-                     where item.ID == id
-                     select item).FirstOrDefault();
-
-                    // 資料如果不存在，就視為已刪除
-                    if (dbModel == null)
-                        return;
-
-                    dbModel.IsActive = "Inactive";
-                    dbModel.ModifyUser = userID;
-                    dbModel.ModifyDate = cDate;
-
                     context.SaveChanges();
                 }
             }
