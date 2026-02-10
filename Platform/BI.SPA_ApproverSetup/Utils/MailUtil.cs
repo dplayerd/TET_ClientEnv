@@ -33,7 +33,7 @@ namespace BI.SPA_ApproverSetup.Utils
                 <br/>
                 評鑑範圍：{period} ({datePeriod.StartDate?.ToString("yyyy-MM-dd")} ~ {datePeriod.EndDate?.ToString("yyyy-MM-dd")})期間供應商所提供之服務表現。<br/>
                 <br/>
-                填寫資料請點擊「<a href=""{pageUrl}"" target=""_blank"">Cost & Service資料維護</a>」連結，謝謝。
+                填寫資料請點擊「<a href=""{pageUrl}"" target=""_blank"">名單&Cost&Service資料維護</a>」連結，謝謝。
                 "
             };
 
