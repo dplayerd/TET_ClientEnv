@@ -33,6 +33,7 @@ namespace BI.SPA_CostService
         private const string _empStatus_Leave_Text = "離職";
         private const string _empStatus_Stay_Text = "在職";
         private const string _empStatus_New_Text = "新進";
+        private const string _empStatus_Other_Text = "其他";
 
 
         /// <summary> 查詢 Cost&Service 審核資料 </summary>
@@ -688,7 +689,7 @@ namespace BI.SPA_CostService
                 退件者: {approverName} <br/>
                 退件意見: {comment} <br/>
                 <br/>          
-                請點擊<a href=""{pageUrl}"" target=""_blank"">Cost & Service資料維護</a>追蹤此流程，謝謝 <br/>
+                請點擊<a href=""{pageUrl}"" target=""_blank"">名單&Cost&Service資料維護</a>追蹤此流程，謝謝 <br/>
                 <br/>
                 "
             };
@@ -776,7 +777,7 @@ namespace BI.SPA_CostService
                 Body =
                 $@"
                 流程名稱: {_typeText} <br/>
-                請點擊<a href=""{pageUrl}"" target=""_blank"">Cost & Service資料維護</a>追蹤此流程，謝謝 <br/>
+                請點擊<a href=""{pageUrl}"" target=""_blank"">名單&Cost&Service資料維護</a>追蹤此流程，謝謝 <br/>
                 <br/>
                 <table border=""1"" cellpadding=""2"" cellspacing=""0"">
                     <tr style=""background-color: black; text-align:center; color:white"">
@@ -869,8 +870,8 @@ namespace BI.SPA_CostService
 
                 foreach (var module1Item in module1List)
                 {
-                    // 前一期資料的員工狀態=離職，不需複製
-                    if (string.Compare(_empStatus_Leave_Text, module1Item.EmpStatus, true) == 0)
+                    // 前一期資料的員工狀態=離職或其他，不需複製
+                    if (string.Compare(_empStatus_Leave_Text, module1Item.EmpStatus, true) == 0 || string.Compare(_empStatus_Other_Text, module1Item.EmpStatus, true) == 0)
                         continue;
 
                     // 計算新的年資
