@@ -395,9 +395,65 @@ namespace Platform.WebSite.Controllers
                 throw new UnauthorizedAccessException();
 
             // Active
+            var inp = HttpContext.Current.Request.Form["Main"];
+            TET_PaymentSupplierModel model;
+
+            // 嘗試做反序列化，如果錯誤的話丟 Bad Request
             try
             {
-                this._mgr.ActiveTET_PaymentSupplier(id, cUser.ID, cTime);
+                model = JsonConvert.DeserializeObject<TET_PaymentSupplierModel>(inp);
+                if (model == null)
+                    return BadRequest("PaymentSupplier is required.");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest("PaymentSupplier is required.");
+            }
+
+            // 取得本次上傳的附件
+            if (HttpContext.Current.Request.Files.AllKeys.Any())
+            {
+                foreach (var key in HttpContext.Current.Request.Files.AllKeys)
+                {
+                    var httpPostedFile = HttpContext.Current.Request.Files[key];
+                    var fileContent = UploadUtil.ConvertToFileContent(httpPostedFile);
+
+                    model.UploadFiles.Add(fileContent);
+                }
+            }
+
+            var dbModel = this._mgr.GetTET_PaymentSupplier(model.ID.Value);
+            if (dbModel == null)
+                return BadRequest("PaymentSupplier is required.");
+
+            model.IsActive = "Active";
+            dbModel.IdNo = model.IdNo;
+            dbModel.Address = model.Address;
+            dbModel.OfficeTel = model.OfficeTel;
+            dbModel.Country = model.Country;
+            dbModel.Charge = model.Charge;
+            dbModel.PaymentTerm = model.PaymentTerm;
+            dbModel.Incoterms = model.Incoterms;
+            dbModel.BillingDocument = model.BillingDocument;
+            dbModel.Remark = model.Remark;
+            dbModel.IsActive = model.IsActive;
+
+            dbModel.AttachmentList = model.AttachmentList;
+            dbModel.UploadFiles = model.UploadFiles;
+            dbModel.ContactList = model.ContactList;
+
+            // 驗證正確性
+            List<string> msgList, msgList2;
+            var validResult = PaymentSupplierValidator.ValidModify(dbModel, out msgList);
+            var validFileResult = PaymentSupplierAttachmentValidator.Valid(model.AttachmentList, model.UploadFiles, out msgList2);
+
+            if (!validResult || !validFileResult)
+                return BadRequest(JsonConvert.SerializeObject(msgList.Union(msgList2)));
+
+            // 修改
+            try
+            {
+                this._mgr.ModifyTET_PaymentSupplier_Query(model, cUser.ID, cTime);
             }
             catch (Exception ex)
             {
@@ -417,10 +473,66 @@ namespace Platform.WebSite.Controllers
             if (string.IsNullOrWhiteSpace(cUser.ID))
                 throw new UnauthorizedAccessException();
 
-            // Active
+            // Inactive
+            var inp = HttpContext.Current.Request.Form["Main"];
+            TET_PaymentSupplierModel model;
+
+            // 嘗試做反序列化，如果錯誤的話丟 Bad Request
             try
             {
-                this._mgr.InactiveTET_PaymentSupplier(id, cUser.ID, cTime);
+                model = JsonConvert.DeserializeObject<TET_PaymentSupplierModel>(inp);
+                if (model == null)
+                    return BadRequest("PaymentSupplier is required.");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest("PaymentSupplier is required.");
+            }
+
+            // 取得本次上傳的附件
+            if (HttpContext.Current.Request.Files.AllKeys.Any())
+            {
+                foreach (var key in HttpContext.Current.Request.Files.AllKeys)
+                {
+                    var httpPostedFile = HttpContext.Current.Request.Files[key];
+                    var fileContent = UploadUtil.ConvertToFileContent(httpPostedFile);
+
+                    model.UploadFiles.Add(fileContent);
+                }
+            }
+
+            var dbModel = this._mgr.GetTET_PaymentSupplier(model.ID.Value);
+            if (dbModel == null)
+                return BadRequest("PaymentSupplier is required.");
+
+            model.IsActive = "Inactive";
+            dbModel.IdNo = model.IdNo;
+            dbModel.Address = model.Address;
+            dbModel.OfficeTel = model.OfficeTel;
+            dbModel.Country = model.Country;
+            dbModel.Charge = model.Charge;
+            dbModel.PaymentTerm = model.PaymentTerm;
+            dbModel.Incoterms = model.Incoterms;
+            dbModel.BillingDocument = model.BillingDocument;
+            dbModel.Remark = model.Remark;
+            dbModel.IsActive = model.IsActive;
+
+            dbModel.AttachmentList = model.AttachmentList;
+            dbModel.UploadFiles = model.UploadFiles;
+            dbModel.ContactList = model.ContactList;
+
+            // 驗證正確性
+            List<string> msgList, msgList2;
+            var validResult = PaymentSupplierValidator.ValidModify(dbModel, out msgList);
+            var validFileResult = PaymentSupplierAttachmentValidator.Valid(model.AttachmentList, model.UploadFiles, out msgList2);
+
+            if (!validResult || !validFileResult)
+                return BadRequest(JsonConvert.SerializeObject(msgList.Union(msgList2)));
+
+            // 修改
+            try
+            {
+                this._mgr.ModifyTET_PaymentSupplier_Query(model, cUser.ID, cTime);
             }
             catch (Exception ex)
             {

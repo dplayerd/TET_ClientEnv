@@ -267,11 +267,24 @@ $(document).ready(function () {
 
     // Active鈕
     $(btnActiveSelector).click(function () {
+        // 宣告FormData ，並放入主要資料
+        var inputData = getMainInput(mainForm);
+        var formData = new FormData();
+        formData.append("Main", JSON.stringify(inputData));
+
+        // 附加檔案
+        var files = getAttachFileList();
+        for (var i = 0; i < files.length; i++) {
+            formData.append("AttachmentList" + i, files[i]);
+        }
+
         $.ajax({
             url: activeApiUrl,
             method: "POST",
             type: "JSON",
-            data: { id: id},
+            data: formData,
+            contentType: false,         // 不設定 Content-Type
+            processData: false,         // 不處理發送的資料
             success: function (data) {
                 alert("儲存成功");
                 location.href = listPageUrl;
@@ -294,11 +307,24 @@ $(document).ready(function () {
 
     // Inactive鈕
     $(btnInactiveSelector).click(function () {
+        // 宣告FormData ，並放入主要資料
+        var inputData = getMainInput(mainForm);
+        var formData = new FormData();
+        formData.append("Main", JSON.stringify(inputData));
+
+        // 附加檔案
+        var files = getAttachFileList();
+        for (var i = 0; i < files.length; i++) {
+            formData.append("AttachmentList" + i, files[i]);
+        }
+
         $.ajax({
             url: inactiveApiUrl,
             method: "POST",
             type: "JSON",
-            data: { id: id },
+            data: formData,
+            contentType: false,         // 不設定 Content-Type
+            processData: false,         // 不處理發送的資料
             success: function (data) {
                 alert("儲存成功");
                 location.href = listPageUrl;

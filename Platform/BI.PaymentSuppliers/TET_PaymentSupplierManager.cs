@@ -744,14 +744,16 @@ namespace BI.PaymentSuppliers
                     if (dbModel == null)
                         throw new NullReferenceException($"{model.ID} don't exists.");
 
-                    dbModel.PaymentTerm = model.PaymentTerm;
-                    dbModel.Country = model.Country;
+                    dbModel.IdNo = model.IdNo;
                     dbModel.Address = model.Address;
                     dbModel.OfficeTel = model.OfficeTel;
+                    dbModel.Country = model.Country;
+                    dbModel.Charge = model.Charge;
+                    dbModel.PaymentTerm = model.PaymentTerm;
                     dbModel.Incoterms = model.Incoterms;
                     dbModel.BillingDocument = model.BillingDocument;
                     dbModel.Remark = model.Remark;
-
+                    dbModel.IsActive = model.IsActive;
                     dbModel.ModifyUser = userID;
                     dbModel.ModifyDate = cDate;
 

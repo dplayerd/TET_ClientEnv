@@ -16,7 +16,7 @@ namespace BI.PaymentSuppliers.Validators
         {
             new ValidateConfig() { Required =  false, CanEdit = true, Name = "ApplyReason",     Title = "申請原因" },
             new ValidateConfig() { Required =   true, CanEdit = true, Name = "Country",         Title = "國家別" },
-            new ValidateConfig() { Required =   true, CanEdit = true, Name = "IdNo",            Title = "身分證字號" },
+            new ValidateConfig() { Required =  false, CanEdit = true, Name = "IdNo",            Title = "身分證字號" },
             new ValidateConfig() { Required =   true, CanEdit = true, Name = "Address",         Title = "公司地址" },
             new ValidateConfig() { Required =   true, CanEdit = true, Name = "OfficeTel",       Title = "公司電話" },
             new ValidateConfig() { Required =   true, CanEdit = true, Name = "Charge",          Title = "公司負責人" },
