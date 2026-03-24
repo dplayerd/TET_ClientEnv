@@ -45,6 +45,7 @@ $(document).ready(function () {
                     { data: 'EName', title: '英文名稱<br/>English Name', width: '200px' },
                     { data: 'TaxNo', title: '統一編號<br/>Tax ID Number', width: '80px' },
                     { data: 'Version', title: '版本號碼<br/>Version', width: '100px' },
+                    { data: 'CreateUser', title: '異動申請人員<br/>Revision User', width: '100px' },
                     { data: 'IsLastVersion', title: '是最新版本<br/>Lastest Version', width: '100px' },
                     //{ data: 'Level', title: '審核關卡<br/>Level', width: '100px' },
                     {
