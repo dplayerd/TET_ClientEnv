@@ -702,6 +702,7 @@ namespace BI.PaymentSuppliers
                     dbModel.Version = model.Version;
                     dbModel.IsLastVersion = model.IsLastVersion;
                     dbModel.ApproveStatus = model.ApproveStatus;
+                    dbModel.IsActive = model.IsActive;
                     dbModel.ModifyUser = userID;
                     dbModel.ModifyDate = cDate;
 

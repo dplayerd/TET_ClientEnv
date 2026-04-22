@@ -586,6 +586,7 @@ namespace Platform.WebSite.Controllers
             if (dbModel == null)
                 return BadRequest("Payment Supplier is required.");
 
+            model.IsActive = "Active";
             dbModel.PaymentTerm = model.PaymentTerm;
             dbModel.Country = model.Country;
             dbModel.Address = model.Address;
