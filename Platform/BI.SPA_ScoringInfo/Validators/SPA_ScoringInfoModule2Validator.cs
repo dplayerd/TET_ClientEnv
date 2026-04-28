@@ -71,9 +71,9 @@ namespace BI.SPA_ScoringInfo.Validators
                 msgList.AddRange(dicMsg.Values.ToList());
 
                 // 驗證商業邏輯
-                var biValidResult = SPA_ScoringInfoModule2Validator.ValidModel(mainModel, model, out List<string> tempMsgList);
-                if (!biValidResult)
-                    msgList.AddRange(tempMsgList);
+                //var biValidResult = SPA_ScoringInfoModule2Validator.ValidModel(mainModel, model, out List<string> tempMsgList);
+                //if (!biValidResult)
+                //    msgList.AddRange(tempMsgList);
             }
 
             msgList = msgList.Distinct().ToList();

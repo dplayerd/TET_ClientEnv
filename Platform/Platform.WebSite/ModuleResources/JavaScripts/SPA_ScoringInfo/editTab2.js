@@ -162,10 +162,10 @@ $(function () {
 
         // 商業邏輯驗證
         // 若評鑑項目=Startup，以下欄位為非必填。
-        if (mainModel.ServiceItem != "Startup") {
-            if (!validField(detailModel.ServiceFor)) msgList.push("服務對象 " + reqText);
-            if (!validField(detailModel.WorkItem)) msgList.push("作業項目 " + reqText);
-        }
+        //if (mainModel.ServiceItem != "Startup") {
+        //    if (!validField(detailModel.ServiceFor)) msgList.push("服務對象 " + reqText);
+        //    if (!validField(detailModel.WorkItem)) msgList.push("作業項目 " + reqText);
+        //}
 
         return msgList
         //--- 檢查輸入值 ---
