@@ -117,8 +117,25 @@ $(document).ready(function () {
 
     // 儲存鈕
     $(btnSaveSelector).click(function () {
+        var list = getContactList();
+
+        // 檢查問題
+        var errors = [];
+        for(var i = 0; i < list.length; i++) {
+            var validResult = validContactEditor(list[i]);
+            if(validResult.length > 0)
+                errors.push(validResult);
+        }
+
+        if(errors.length > 0) {
+            alert(errors.join('\r\n'));
+            return;
+        }
+
+
         // 宣告FormData ，並放入主要資料
-        var formData = { Items: getContactList() };
+        var formData = { Items: list };
+
 
         $.ajax({
             url: submitApiUrl,
