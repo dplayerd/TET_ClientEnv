@@ -261,12 +261,17 @@ namespace BI.Shared
                                 item.ID == model.ID
                              select item).FirstOrDefault();
 
-                        // 如果已存在，直接更新
+                        // 如果已存在且有被調整過，直接更新
                         if (dbModel != null)
                         {
-                            dbModel.Item = model.Item;
-                            dbModel.Seq = model.Seq;
-                            dbModel.IsEnable = model.IsEnable;
+                            if (dbModel.Item != model.Item || dbModel.Seq != model.Seq || dbModel.IsEnable != model.IsEnable)
+                            {
+                                dbModel.Item = model.Item;
+                                dbModel.Seq = model.Seq;
+                                dbModel.IsEnable = model.IsEnable;
+                                dbModel.ModifyUser = userID;
+                                dbModel.ModifyDate = cDate;
+                            }
                         }
                         else  // 如果不存在，就新增
                         {

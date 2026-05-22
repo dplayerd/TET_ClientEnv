@@ -1,23 +1,23 @@
-﻿var addContractSelector = "#btnAdd";            // 新增聯絡人按鈕
-var contractTableSelector = "#divContactTable";                  // 聯絡人資訊
-var contractTemplateSelector = "#divContactTableTemplate";       // 聯絡人範本
+﻿var addContractSelector = "#btnAdd";            // 新增常用參數按鈕
+var contractTableSelector = "#divContactTable";                  // 常用參數資訊
+var contractTemplateSelector = "#divContactTableTemplate";       // 常用參數範本
 
 var formMain = "#formMain"                        // 主要編輯區
 var btnSaveSelector = "#btnSave";                 // 儲存鈕
 var cbxTypeListSelector = "#TypeList";            // 參數類型下拉選單
 
 $(document).ready(function () {
-    //--- Contact Table Events ---
+    //--- Parameter Table Events ---
     var contactTable = $(contractTableSelector);
     var contactTemplate = $(contractTemplateSelector);
 
-    // 新增聯絡人
+    // 新增常用參數
     $(addContractSelector).click(function () {
         // 為表格加入新資料
         addContactToTable({ Type: $(cbxTypeListSelector).val() });
     });
 
-    // 取得聯絡人資訊輸入值
+    // 取得常用參數輸入值
     var getContactInfoInput = function () {
         return {
             Type: contractEditor.find("[name=Type]").val(),
@@ -27,7 +27,7 @@ $(document).ready(function () {
         };
     }
 
-    // 驗證聯絡人填寫是否正確
+    // 驗證常用參數填寫是否正確
     var validContactEditor = function (objContact) {
         var result = [];
         if (objContact.Type.trim() === '') {
@@ -49,7 +49,7 @@ $(document).ready(function () {
         return result;
     };
 
-    // 為聯絡人表格加入新資料
+    // 為常用參數表格加入新資料
     var addContactToTable = function (objContact) {
         var template = contactTemplate.find("tbody").html();
 
@@ -62,7 +62,7 @@ $(document).ready(function () {
         contactTable.find("tbody").append(newContent);
     }
 
-    // 取得所有已輸入的聯絡人
+    // 取得所有已輸入的常用參數
     var getContactList = function () {
         var result = [];
         var trs = contactTable.find('tbody tr')
@@ -117,9 +117,10 @@ $(document).ready(function () {
 
     // 儲存鈕
     $(btnSaveSelector).click(function () {
+        $("#btnSave").prop("disabled", true);
         var list = getContactList();
 
-        // 檢查問題
+        // 檢查欄位必填
         var errors = [];
         for(var i = 0; i < list.length; i++) {
             var validResult = validContactEditor(list[i]);
@@ -129,6 +130,7 @@ $(document).ready(function () {
 
         if(errors.length > 0) {
             alert(errors.join('\r\n'));
+            $("#btnSave").prop("disabled", false);
             return;
         }
 
@@ -144,6 +146,7 @@ $(document).ready(function () {
             data: formData,
             success: function (data) {
                 alert("儲存成功");
+                $("#btnSave").prop("disabled", false);
             },
             error: function (data) {
                 if (data.responseJSON == undefined || data.responseJSON.Message == null)
@@ -157,6 +160,7 @@ $(document).ready(function () {
                         alert(data.responseJSON.ExceptionMessage);
                     }
                 }
+                $("#btnSave").prop("disabled", false);
             }
         });
     });
