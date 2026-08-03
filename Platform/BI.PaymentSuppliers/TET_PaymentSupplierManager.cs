@@ -451,9 +451,9 @@ namespace BI.PaymentSuppliers
         {
             var query =
                 (from item in context.TET_PaymentSupplierApproval
+                 join user in context.Users on item.Approver equals user.UserID
                  where
-                     item.PSID == ID &&
-                     item.Result != null
+                     item.PSID == ID 
                  orderby item.CreateDate
                  select
                      new TET_PaymentSupplierApprovalModel()
@@ -463,7 +463,7 @@ namespace BI.PaymentSuppliers
                          Type = item.Type,
                          Description = item.Description,
                          Level = item.Level,
-                         Approver = item.Approver,
+                         Approver = user.FirstNameEN + " " + user.LastNameEN + " (" + item.Approver + ")",
                          Result = item.Result,
                          Comment = item.Comment,
                          CreateUser = item.CreateUser,

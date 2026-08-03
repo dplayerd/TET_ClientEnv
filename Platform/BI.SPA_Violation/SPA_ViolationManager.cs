@@ -171,9 +171,9 @@ namespace BI.SPA_Violation
 
                         var approvalQuery =
                               from item in context.TET_SPA_ViolationApproval
+                              join user in context.Users on item.Approver equals user.UserID
                               where
-                                  item.ViolationID == id &&
-                                  item.Result != null
+                                  item.ViolationID == id
                               orderby item.CreateDate, item.ModifyDate
                               select
                                   new SPA_ViolationApprovalModel()
@@ -183,7 +183,7 @@ namespace BI.SPA_Violation
                                       Type = item.Type,
                                       Description = item.Description,
                                       Level = item.Level,
-                                      Approver = item.Approver,
+                                      Approver = user.FirstNameEN + " " + user.LastNameEN + " (" + item.Approver + ")",
                                       Result = item.Result,
                                       Comment = item.Comment,
                                       CreateUser = item.CreateUser,

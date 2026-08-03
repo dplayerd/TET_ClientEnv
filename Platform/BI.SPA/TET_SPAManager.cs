@@ -214,9 +214,9 @@ namespace BI.SPA
                     {
                         var approvalQuery =
                             from item in context.TET_SupplierSPAApproval
+                            join user in context.Users on item.Approver equals user.UserID
                             where
-                                item.SPAID == ID &&
-                                item.Result != null
+                                item.SPAID == ID
                             orderby item.CreateDate
                             select
                                 new TET_SupplierSPAApprovalModel()
@@ -226,7 +226,7 @@ namespace BI.SPA
                                     Type = item.Type,
                                     Description = item.Description,
                                     Level = item.Level,
-                                    Approver = item.Approver,
+                                    Approver = user.FirstNameEN + " " + user.LastNameEN + " (" + item.Approver + ")",
                                     Result = item.Result,
                                     Comment = item.Comment,
                                     CreateUser = item.CreateUser,

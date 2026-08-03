@@ -268,9 +268,9 @@ namespace BI.STQA
                     {
                         var approvalQuery =
                             from item in context.TET_SupplierSTQAApproval
+                            join user in context.Users on item.Approver equals user.UserID
                             where
-                                item.STQAID == ID &&
-                                item.Result != null
+                                item.STQAID == ID
                             orderby item.CreateDate
                             select
                                 new TET_SupplierSTQAApprovalModel()
@@ -280,7 +280,7 @@ namespace BI.STQA
                                     Type = item.Type,
                                     Description = item.Description,
                                     Level = item.Level,
-                                    Approver = item.Approver,
+                                    Approver = user.FirstNameEN + " " + user.LastNameEN + " (" + item.Approver + ")",
                                     Result = item.Result,
                                     Comment = item.Comment,
                                     CreateUser = item.CreateUser,

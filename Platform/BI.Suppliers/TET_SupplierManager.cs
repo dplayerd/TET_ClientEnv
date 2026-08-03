@@ -652,9 +652,9 @@ namespace BI.Suppliers
         {
             var query =
                 (from item in context.TET_SupplierApproval
+                 join user in context.Users on item.Approver equals user.UserID
                  where
-                     item.SupplierID == ID &&
-                     item.Result != null
+                    item.SupplierID == ID 
                  orderby item.CreateDate
                  select
                      new TET_SupplierApprovalModel()
@@ -664,7 +664,7 @@ namespace BI.Suppliers
                          Type = item.Type,
                          Description = item.Description,
                          Level = item.Level,
-                         Approver = item.Approver,
+                         Approver = user.FirstNameEN + " " + user.LastNameEN + " (" + item.Approver + ")",
                          Result = item.Result,
                          Comment = item.Comment,
                          CreateUser = item.CreateUser,
