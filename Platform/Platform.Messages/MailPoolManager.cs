@@ -443,6 +443,17 @@ namespace Platform.Messages
             mgr.Create(model, userID, cDate);
         }
 
+        /// <summary> 加入一個可以寄 CC 的信件 (所有人只收一封信) </summary>
+        /// <param name="receiver"></param>
+        /// <param name="cc"></param>
+        /// <param name="content"></param>
+        /// <param name="userID"></param>
+        /// <param name="cDate"></param>
+        public static void WriteMailWithCC(string receiver, string cc, EMailContent content, string userID, DateTime cDate)
+        {
+            WriteMailWithCC(new List<string>() { receiver }, new List<string>() { cc }, content, userID, cDate);
+        }
+
 
         /// <summary> 加入一個可以寄 CC 的信件 (所有人只收一封信) </summary>
         /// <param name="receiverList"></param>

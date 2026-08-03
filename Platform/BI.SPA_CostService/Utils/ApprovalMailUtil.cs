@@ -69,7 +69,7 @@ namespace BI.SPA_CostService.Utils
                 "
             };
 
-            MailPoolManager.WritePool(receiver.EMail, content, userID, cDate);
+            MailPoolManager.WriteMailWithCC(receiver.EMail, applicant.EMail, content, userID, cDate);
         }
 
     }
