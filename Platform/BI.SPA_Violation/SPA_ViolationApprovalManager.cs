@@ -579,6 +579,7 @@ namespace BI.SPA_Violation
         private void SendRejectToStartMail(SPA_ViolationModel main, SPA_ViolationApprovalModel approvalModel, string userID, DateTime cDate)
         {
             var applicant = _userMgr.GetUser(main.CreateUser);
+            var cc = _userMgr.GetUser(userID);
             var pageUrl = $"{ModuleConfig.EmailRootUrl}/SPA_Violation/Index";
 
             var approver = _userMgr.GetUser(approvalModel.Approver);
@@ -598,7 +599,7 @@ namespace BI.SPA_Violation
                 <br/>
                 "
             };
-            MailPoolManager.WritePool(applicant.EMail, content, userID, cDate);
+            MailPoolManager.WriteMailWithCC(applicant.EMail, cc.EMail, content, userID, cDate);
         }
 
         /// <summary> (審核關卡QSM、審核結果=同意) </summary>
