@@ -568,6 +568,7 @@ namespace BI.SPA_ScoringInfo
         private void SendRejectToStartMail(SPA_ScoringInfoModel main, SPA_ScoringInfoApprovalModel approvalModel, string userID, DateTime cDate)
         {
             var applicant = _userMgr.GetUser(main.CreateUser);
+            var cc = _userMgr.GetUser(userID);
             var pageUrl = $"{ModuleConfig.EmailRootUrl}/SPA_ScoringInfo/Index";
 
             var approver = _userMgr.GetUser(approvalModel.Approver);
@@ -587,7 +588,7 @@ namespace BI.SPA_ScoringInfo
                 <br/>
                 "
             };
-            MailPoolManager.WritePool(applicant.EMail, content, userID, cDate);
+            MailPoolManager.WriteMailWithCC(applicant.EMail, cc.EMail, content, userID, cDate);
         }
 
 
