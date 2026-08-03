@@ -652,7 +652,13 @@ namespace BI.SPA_CostService
         private void SendBUMail(SPA_CostServiceModel main, SPA_CostServiceApprovalModel approvalModel, Dictionary<TET_SPA_ApproverSetupModel, List<UserAccountModel>> dic, string userID, DateTime cDate)
         {
             var qsmList = this._roleMgr.GetUserListInRole(ApprovalRole.QSM.ToID().Value);
+            var ccList = this._userMgr.GetUser(main.CreateUser);
+
             var qsmMailList = qsmList.Select(obj => obj.EMail).ToList();
+            var ccMailList = new List<string>() { ccList.EMail };
+
+            qsmMailList.AddRange(ccMailList);
+
             var pageUrl = $"{ModuleConfig.EmailRootUrl}/SupplierApproval/Index";
 
             var createTime = approvalModel.CreateDate.ToString("yyyy-MM-dd HH:mm:ss");
@@ -691,6 +697,7 @@ namespace BI.SPA_CostService
         private void SendRejectToStartMail(SPA_CostServiceModel main, SPA_CostServiceApprovalModel approvalModel, string userID, DateTime cDate)
         {
             var applicant = _userMgr.GetUser(main.CreateUser);
+            var cc = _userMgr.GetUser(userID);
             var pageUrl = $"{ModuleConfig.EmailRootUrl}/SPA_CostService/Index";
 
             var approver = _userMgr.GetUser(approvalModel.Approver);
@@ -710,7 +717,7 @@ namespace BI.SPA_CostService
                 <br/>
                 "
             };
-            MailPoolManager.WritePool(applicant.EMail, content, userID, cDate);
+            MailPoolManager.WriteMailWithCC(applicant.EMail, cc.EMail, content, userID, cDate);
         }
 
         /// <summary> (審核關卡=QSM、審核結果=同意) </summary>
