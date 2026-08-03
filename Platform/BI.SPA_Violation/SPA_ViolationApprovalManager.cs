@@ -479,6 +479,7 @@ namespace BI.SPA_Violation
                 {
                     var query =
                     from item in context.TET_SPA_ViolationApproval
+                    join user in context.Users on item.Approver equals user.UserID
                     where
                         item.ViolationID == violationId
                     orderby item.CreateDate ascending
@@ -490,7 +491,7 @@ namespace BI.SPA_Violation
                         Type = item.Type,
                         Description = item.Description,
                         Level = item.Level,
-                        Approver = item.Approver,
+                        Approver = user.FirstNameEN + " " + user.LastNameEN + " (" + item.Approver + ")",
                         Result = item.Result,
                         Comment = item.Comment,
                         CreateUser = item.CreateUser,
@@ -610,6 +611,8 @@ namespace BI.SPA_Violation
         private void SendCompleteMail(string nextLevel, SPA_ViolationModel main, SPA_ViolationApprovalModel approvalModel, string userID, DateTime cDate)
         {
             var applicant = _userMgr.GetUser(main.CreateUser);
+            var qsmList = this._roleMgr.GetUserListInRole(ApprovalRole.QSM.ToID().Value);
+            var qsmMailList = qsmList.Select(obj => obj.EMail).ToList();
             var pageUrl = $"{ModuleConfig.EmailRootUrl}/SPA_Violation/Index";
 
             EMailContent content = new EMailContent()
@@ -634,12 +637,10 @@ namespace BI.SPA_Violation
 
             foreach (var item in main.ApprovalList)
             {
-                var approverInfo = this._userMgr.GetUser(item.Approver);
-
                 content.Body +=
                 $@"
                     <tr>
-                        <td>{approverInfo.FirstNameEN} {approverInfo.LastNameEN}</td>
+                        <td>{item.Approver}</td>
                         <td>{item.Level}</td>
                         <td>{item.CreateDate.ToString("yyyy/MM/dd HH:mm:ss")}</td>
                         <td>{item.ModifyDate.ToString("yyyy/MM/dd HH:mm:ss")}</td>
@@ -651,7 +652,7 @@ namespace BI.SPA_Violation
 
             content.Body += "</table>";
 
-            MailPoolManager.WritePool(applicant.EMail, content, userID, cDate);
+            MailPoolManager.WriteMailWithCC(new List<string>() { applicant.EMail }, qsmMailList, content, userID, cDate);
         }
 
         #endregion
