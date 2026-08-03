@@ -12,6 +12,9 @@ namespace BI.SPA_ScoringInfo.Enums
         /// <summary> 空白 </summary>
         Empty,
 
+        /// <summary> 申請人 </summary>
+        Applicant,
+
         /// <summary> 第一關審核 </summary>
         FirstApproval,
 
@@ -33,6 +36,9 @@ namespace BI.SPA_ScoringInfo.Enums
         {
             switch (enm)
             {
+                case ApprovalLevel.Applicant:
+                    return "Applicant";
+
                 case ApprovalLevel.FirstApproval:
                     return "第一關審核";
 
@@ -56,6 +62,9 @@ namespace BI.SPA_ScoringInfo.Enums
         {
             switch (enm)
             {
+                case ApprovalLevel.Applicant:
+                    return "Applicant";
+
                 case ApprovalLevel.FirstApproval:
                     return "第一關審核";
 

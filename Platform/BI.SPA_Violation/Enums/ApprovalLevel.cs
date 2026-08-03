@@ -12,6 +12,9 @@ namespace BI.SPA_Violation.Enums
         /// <summary> 空白 </summary>
         Empty,
 
+        /// <summary> 申請人 </summary>
+        Applicant,
+
         /// <summary> 第一關審核者 </summary>
         Level_1,
 
@@ -33,6 +36,9 @@ namespace BI.SPA_Violation.Enums
         {
             switch (enm)
             {
+                case ApprovalLevel.Applicant:
+                    return "Applicant";
+
                 case ApprovalLevel.Level_1:
                     return "Level_1";
 
@@ -56,6 +62,9 @@ namespace BI.SPA_Violation.Enums
         {
             switch (enm)
             {
+                case ApprovalLevel.Applicant:
+                    return "Applicant";
+
                 case ApprovalLevel.Level_1:
                     return "第一關審核者";
 

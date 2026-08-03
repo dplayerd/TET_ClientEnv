@@ -12,6 +12,9 @@ namespace BI.PaymentSuppliers.Enums
         /// <summary> 空白 </summary>
         Empty,
 
+        /// <summary> 申請人 </summary>
+        Applicant,
+
         /// <summary> 供應商表單審核 </summary>
         User_GL,
 
@@ -36,6 +39,9 @@ namespace BI.PaymentSuppliers.Enums
         {
             switch (enm)
             {
+                case ApprovalLevel.Applicant:
+                    return "Applicant";
+
                 case ApprovalLevel.User_GL:
                     return "User_GL";
 
@@ -62,6 +68,9 @@ namespace BI.PaymentSuppliers.Enums
         {
             switch (enm)
             {
+                case ApprovalLevel.Applicant:
+                    return "Applicant";
+
                 case ApprovalLevel.User_GL:
                     return "User's Supervisor";
 

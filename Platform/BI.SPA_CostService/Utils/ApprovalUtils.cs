@@ -23,7 +23,9 @@ namespace BI.SPA_CostService.Utils
 
             ApprovalLevel enm;
 
-            if (val == ApprovalLevel.BU.ToString() || val == ApprovalLevel.BU.ToText())               // BU 人員
+            if (val == ApprovalLevel.Applicant.ToString() || val == ApprovalLevel.Applicant.ToText())               // Applicant
+                enm = ApprovalLevel.Applicant;
+            else if (val == ApprovalLevel.BU.ToString() || val == ApprovalLevel.BU.ToText())               // BU 人員
                 enm = ApprovalLevel.BU;
             else if (val == ApprovalLevel.QSM.ToString() || val == ApprovalLevel.QSM.ToText())         // QSM
                 enm = ApprovalLevel.QSM;

@@ -23,7 +23,9 @@ namespace BI.SPA_Violation.Utils
 
             ApprovalLevel enm;
 
-            if (val == ApprovalLevel.Level_1.ToText())          // 第一關審核者
+            if (val == ApprovalLevel.Applicant.ToString() || val == ApprovalLevel.Applicant.ToText())               // Applicant
+                enm = ApprovalLevel.Applicant;
+            else if (val == ApprovalLevel.Level_1.ToText())          // 第一關審核者
                 enm = ApprovalLevel.Level_1;
             else if (val == ApprovalLevel.Level_2.ToText())     // 第二關審核者
                 enm = ApprovalLevel.Level_2;

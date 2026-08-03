@@ -23,7 +23,9 @@ namespace BI.PaymentSuppliers.Utils
 
             ApprovalLevel enm;
 
-            if (val == ApprovalLevel.User_GL.ToString() || val == ApprovalLevel.User_GL.ToText())                   // User's Supervisor
+            if (val == ApprovalLevel.Applicant.ToString() || val == ApprovalLevel.Applicant.ToText())               // Applicant
+                enm = ApprovalLevel.Applicant;
+            else if (val == ApprovalLevel.User_GL.ToString() || val == ApprovalLevel.User_GL.ToText())                   // User's Supervisor
                 enm = ApprovalLevel.User_GL;
             else if (val == ApprovalLevel.ACC_First.ToString() || val == ApprovalLevel.ACC_First.ToText())          // ACC初審
                 enm = ApprovalLevel.ACC_First;

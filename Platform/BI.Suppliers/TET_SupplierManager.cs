@@ -1142,6 +1142,27 @@ namespace BI.Suppliers
                     dbModel.ApproveStatus = ApprovalStatus.Verify.ToText();
                     //--- 調整原資料的審核狀態 ---
 
+                    // 更改原資料的審核狀態
+                    dbModel.ApproveStatus = ApprovalStatus.Verify.ToText();
+                    //--- 調整原資料的審核狀態 ---
+
+                    //--- 新增送審資料 ---
+                    var entityApplier = new TET_SupplierApproval()
+                    {
+                        ID = Guid.NewGuid(),
+                        SupplierID = dbModel.ID,
+                        Type = ApprovalType.New.ToText(),
+                        Level = ApprovalLevel.Applicant.ToText(),
+                        Description = $"{ApprovalType.New.ToText()}_{dbModel.CName}_{user.UnitName}_{user.FirstNameEN} {user.LastNameEN}",
+                        Approver = userID,
+                        Result = ApprovalResult.SentToApproval.ToText(),
+                        CreateUser = userID,
+                        CreateDate = cDate.AddSeconds(-1),
+                        ModifyUser = userID,
+                        ModifyDate = cDate.AddSeconds(-1),
+                    };
+                    context.TET_SupplierApproval.Add(entityApplier);
+                    //--- 新增送審資料資料 ---
 
                     //--- 新增審核資料 - 主管 ---
                     var lvl = ApprovalLevel.User_GL;

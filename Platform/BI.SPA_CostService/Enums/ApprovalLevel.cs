@@ -12,6 +12,9 @@ namespace BI.SPA_CostService.Enums
         /// <summary> 空白 </summary>
         Empty,
 
+        /// <summary> 申請人 </summary>
+        Applicant,
+        
         /// <summary> 供應商表單覆審 </summary>
         SRI_SS_GL,
 
@@ -33,6 +36,9 @@ namespace BI.SPA_CostService.Enums
         {
             switch (enm)
             {
+                case ApprovalLevel.Applicant:
+                    return "Applicant";
+
                 case ApprovalLevel.SRI_SS_GL:
                     return "PQM_SS_GL";
 
@@ -56,6 +62,9 @@ namespace BI.SPA_CostService.Enums
         {
             switch (enm)
             {
+                case ApprovalLevel.Applicant:
+                    return "Applicant";
+
                 case ApprovalLevel.SRI_SS_GL:
                     return "採購_SS's Supervisor";
 

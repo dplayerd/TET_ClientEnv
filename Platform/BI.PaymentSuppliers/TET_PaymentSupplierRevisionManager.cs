@@ -208,6 +208,24 @@ namespace BI.PaymentSuppliers
                     List<TET_PaymentSupplierApproval> paymentsupplierApprovalList = new List<TET_PaymentSupplierApproval>();
                     if (approverList.Count > 0)
                     {
+                        //--- 新增送審資料 ---
+                        var entityApplier = new TET_PaymentSupplierApproval()
+                        {
+                            ID = Guid.NewGuid(),
+                            PSID = dbModel.ID,
+                            Type = ApprovalType.Modify.ToText(),
+                            Level = ApprovalLevel.Applicant.ToText(),
+                            Description = $"{ApprovalType.Modify.ToText()}_{dbModel.CName}_{user.UnitName}_{user.FirstNameEN} {user.LastNameEN}",
+                            Approver = userID,
+                            Result = ApprovalResult.SentToApproval.ToText(),
+                            CreateUser = userID,
+                            CreateDate = cDate.AddSeconds(-1),
+                            ModifyUser = userID,
+                            ModifyDate = cDate.AddSeconds(-1),
+                        };
+                        context.TET_PaymentSupplierApproval.Add(entityApplier);
+                        //--- 新增送審資料資料 ---
+
                         // 建立新的申請資訊
                         foreach (var item in approverList)
                         {

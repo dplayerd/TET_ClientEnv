@@ -113,8 +113,25 @@ namespace BI.SPA_CostService
                     dbModel.ApproveStatus = ApprovalStatus.Verify.ToText();
                     //--- 調整原資料的審核狀態 ---
 
+                    //--- 新增送審資料 ---
+                    var entityApplier = new TET_SPA_CostServiceApproval()
+                    {
+                        ID = Guid.NewGuid(),
+                        CSID = dbModel.ID,
+                        Type = _typeText,
+                        Level = ApprovalLevel.Applicant.ToText(),
+                        Description = $"{_typeText}_{dbModel.Period}_{user.UnitName}_{user.FirstNameEN} {user.LastNameEN} ({user.EmpID})",
+                        Approver = userID,
+                        Result = ApprovalResult.SentToApproval.ToText(),
+                        CreateUser = userID,
+                        CreateDate = cDate.AddSeconds(-1),
+                        ModifyUser = userID,
+                        ModifyDate = cDate.AddSeconds(-1),
+                    };
+                    context.TET_SPA_CostServiceApproval.Add(entityApplier);
+                    //--- 新增送審資料資料 ---
 
-                    //--- 新增審核資料 ---
+                    //--- 新增第一關審核資料 ---
                     var approverList = this._roleMgr.GetUserListInRole(ApprovalRole.SRI_SS_GL.ToID().Value);
                     foreach (var item in approverList)
                     {
@@ -140,7 +157,7 @@ namespace BI.SPA_CostService
                         ApprovalMailUtil.SendNewVerifyMail(user, item, entityApproval, dbModel, ApprovalLevel.SRI_SS_GL.ToDisplayText(), userID, cDate);
                         context.TET_SPA_CostServiceApproval.Add(entityApproval);
                     }
-                    //--- 新增審核資料 ---
+                    //--- 新增第一關審核資料 ---
 
                     context.SaveChanges();
                 }

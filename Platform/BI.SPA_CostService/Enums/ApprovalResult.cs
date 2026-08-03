@@ -12,6 +12,9 @@ namespace BI.SPA_CostService.Enums
         /// <summary> 空白 </summary>
         Empty,
 
+        /// <summary> 送出申請 </summary>
+        SentToApproval,
+        
         /// <summary> 同意 </summary>
         Agree,
 
@@ -36,6 +39,9 @@ namespace BI.SPA_CostService.Enums
         {
             switch (enm)
             {
+                case ApprovalResult.SentToApproval:
+                    return "送出審核";
+
                 case ApprovalResult.Agree:
                     return "同意";
 

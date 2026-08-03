@@ -108,6 +108,23 @@ namespace BI.SPA_ScoringInfo
                     dbModel.ApproveStatus = ApprovalStatus.Verify.ToText();
                     //--- 調整原資料的審核狀態 ---
 
+                    //--- 新增送審資料 ---
+                    var entityApplier = new TET_SPA_ScoringInfoApproval()
+                    {
+                        ID = Guid.NewGuid(),
+                        SIID = dbModel.ID,
+                        Type = _typeText,
+                        Level = ApprovalLevel.Applicant.ToText(),
+                        Description = $"{_typeText}_{dbModel.Period}_{user.UnitName}_{user.FirstNameEN} {user.LastNameEN} ({user.EmpID})",
+                        Approver = userID,
+                        Result = ApprovalResult.SentToApproval.ToText(),
+                        CreateUser = userID,
+                        CreateDate = cDate.AddSeconds(-1),
+                        ModifyUser = userID,
+                        ModifyDate = cDate.AddSeconds(-1),
+                    };
+                    context.TET_SPA_ScoringInfoApproval.Add(entityApplier);
+                    //--- 新增送審資料資料 ---
 
                     //--- 新增審核資料 ---
                     var dic = this.GetSetupDic(dbModel, userID, cDate);

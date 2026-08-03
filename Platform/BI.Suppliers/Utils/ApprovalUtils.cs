@@ -23,7 +23,9 @@ namespace BI.Suppliers.Utils
 
             ApprovalLevel enm;
 
-            if (val == ApprovalLevel.User_GL.ToString() || val == ApprovalLevel.User_GL.ToText())                   // 供應商表單審核
+            if (val == ApprovalLevel.Applicant.ToString() || val == ApprovalLevel.Applicant.ToText())   // Applicant
+                enm = ApprovalLevel.Applicant;
+            else if (val == ApprovalLevel.User_GL.ToString() || val == ApprovalLevel.User_GL.ToText())                   // 供應商表單審核
                 enm = ApprovalLevel.User_GL;
             else if (val == ApprovalLevel.SRI_SS.ToString() || val == ApprovalLevel.SRI_SS.ToText())                // 供應商表單初審
                 enm = ApprovalLevel.SRI_SS;

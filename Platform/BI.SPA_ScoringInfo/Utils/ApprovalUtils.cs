@@ -23,7 +23,9 @@ namespace BI.SPA_ScoringInfo.Utils
 
             ApprovalLevel enm;
 
-            if (val == ApprovalLevel.QSM.ToText())                      // QSM
+            if (val == ApprovalLevel.Applicant.ToString() || val == ApprovalLevel.Applicant.ToText())   // Applicant
+                enm = ApprovalLevel.Applicant;
+            else if (val == ApprovalLevel.QSM.ToText())                      // QSM
                 enm = ApprovalLevel.QSM;
             else if (val == ApprovalLevel.FirstApproval.ToText())       // FirstApproval
                 enm = ApprovalLevel.FirstApproval;
