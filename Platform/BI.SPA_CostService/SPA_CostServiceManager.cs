@@ -25,6 +25,7 @@ namespace BI.SPA_CostService
     {
         private const string _prevText = "前期匯入";
         private const string _isEvaluateText = "評鑑";
+        private const string _NotEvaluateText = "不評鑑";
 
         private Logger _logger = new Logger();
         private UserManager _userMgr = new UserManager();
@@ -279,6 +280,15 @@ namespace BI.SPA_CostService
                             };
 
                     var list = query.ToList();
+
+                    foreach (var item in list)
+                    {
+                        if (IsServiceItemEnable(item.AssessmentItem))
+                            item.IsEvaluate = _isEvaluateText;
+                        else
+                            item.IsEvaluate = _NotEvaluateText;
+                    }
+
                     return list;
                 }
             }
@@ -353,6 +363,31 @@ namespace BI.SPA_CostService
                 throw;
             }
         }
+
+        /// <summary> 檢查匯入的CostService資料的評鑑項目是否為啟用 </summary>
+        /// <param name="AssessmentItem"> 評鑑項目 </param>
+        public bool IsServiceItemEnable(string assessmentitem)
+        {
+            try
+            {
+                using (PlatformContextModel context = new PlatformContextModel())
+                { 
+                    var query = context.TET_Parameters.Where(obj => obj.Item == assessmentitem && obj.Type == "SPA評鑑項目" && obj.IsEnable);
+
+                    // 同一填寫者，同一評鑑期間只能有一筆資料
+                    if (!query.Any())
+                        return false;
+
+                    return true;
+                }
+            }
+            catch (Exception ex)
+            {
+                this._logger.WriteError(ex);
+                throw;
+            }
+        }
+
         #endregion
 
 
