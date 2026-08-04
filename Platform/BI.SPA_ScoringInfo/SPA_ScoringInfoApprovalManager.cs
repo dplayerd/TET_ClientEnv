@@ -666,6 +666,8 @@ namespace BI.SPA_ScoringInfo
         private void SendCompleteMail(string nextLevel, SPA_ScoringInfoModel main, SPA_ScoringInfoApprovalModel approvalModel, string userID, DateTime cDate)
         {
             var applicant = _userMgr.GetUser(main.CreateUser);
+            var qsmList = this._userRoleMgr.GetUserListInRole(ApprovalRole.QSM.ToID().Value);
+            var qsmMailList = qsmList.Select(obj => obj.EMail).ToList();
             var pageUrl = $"{ModuleConfig.EmailRootUrl}/SPA_ScoringInfo/Index";
 
             EMailContent content = new EMailContent()
@@ -696,7 +698,7 @@ namespace BI.SPA_ScoringInfo
                 content.Body +=
                 $@"
                     <tr>
-                        <td>{approverInfo.FirstNameEN} {approverInfo.LastNameEN}</td>
+                        <td>{approverInfo.FirstNameEN} {approverInfo.LastNameEN} ({item.Approver})</td>
                         <td>{item.Level}</td>
                         <td>{item.CreateDate.ToString("yyyy/MM/dd HH:mm:ss")}</td>
                         <td>{item.ModifyDate.ToString("yyyy/MM/dd HH:mm:ss")}</td>
@@ -708,7 +710,7 @@ namespace BI.SPA_ScoringInfo
 
             content.Body += "</table>";
 
-            MailPoolManager.WritePool(applicant.EMail, content, userID, cDate);
+            MailPoolManager.WriteMailWithCC(new List<string>() { applicant.EMail }, qsmMailList, content, userID, cDate);
         }
         #endregion
     }
