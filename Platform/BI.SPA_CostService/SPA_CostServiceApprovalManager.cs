@@ -482,7 +482,6 @@ namespace BI.SPA_CostService
                 {
                     var query =
                     from item in context.TET_SPA_CostServiceApproval
-                    join user in context.Users on item.Approver equals user.UserID
                     where
                            item.CSID == csId
                     orderby item.CreateDate ascending
@@ -494,7 +493,7 @@ namespace BI.SPA_CostService
                         Type = item.Type,
                         Description = item.Description,
                         Level = item.Level,
-                        Approver = user.FirstNameEN + " " + user.LastNameEN + " (" + item.Approver + ")",
+                        Approver = item.Approver,
                         Result = item.Result,
                         Comment = item.Comment,
                         CreateUser = item.CreateUser,
@@ -822,10 +821,12 @@ namespace BI.SPA_CostService
 
             foreach (var item in main.ApprovalList)
             {
+                var approverInfo = this._userMgr.GetUser(item.Approver);
+
                 content.Body +=
                 $@"
                     <tr>
-                        <td>{item.Approver}</td>
+                        <td>{approverInfo.FirstNameEN} {approverInfo.LastNameEN} ({item.Approver})</td>
                         <td>{item.Level}</td>
                         <td>{item.CreateDate.ToString("yyyy/MM/dd HH:mm:ss")}</td>
                         <td>{item.ModifyDate.ToString("yyyy/MM/dd HH:mm:ss")}</td>
