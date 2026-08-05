@@ -132,6 +132,7 @@ namespace BI.SPA_ScoringInfo
                     if(dic.ContainsKey(ApprovalLevel.FirstApproval))
                     {
                         var approver = dic[ApprovalLevel.FirstApproval].FirstOrDefault();
+                        var infofill = dic[ApprovalLevel.Applicant].ToList();
 
                         string email = approver.EMail;
                         string approverId = approver.EmpID;
@@ -151,11 +152,10 @@ namespace BI.SPA_ScoringInfo
                             ModifyDate = cDate,
                         };
 
-
                         var qsm = this._userRoleMgr.GetUserListInRole(ApprovalRole.QSM.ToID().Value);
 
                         // 寄送通知信
-                        ApprovalMailUtil.SendNewVerifyMail(approver, qsm.FirstOrDefault(), entityApproval, dbModel, userID, cDate);
+                        ApprovalMailUtil.SendNewVerifyMail(approver, infofill, entityApproval, dbModel, userID, cDate);
                         context.TET_SPA_ScoringInfoApproval.Add(entityApproval);
                     }
                     //--- 新增審核資料 ---
@@ -448,6 +448,10 @@ namespace BI.SPA_ScoringInfo
 
             if (selectedItem == null)
                 return dic;
+
+
+            if (!string.IsNullOrWhiteSpace(selectedItem.InfoFill))
+                dic.Add(ApprovalLevel.Applicant, this._userMgr.GetUserList_AccountModel(selectedItem.InfoFills));
 
             if (!string.IsNullOrWhiteSpace(selectedItem.Lv1Apprvoer))
                 dic.Add(ApprovalLevel.FirstApproval, this._userMgr.GetUserList_AccountModel(selectedItem.Lv1Apprvoer));

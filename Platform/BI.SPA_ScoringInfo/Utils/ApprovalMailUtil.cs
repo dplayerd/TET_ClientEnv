@@ -49,7 +49,7 @@ namespace BI.SPA_ScoringInfo.Utils
         /// <param name="main"></param>
         /// <param name="userID">目前登入者</param>
         /// <param name="cDate">目前時間</param> 
-        internal static void SendNewVerifyMail(UserAccountModel receiver, UserAccountModel cc, TET_SPA_ScoringInfoApproval approvalModel, TET_SPA_ScoringInfo main, string userID, DateTime cDate)
+        internal static void SendNewVerifyMail(UserAccountModel receiver, List<UserAccountModel> cc, TET_SPA_ScoringInfoApproval approvalModel, TET_SPA_ScoringInfo main, string userID, DateTime cDate)
         {
             var pageUrl = $"{ModuleConfig.EmailRootUrl}/SupplierApproval/Index";
 
@@ -69,8 +69,7 @@ namespace BI.SPA_ScoringInfo.Utils
             };
 
             //MailPoolManager.WriteMailWithCC(new List<string>() { receiver.EMail }, new List<string>() { cc.EMail }, content, userID, cDate);
-            MailPoolManager.WriteMailWithCC(new List<string>() { receiver.EMail }, new List<string>(), content, userID, cDate);
+            MailPoolManager.WriteMailWithCC(new List<string>() { receiver.EMail }, cc.Select(obj => obj.EMail).ToList(), content, userID, cDate);
         }
-
     }
 }
