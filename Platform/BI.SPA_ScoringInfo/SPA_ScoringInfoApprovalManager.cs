@@ -351,9 +351,11 @@ namespace BI.SPA_ScoringInfo
                             if (dic.ContainsKey(ApprovalLevel.SecondApproval))
                             {
                                 var accList = dic[ApprovalLevel.SecondApproval];
+                                var infofill = dic[ApprovalLevel.Applicant].ToList();
+
                                 nextApporverList.AddRange(accList);
                                 var qsm = this._userRoleMgr.GetUserListInRole(ApprovalRole.QSM.ToID().Value).ToList();
-                                this.SendSecondMail(nextLevelName, accList, qsm, mainModel, model, userID, cDate);
+                                this.SendSecondMail(nextLevelName, accList, infofill, mainModel, model, userID, cDate);
                             }
                             else
                             {
@@ -625,8 +627,8 @@ namespace BI.SPA_ScoringInfo
 
             var mailList = receiverMailList.Select(obj => obj.EMail).ToList();
             var ccMailList = ccList.Select(obj => obj.EMail).ToList();
-            //MailPoolManager.WriteMailWithCC(mailList, ccMailList, content, userID, cDate);
-            MailPoolManager.WriteMailWithCC(mailList, new List<string>(), content, userID, cDate);
+            MailPoolManager.WriteMailWithCC(mailList, ccMailList, content, userID, cDate);
+            //MailPoolManager.WriteMailWithCC(mailList, new List<string>(), content, userID, cDate);
         }
 
         /// <summary> (審核關卡=QSM、審核結果=同意) </summary>
