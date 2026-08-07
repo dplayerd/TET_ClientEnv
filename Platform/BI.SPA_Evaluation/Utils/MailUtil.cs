@@ -21,7 +21,7 @@ namespace BI.SPA_Evaluation.Utils
         /// <param name="main"></param>
         /// <param name="userID">目前登入者</param>
         /// <param name="cDate">目前時間</param> 
-        internal static void SendMessageMail(List<UserAccountModel> receivers, TET_SPA_EvaluationReport main, string userID, DateTime cDate)
+        internal static void SendMessageMail(List<UserAccountModel> receivers, List<UserAccountModel> cc, TET_SPA_EvaluationReport main, string userID, DateTime cDate)
         {
             var pageUrl = $"{ModuleConfig.EmailRootUrl}/SPA_EvaluationReport/Index";
 
@@ -30,14 +30,15 @@ namespace BI.SPA_Evaluation.Utils
                 Title = $"[績效評鑑報告] {main.Period}_{main.BU})",
                 Body =
                 $@"
-您好,<br/>
-<br/>
-檢視績效評鑑報告請點擊「<a href=""{pageUrl}"" target=""_blank"">SPA 績效評鑑報告維護</a>」連結，謝謝 <br/>
+                您好,<br/>
+                <br/>
+                檢視績效評鑑報告請點擊「<a href=""{pageUrl}"" target=""_blank"">SPA 績效評鑑報告維護</a>」連結，謝謝 <br/>
                 "
             };
 
             var emailList = receivers.Select(obj => obj.EMail).ToList();
-            MailPoolManager.WriteMailWithCC(emailList, new List<string>(), content, userID, cDate);
+            var ccList = cc.Select(obj => obj.EMail).ToList();
+            MailPoolManager.WriteMailWithCC(emailList, ccList, content, userID, cDate);
         }
 
     }

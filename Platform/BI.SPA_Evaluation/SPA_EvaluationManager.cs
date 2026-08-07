@@ -23,6 +23,7 @@ using BI.SPA_Evaluation.Utils;
 using BI.SPA_ApproverSetup;
 using BI.SPA_Evaluation.Models.Exporting;
 using BI.SPA_ApproverSetup.Enums;
+using Platform.Auth.Models;
 
 namespace BI.SPA_Evaluation
 {
@@ -115,6 +116,47 @@ namespace BI.SPA_Evaluation
                     return result;
                 }
             }
+            catch (Exception ex)
+            {
+                this._logger.WriteError(ex);
+                throw;
+            }
+        }
+        #endregion
+
+        #region Get CostService Creator
+        public List<UserAccountModel> GetCreator(string period, string bu)
+        {
+            try
+            {
+                using (PlatformContextModel context = new PlatformContextModel())
+                {
+                    var query =
+                        from item in context.TET_SPA_CostService
+                        join detail in context.TET_SPA_CostServiceDetail on item.ID equals detail.CSID
+                        join userItem in context.Users on detail.CreateUser equals userItem.UserID
+                        where item.Period == period && detail.BU == bu
+                        select new UserAccountModel
+                        {
+                            ID = userItem.UserID,
+                            EmpID = userItem.EmpID,
+                            EMail = userItem.EMail,
+                            FirstNameCH = userItem.FirstNameCH,
+                            LastNameCH = userItem.LastNameCH,
+                            FirstNameEN = userItem.FirstNameEN,
+                            LastNameEN = userItem.LastNameEN,
+                            LeaderID = userItem.LeaderID,
+                            UnitCode = userItem.UnitCode,
+                            UnitName = userItem.UnitName,
+                            IsEnable = userItem.IsEnabled == "Y",
+                        };
+
+                    var result = query.Distinct().ToList();
+
+                    return result;
+                }
+            }
+
             catch (Exception ex)
             {
                 this._logger.WriteError(ex);
@@ -918,14 +960,18 @@ namespace BI.SPA_Evaluation
                     {
                         if (item.BUText == dbModel.BU)
                         {
+                            UserRoleManager _roleMgr = new UserRoleManager();
+
                             var receivers = new List<string>() { item.InfoConfirm, item.Lv1Apprvoer, item.Lv2Apprvoer };
-
                             var users = this._userMgr.GetUserList_AccountModel(receivers.ToArray());
+                            
+                            var qsmList = _roleMgr.GetUserListInRole(SPA_ApproverSetup.Enums.ApprovalRole.QSM.ToID().Value);
+                            var costservice = GetCreator(dbModel.Period, item.BUText);
+                            qsmList.AddRange(costservice);
 
-                            MailUtil.SendMessageMail(users, dbModel, userID, cDate);
+                            MailUtil.SendMessageMail(users, qsmList, dbModel, userID, cDate);
                         }
                     }
-                    //context.SaveChanges();
                 }
             }
             catch (Exception ex)
