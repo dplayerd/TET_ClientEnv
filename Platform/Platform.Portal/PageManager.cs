@@ -375,19 +375,22 @@ namespace Platform.Portal
                         fileManager.DeleteDataAndFile(context, oldFile.ID, cUser, cDate);
 
                     // 儲存資料庫
-                    MediaFileModel mediaFileModel = new MediaFileModel()
+                    if(model.UploadFile != null)
                     {
-                        ModuleName = ModuleConfig.ModuleName_Page,
-                        ModuleID = dbModel.ID.ToString(),
-                        MimeType = model.UploadFile.MimeType,
-                        FilePath = ModuleConfig.PageFileFolderPath,
-                        RequireAuth = false,
-                        OutputFileName = model.UploadFile.FileName,
-                        OrgFileName = model.UploadFile.FileName,
-                    };
+                        MediaFileModel mediaFileModel = new MediaFileModel()
+                        {
+                            ModuleName = ModuleConfig.ModuleName_Page,
+                            ModuleID = dbModel.ID.ToString(),
+                            MimeType = model.UploadFile.MimeType,
+                            FilePath = ModuleConfig.PageFileFolderPath,
+                            RequireAuth = false,
+                            OutputFileName = model.UploadFile.FileName,
+                            OrgFileName = model.UploadFile.FileName,
+                        };
 
-                    // 存檔
-                    fileManager.UploadAndCreate(context, mediaFileModel, model.UploadFile, cUser, cDate);
+                        // 存檔
+                        fileManager.UploadAndCreate(context, mediaFileModel, model.UploadFile, cUser, cDate);
+                    }
 
 
 
