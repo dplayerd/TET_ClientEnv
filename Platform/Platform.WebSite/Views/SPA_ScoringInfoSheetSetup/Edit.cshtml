@@ -1,0 +1,233 @@
+﻿@using Platform.WebSite.Helpers;
+@using Platform.WebSite.Models;
+@using Platform.Infra;
+@using Platform.AbstractionClass;
+@model BI.SPA_ScoringInfo.Models.SPA_ScoringInfoSheetModel
+
+@{
+    var masterInfo = (SiteViewModel)ViewBag.MasterInfo;
+    this.ViewBag.Title = masterInfo.CurrentPage.Name;
+    bool isCreateMode = this.ViewBag.IsCreateMode == true;
+    var paramList_AssessmentItem = this.ViewBag.ParamList_AssessmentItem as List<KeyTextModel>;
+    var poSourceList = new List<string>() { "Local", "Factory" };
+    Uri createApiUrl = new Uri("api/SPA_ScoringInfoSheetSetupApi/Create", UriKind.Relative);
+    Uri modifyApiUrl = new Uri("api/SPA_ScoringInfoSheetSetupApi/Modify", UriKind.Relative);
+    Uri listPageUrl = new Uri("SPA_ScoringInfoSheetSetup/Index/" + masterInfo.CurrentPage.ID, UriKind.Relative);
+}
+
+<style>
+    .SubArea {
+        background-color: #00A9E0;
+        font-size: 16pt;
+        color: white;
+        font-weight: bolder;
+        min-height: 22px;
+        display: flex;
+        align-items: center;
+        padding-top: 2px;
+        padding-bottom: 2px;
+    }
+
+        .SubArea .checkbox {
+            color: #fff;
+            line-height: 1.2;
+            margin-bottom: 0;
+        }
+
+            .SubArea .checkbox.checkbox-outline > span {
+                background-color: #fff !important;
+                border-color: #fff !important;
+                box-shadow: 0 0 0 1px rgba(0, 70, 95, 0.35);
+            }
+
+            .SubArea .checkbox.checkbox-outline > input:checked ~ span {
+                background-color: #fff !important;
+                border-color: #fff !important;
+            }
+
+                .SubArea .checkbox.checkbox-outline > input:checked ~ span:after {
+                    border-color: #00A9E0 !important;
+                }
+
+    .sheet-check-grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(180px, 1fr));
+        gap: 10px 18px;
+    }
+
+        .sheet-check-grid label {
+            margin-bottom: 0;
+        }
+</style>
+
+<div class="d-flex flex-column-fluid">
+    <div class="container-fluid px-2">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="card card-custom">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <h3 class="card-label">@this.ViewBag.Title - @ViewBag.Name</h3>
+                        </div>
+                    </div>
+                    <form class="form" id="formMain">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-3">
+                                    <label class="col-form-label"><span style="color:red">*</span>評鑑項目</label>
+                                    @if (isCreateMode)
+                                    {
+                                        <select name="ServiceItemID" class="form-control form-control-sm" title="請選擇">
+                                            <option value="">請選擇</option>
+                                            @foreach (var pair in paramList_AssessmentItem)
+                                            {
+                                                <option value="@pair.Key">@pair.Text</option>
+                                            }
+                                        </select>
+                                    }
+                                    else
+                                    {
+                                        <input type="hidden" name="ServiceItemID" value="@Model.ServiceItemID" />
+                                        <input class="form-control form-control-sm" type="text" value="@Model.ServiceItem" disabled />
+                                    }
+                                </div>
+
+                                <div class="col-3">
+                                    <label class="col-form-label"><span style="color:red">*</span>PO Source</label>
+                                    @if (isCreateMode)
+                                    {
+                                        <select name="POSource" class="form-control form-control-sm" title="請選擇">
+                                            <option value="">請選擇</option>
+                                            @foreach (var item in poSourceList)
+                                            {
+                                                <option value="@item">@item</option>
+                                            }
+                                        </select>
+                                    }
+                                    else
+                                    {
+                                        <input type="hidden" name="POSource" value="@Model.POSource" />
+                                        <input class="form-control form-control-sm" type="text" value="@Model.POSource" disabled />
+                                    }
+                                </div>
+                            </div>
+
+                            <div class="row mt-8">
+                                <div class="col-12 SubArea">@Check("IsSheet1Show", "人力盤點")</div>
+                            </div>
+                            <div class="sheet-check-grid mt-4">
+                                @Check("IsSheet1TypeFill", "本社/協力廠商")
+                                @Check("IsSheet1SupplierFill", "供應商名稱")
+                                @Check("IsSheet1EmpNameFill", "員工姓名")
+                                @Check("IsSheet1MajorJobFill", "主要負責作業")
+                                @Check("IsSheet1IsIndependentFill", "能否獨立作業")
+                                @Check("IsSheet1SkillLevelFill", "Skill Level")
+                                @Check("IsSheet1EmpStatusFill", "員工狀態")
+                                @Check("IsSheet1TELSeniorityYFill", "派工至TEL的年資(年)")
+                                @Check("IsSheet1TELSeniorityMFill", "派工至TEL的年資(月)")
+                                @Check("IsSheet1RemarkFill", "備註")
+                            </div>
+
+                            <div class="row mt-8">
+                                <div class="col-12 SubArea">@Check("IsSheet2Show", "施工達交狀況盤點")</div>
+                            </div>
+                            <div class="sheet-check-grid mt-4">
+                                
+                                @Check("IsSheet2ServiceForFill", "服務對象")
+                                @Check("IsSheet2WorkItemFill", "作業項目")
+                                @Check("IsSheet2MachineNameFill", "承攬機台名稱")
+                                @Check("IsSheet2MachineNoFill", "機台Serial No.")
+                                @Check("IsSheet2OnTimeFill", "是否準時交付")
+                                @Check("IsSheet2RemarkFill", "備註")
+                            </div>
+
+                            <div class="row mt-8">
+                                <div class="col-12 SubArea">@Check("IsSheet3Show", "施工正確性")</div>
+                            </div>
+                            <div class="sheet-check-grid mt-4">
+                                
+                                @Check("IsSheet3WorkerCountFill", "出工人數")
+                                @Check("IsSheet3DateFill", "時間")
+                                @Check("IsSheet3LocationFill", "地點")
+                                @Check("IsSheet3TELLossFill", "TEL財損")
+                                @Check("IsSheet3CustomerLossFill", "客戶財損")
+                                @Check("IsSheet3AccidentFill", "人身事故")
+                                @Check("IsSheet3DescriptionFill", "事件說明")
+                            </div>
+
+                            <div class="row mt-8">
+                                <div class="col-12 SubArea">@Check("IsSheet4Show", "作業正確性 & 人員備齊貢獻度")</div>
+                            </div>
+                            <div class="sheet-check-grid mt-4">
+                                
+                                @Check("IsSheet4CorrectnessFill", "作業正確性")
+                                @Check("IsSheet4ContributionFill", "人員備齊貢獻度")
+                            </div>
+
+                            <div class="row mt-8">
+                                <div class="col-12 SubArea">@Check("IsSheet5Show", "自訓能力")</div>
+                            </div>
+                            <div class="sheet-check-grid mt-4">
+                                
+                                @Check("IsSheet5SelfTrainingFill", "供應商自訓程度")
+                                @Check("IsSheet5SelfTrainingRemarkFill", "供應商自訓程度備註")
+                            </div>
+
+                            <div class="row mt-8">
+                                <div class="col-12 SubArea">@Check("IsSheet6Show", "服務")</div>
+                            </div>
+                            <div class="sheet-check-grid mt-4">
+                                
+                                @Check("IsSheet6CooperationFill", "配合度")
+                                @Check("IsSheet6DateFill", "時間")
+                                @Check("IsSheet6LocationFill", "地點")
+                                @Check("IsSheet6IsDamageFill", "造成財損")
+                                @Check("IsSheet6DescriptionFill", "事件說明")
+                            </div>
+
+                            <div class="row mt-8">
+                                <div class="col-12 SubArea">@Check("IsSheet7Show", "附件")</div>
+                            </div>
+                            <div class="sheet-check-grid mt-4">
+                                
+                            </div>
+
+                            <div class="my-5 col-12">
+                                <div class="d-flex justify-content-between border-top">
+                                    <div class="mr-2">
+                                        <a href="@Url.Action(ViewBag.ViewReturn, new { id = @ViewBag.ViewReturnID })" class="btn btn-secondary">取消</a>
+                                    </div>
+                                    <div>
+                                        <button type="button" id="btnSave" class="btn btn-success mr-2">儲存</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@helper Check(string name, string text)
+{
+    <label class="checkbox checkbox-outline checkbox-primary">
+        <input type="checkbox" name="@name" />
+        <span></span>
+        @text
+    </label>
+}
+
+@Html.Resource(
+    @<text>
+        <script src="~/ModuleResources/JavaScripts/SPA_ScoringInfoSheetSetup/edit.js?v=@DateTimeExtensions.GetJS_V_Text()"></script>
+        <script>
+            var modelData = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model));
+            var isCreateMode = @isCreateMode.ToString().ToLower();
+            var createApiUrl = platformEnvironment.hostUrl + '@createApiUrl';
+            var modifyApiUrl = platformEnvironment.hostUrl + '@modifyApiUrl';
+            var listPageUrl = platformEnvironment.hostUrl + '@listPageUrl';
+        </script>
+    </text>
+, "customScripts")

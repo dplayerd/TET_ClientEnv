@@ -89,6 +89,7 @@
     <Compile Include="TET_SPA_ScoringInfoModule2.cs" />
     <Compile Include="TET_SPA_ScoringInfoModule3.cs" />
     <Compile Include="TET_SPA_ScoringInfoModule4.cs" />
+    <Compile Include="TET_SPA_ScoringInfoSheets.cs" />
     <Compile Include="TET_SPA_ScoringRatio.cs" />
     <Compile Include="TET_SPA_Tooltips.cs" />
     <Compile Include="TET_SPA_Violation.cs" />

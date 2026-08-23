@@ -74,6 +74,7 @@
     <Compile Include="Models\SPA_ScoringInfoModule2Model.cs" />
     <Compile Include="Models\SPA_ScoringInfoModule3Model.cs" />
     <Compile Include="Models\SPA_ScoringInfoModule4Model.cs" />
+    <Compile Include="Models\SPA_ScoringInfoSheetModel.cs" />
     <Compile Include="Models\TabVisiableModel.cs" />
     <Compile Include="Models\ToolTips\Tab3ToolTip.cs" />
     <Compile Include="Models\ToolTips\Tab6ToolTip.cs" />
@@ -86,6 +87,7 @@
     <Compile Include="SPA_ScoringInfoApprovalManager.cs" />
     <Compile Include="SPA_ScoringInfoManager.cs" />
     <Compile Include="SPA_ScoringInfoModulesManager.cs" />
+    <Compile Include="SPA_ScoringInfoSheetManager.cs" />
     <Compile Include="Utils\ApprovalMailUtil.cs" />
     <Compile Include="Utils\ApprovalUtils.cs" />
     <Compile Include="Utils\ToolTipUtil.cs" />

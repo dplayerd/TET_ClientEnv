@@ -23,5 +23,8 @@ namespace BI.SPA_ScoringInfo
 
         /// <summary> 模組名稱 </summary>
         public const string ModuleName = "SPA_ScoringInfo";
+
+        /// <summary> 模組名稱 - SPA評鑑計分資料頁籤顯示設定 </summary>
+        public const string ModuleName_SPA_ScoringInfoSheetSetup = "SPA_ScoringInfoSheetSetup";
     }
 }

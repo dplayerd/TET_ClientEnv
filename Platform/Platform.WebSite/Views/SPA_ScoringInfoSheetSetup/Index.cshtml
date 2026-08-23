@@ -1,0 +1,90 @@
+﻿@using Platform.AbstractionClass;
+@using Platform.WebSite.Helpers;
+@using Platform.WebSite.Models;
+@using Platform.Infra;
+
+@{
+    var masterInfo = (SiteViewModel)ViewBag.MasterInfo;
+    this.ViewBag.Title = masterInfo.CurrentPage.Name;
+    string controllerName = "SPA_ScoringInfoSheetSetup";
+    string editTemplateUrl = Url.Action("Edit", controllerName, new { ID = masterInfo.CurrentPage.ID, serviceItemID = "__SERVICEITEMID__", poSource = "__POSOURCE__" });
+    string createPageUrl = Url.Action("Create", controllerName, new { ID = masterInfo.CurrentPage.ID });
+
+    var paramList_AssessmentItem = this.ViewBag.ParamList_AssessmentItem as List<KeyTextModel>;
+    var poSourceList = new List<string>() { "Local", "Factory" };
+}
+
+<div class="card card-custom">
+    <div class="card-header flex-wrap py-5">
+        <div class="card-title">
+            <div class="card-label">
+                @ViewBag.Title
+            </div>
+        </div>
+        <div class="card-toolbar" id="toolbar">
+            <a href="@createPageUrl" class="btn btn-primary font-weight-bolder">
+                <i class="flaticon2-plus"></i>新增
+            </a>
+        </div>
+    </div>
+    <div class="card-body">
+        <div id="divSearchArea">
+            <div class="form-group row">
+                <div class="col-3">
+                    <label for="inpServiceItemID" class="col-form-label">評鑑項目</label>
+                    <select id="inpServiceItemID" name="ServiceItemID" class="form-control form-control-sm select2" multiple title="請選擇">
+                        @foreach (var pair in paramList_AssessmentItem)
+                        {
+                            <option value="@pair.Key">@pair.Text</option>
+                        }
+                    </select>
+                </div>
+
+                <div class="col-3">
+                    <label for="inpPOSource" class="col-form-label">PO Source</label>
+                    <select id="inpPOSource" name="POSource" class="form-control form-control-sm select2" multiple title="請選擇">
+                        @foreach (var item in poSourceList)
+                        {
+                            <option value="@item">@item</option>
+                        }
+                    </select>
+                </div>
+
+                <div class="col-2">
+                    <button type="button" id="btnSearch" class="btn btn-success" style="margin-top: 3em;">查詢</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="kt_datatable_wrapper" class="dataTables_wrapper dt-bootstrap4 no-footer">
+            <div class="row">
+                <div class="col-sm-12">
+                    <table class="table table-bordered table-hover table-checkable" id="dataGrid" style="margin-top: 13px !important"></table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<input type="hidden" id="EditAction" value="@editTemplateUrl" />
+
+@Html.Resource(
+    @<text>
+        <script src="~/Content/assets/plugins/custom/datatables/datatables.bundle.js?v=@DateTimeExtensions.GetJS_V_Text()"></script>
+        <script src="~/ModuleResources/JavaScripts/Shared/TET_FormHelper.js?v=@DateTimeExtensions.GetJS_V_Text()"></script>
+        <script src="~/ModuleResources/JavaScripts/SPA_ScoringInfoSheetSetup/index.js?v=@DateTimeExtensions.GetJS_V_Text()"></script>
+
+        <style>
+            .dataTables_wrapper table.dataTable thead tr th {
+                background-color: #00a9e0;
+                color: white;
+                font-weight: bold;
+            }
+
+            .columnHeaderWhite {
+                color: white;
+                font-weight: bold;
+            }
+        </style>
+    </text>
+, "customScripts")

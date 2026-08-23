@@ -50,6 +50,7 @@ namespace Platform.ORM
         public virtual DbSet<TET_SPA_ViolationAttachments> TET_SPA_ViolationAttachments { get; set; }
         public virtual DbSet<TET_SPA_ViolationDetail> TET_SPA_ViolationDetail { get; set; }
         public virtual DbSet<TET_SPA_ScoringInfoApproval> TET_SPA_ScoringInfoApproval { get; set; }
+        public virtual DbSet<TET_SPA_ScoringInfoSheets> TET_SPA_ScoringInfoSheets { get; set; }
         public virtual DbSet<TET_SPA_Tooltips> TET_SPA_Tooltips { get; set; }
         public virtual DbSet<TET_SPA_Violation> TET_SPA_Violation { get; set; }
         public virtual DbSet<TET_Supplier> TET_Supplier { get; set; }
