@@ -347,6 +347,10 @@ $(function () {
             $(btnSubmitSelector).hide();
             $(btnAddFileSelector).hide();
         }
+
+        if (isSheetSettingMissing || sheetSetting == null) {
+            disableSheetSettingActions();
+        }
         //-- 調整按鈕是否顯示 --
     }
 
@@ -405,6 +409,13 @@ $(function () {
     $("[name=btnCancelImportTab1]").click(function () { $("[name=ImportFile_Tab1]").val(""); });
     $("[name=btnCancelImportTab2]").click(function () { $("[name=ImportFile_Tab2]").val(""); });
     $("[name=btnCancelImportTab3]").click(function () { $("[name=ImportFile_Tab3]").val(""); });
+
+    function disableSheetSettingActions() {
+        $("[id^=divDetailEditor_Tab]").find("[name=btnSave], [name=btnSaveDetail]").prop("disabled", true);
+        $("[name=btnImportTab1], [name=btnImportTab2], [name=btnImportTab3]").prop("disabled", true);
+        $("[name=ImportFile_Tab1], [name=ImportFile_Tab2], [name=ImportFile_Tab3]").prop("disabled", true);
+        $(btnSubmitSelector).prop("disabled", true);
+    }
 
     // 初始化欄位行為
     var initMainForm = function () {
@@ -475,6 +486,11 @@ $(function () {
         } else {
             $(btnSubmitSelector).hide();
         }
+
+        if (isSheetSettingMissing) {
+            alert("找不到 SPA評鑑計分資料頁籤顯示設定，請先維護設定後再進行作業。");
+            disableSheetSettingActions();
+        }
     }
     initMainForm();
 
@@ -494,11 +510,13 @@ $(function () {
         }
     }
 
-    // 尋找並隱藏所有 ID 為 tab 的 div
-    $("#" + firstEnabledTab).addClass("active").addClass('show');
+    if (firstEnabledTab != null) {
+        // 尋找並隱藏所有 ID 為 tab 的 div
+        $("#" + firstEnabledTab).addClass("active").addClass('show');
 
-    // 尋找並隱藏所有 href 包含有 tab 的 link
-    $("a[href$=" + firstEnabledTab + "]").addClass("active");
+        // 尋找並隱藏所有 href 包含有 tab 的 link
+        $("a[href$=" + firstEnabledTab + "]").addClass("active");
+    }
     //--- Main Events ---
 })
 

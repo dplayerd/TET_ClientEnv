@@ -70,6 +70,7 @@
     var validConfig = JsonConvert.SerializeObject(BI.SPA_ScoringInfo.Validators.SPA_ScoringInfoValidator.GetValidConfigs());
     var canSubmit = ((bool)this.ViewBag.CanSubmit) ? "true" : "false";
     var allowButton = ((bool)this.ViewBag.AllowButton);
+    var isSheetSettingMissing = (this.ViewBag.IsSheetSettingMissing == true) ? "true" : "false";
 }
 
 <style>
@@ -1050,6 +1051,7 @@
 
         var tabConfig = @Html.Raw(tabConfig);
         var canSubmit = @canSubmit;
+        var isSheetSettingMissing = @isSheetSettingMissing;
     </script>
 
     <script src="~/ModuleResources/JavaScripts/Shared/TET_FormHelper.js?v=@DateTimeExtensions.GetJS_V_Text()"></script>

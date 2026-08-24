@@ -3,6 +3,7 @@ using BI.SPA_ApproverSetup;
 using BI.SPA_CostService;
 using BI.SPA_CostService.Enums;
 using BI.SPA_ScoringInfo;
+using BI.SPA_ScoringInfo.Models;
 using BI.SPA_ScoringInfo.Utils;
 using BI.Suppliers;
 using Platform.AbstractionClass;
@@ -85,7 +86,8 @@ namespace Platform.WebSite.Controllers
             this.ViewBag.IsCreateMode = false;
             this.ViewBag.Mode = "Edit";
             var sheetSetting = this._sheetMgr.GetDetail(model.ServiceItem, model.POSource);
-            this.ViewBag.TabVisiable = ViewUtils.ComputeAcl(sheetSetting) ?? ViewUtils.ComputeAcl(model);
+            this.ViewBag.TabVisiable = ViewUtils.ComputeAcl(sheetSetting) ?? new TabVisiableModel();
+            this.ViewBag.IsSheetSettingMissing = sheetSetting == null;
             this.ViewBag.CanSubmit = this._mgr.GetSetupInfoConfirm(model.BU, model.ServiceItem, cUser.ID, cTime).Contains(cUser.ID);
             this.ViewBag.AllowButton = true;
             this.InitAction(id);
@@ -113,7 +115,8 @@ namespace Platform.WebSite.Controllers
             this.ViewBag.IsCreateMode = false;
             this.ViewBag.Mode = "Detail";
             var sheetSetting = this._sheetMgr.GetDetail(model.ServiceItem, model.POSource);
-            this.ViewBag.TabVisiable = ViewUtils.ComputeAcl(sheetSetting) ?? ViewUtils.ComputeAcl(model);
+            this.ViewBag.TabVisiable = ViewUtils.ComputeAcl(sheetSetting) ?? new TabVisiableModel();
+            this.ViewBag.IsSheetSettingMissing = sheetSetting == null;
             this.ViewBag.CanSubmit = false;
             this.ViewBag.AllowButton = allowButton;
             this.InitAction(id);
