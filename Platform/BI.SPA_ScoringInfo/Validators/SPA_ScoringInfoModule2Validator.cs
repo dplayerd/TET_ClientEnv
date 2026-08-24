@@ -46,8 +46,13 @@ namespace BI.SPA_ScoringInfo.Validators
         /// <returns></returns>
         public static bool Valid(SPA_ScoringInfoModel mainModel, List<SPA_ScoringInfoModule2Model> modelList, out List<string> msgList)
         {
+            return Valid(mainModel, modelList, null, out msgList);
+        }
+
+        public static bool Valid(SPA_ScoringInfoModel mainModel, List<SPA_ScoringInfoModule2Model> modelList, SPA_ScoringInfoSheetModel sheetSetting, out List<string> msgList)
+        {
             Dictionary<string, string> dicMsg;
-            var configs = _validConfigs;
+            var configs = GetValidConfigs(sheetSetting);
 
             msgList = new List<string>();
 
@@ -82,6 +87,22 @@ namespace BI.SPA_ScoringInfo.Validators
                 return false;
 
             return true;
+        }
+
+        private static List<ValidateConfig> GetValidConfigs(SPA_ScoringInfoSheetModel sheetSetting)
+        {
+            if (sheetSetting == null)
+                return _validConfigs;
+
+            return new List<ValidateConfig>()
+            {
+                new ValidateConfig() { Required = sheetSetting.IsSheet2ServiceForFill, CanEdit = true, Name = "ServiceFor", Title = "服務對象" },
+                new ValidateConfig() { Required = sheetSetting.IsSheet2WorkItemFill, CanEdit = true, Name = "WorkItem", Title = "作業項目" },
+                new ValidateConfig() { Required = sheetSetting.IsSheet2MachineNameFill, CanEdit = true, Name = "MachineName", Title = "承攬機台名稱" },
+                new ValidateConfig() { Required = sheetSetting.IsSheet2MachineNoFill, CanEdit = true, Name = "MachineNo", Title = "機台Serial No." },
+                new ValidateConfig() { Required = sheetSetting.IsSheet2OnTimeFill, CanEdit = true, Name = "OnTime", Title = "是否準時交付" },
+                new ValidateConfig() { Required = sheetSetting.IsSheet2RemarkFill, CanEdit = true, Name = "Remark", Title = "備註" },
+            };
         }
 
         /// <summary> 驗證商業邏輯 </summary>

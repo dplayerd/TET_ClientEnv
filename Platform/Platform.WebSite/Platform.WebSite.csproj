@@ -432,6 +432,9 @@
     <Content Include="ModuleResources\Other\SPA_CostService\供應商CostService資料匯出範本.xlsx" />
     <Content Include="ModuleResources\Other\SPA_Evaluation\供應商SPA評鑑資料匯出範本.xlsx" />
     <Content Include="ModuleResources\Other\SPA_ScoringInfo\供應商SPA評鑑計分資料匯出範本.xlsx" />
+    <Content Include="ModuleResources\Other\SPA_ScoringInfo\ImportTemplates\人力盤點頁籤匯入明細匯入範本.xlsx" />
+    <Content Include="ModuleResources\Other\SPA_ScoringInfo\ImportTemplates\施工達交狀況盤點頁籤明細匯入範本.xlsx" />
+    <Content Include="ModuleResources\Other\SPA_ScoringInfo\ImportTemplates\施工正確性頁籤明細匯入範本.xlsx" />
     <Content Include="ModuleResources\Other\SPA_Violation\供應商違規紀錄資料匯出範本.xlsx" />
     <None Include="packages.config" />
     <Content Include="Views\_ViewStart.cshtml" />

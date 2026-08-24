@@ -22,6 +22,7 @@ namespace Platform.WebSite.Controllers
     public class SPA_ScoringInfoController : BaseMVCController
     {
         private SPA_ScoringInfoManager _mgr = new SPA_ScoringInfoManager();
+        private SPA_ScoringInfoSheetManager _sheetMgr = new SPA_ScoringInfoSheetManager();
         private SPA_PeriodManager _spaPeriodMgr = new SPA_PeriodManager();
         private TET_SupplierManager _supplierMgr = new TET_SupplierManager();
 
@@ -83,7 +84,8 @@ namespace Platform.WebSite.Controllers
             this.ViewBag.Name = "修改";
             this.ViewBag.IsCreateMode = false;
             this.ViewBag.Mode = "Edit";
-            this.ViewBag.TabVisiable = ViewUtils.ComputeAcl(model);
+            var sheetSetting = this._sheetMgr.GetDetail(model.ServiceItem, model.POSource);
+            this.ViewBag.TabVisiable = ViewUtils.ComputeAcl(sheetSetting) ?? ViewUtils.ComputeAcl(model);
             this.ViewBag.CanSubmit = this._mgr.GetSetupInfoConfirm(model.BU, model.ServiceItem, cUser.ID, cTime).Contains(cUser.ID);
             this.ViewBag.AllowButton = true;
             this.InitAction(id);
@@ -110,7 +112,8 @@ namespace Platform.WebSite.Controllers
             this.ViewBag.Name = "檢視";
             this.ViewBag.IsCreateMode = false;
             this.ViewBag.Mode = "Detail";
-            this.ViewBag.TabVisiable = ViewUtils.ComputeAcl(model);
+            var sheetSetting = this._sheetMgr.GetDetail(model.ServiceItem, model.POSource);
+            this.ViewBag.TabVisiable = ViewUtils.ComputeAcl(sheetSetting) ?? ViewUtils.ComputeAcl(model);
             this.ViewBag.CanSubmit = false;
             this.ViewBag.AllowButton = allowButton;
             this.InitAction(id);

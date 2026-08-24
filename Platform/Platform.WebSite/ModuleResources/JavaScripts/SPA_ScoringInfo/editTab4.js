@@ -13,6 +13,18 @@ $(function () {
     $(btnSave_tab4_Selector).click(function () {
         var url = modify_tab4_ApiUrl
         var inputData = getMainInput(mainForm);
+        var msgList = [];
+
+        if (isSheetFieldRequired("IsSheet4CorrectnessFill") && (inputData.Correctness == null || inputData.Correctness.length == 0))
+            msgList.push("作業正確性 為必填欄位");
+
+        if (isSheetFieldRequired("IsSheet4ContributionFill") && (inputData.Contribution == null || inputData.Contribution.length == 0))
+            msgList.push("人員備齊貢獻度 為必填欄位");
+
+        if (msgList.length > 0) {
+            alert(msgList.join("\n"));
+            return;
+        }
         
         $.ajax({
             url: url,

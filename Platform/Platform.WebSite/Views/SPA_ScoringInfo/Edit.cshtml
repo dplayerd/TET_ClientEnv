@@ -28,11 +28,17 @@
     Uri modify_tab5_ApiUrl = new Uri("api/SPA_ScoringInfoApi/Modify_Tab5/" + id, UriKind.Relative);
     Uri modify_tab6_ApiUrl = new Uri("api/SPA_ScoringInfoApi/Modify_Tab6/" + id, UriKind.Relative);
     Uri modify_tab7_ApiUrl = new Uri("api/SPA_ScoringInfoApi/Modify_Tab7/" + id, UriKind.Relative);
+    Uri import_tab1_ApiUrl = new Uri("api/SPA_ScoringInfoApi/Import_Tab1/" + id, UriKind.Relative);
+    Uri import_tab2_ApiUrl = new Uri("api/SPA_ScoringInfoApi/Import_Tab2/" + id, UriKind.Relative);
+    Uri import_tab3_ApiUrl = new Uri("api/SPA_ScoringInfoApi/Import_Tab3/" + id, UriKind.Relative);
     Uri abordApiUrl = new Uri("api/SPA_ScoringInfoApi/Abord/" + id, UriKind.Relative);
 
     Uri listPageUrl = new Uri("SPA_ScoringInfo/Index/" + masterInfo.CurrentPage.ID, UriKind.Relative);
     Uri readPrevPeriodDetailApiUrl = new Uri("api/SPA_ScoringInfoApi/ReadPrevPeriodDetail/", UriKind.Relative);
     Uri downloadFileUrl = new Uri("SPA_ScoringInfo/Attachment/", UriKind.Relative);
+    Uri importTemplate_tab1_Url = new Uri("ModuleResources/Other/SPA_ScoringInfo/ImportTemplates/人力盤點頁籤匯入明細匯入範本.xlsx", UriKind.Relative);
+    Uri importTemplate_tab2_Url = new Uri("ModuleResources/Other/SPA_ScoringInfo/ImportTemplates/施工達交狀況盤點頁籤明細匯入範本.xlsx", UriKind.Relative);
+    Uri importTemplate_tab3_Url = new Uri("ModuleResources/Other/SPA_ScoringInfo/ImportTemplates/施工正確性頁籤明細匯入範本.xlsx", UriKind.Relative);
 
     // 下拉選單項目
     var pairList_MajorJob = this.ViewBag.ParamList_MajorJob as List<KeyTextModel>;
@@ -186,6 +192,15 @@
 
                                     <div class="tab-pane fade show" id="tab1" role="tabpanel" aria-labelledby="home-tab">
                                         <!-- 人力盤點 -->
+                                        <div class="row mb-4 import-area" data-tab="1">
+                                            <div class="col-12">
+                                                <a class="btn btn-sm btn-light-primary mr-2" href="~/ModuleResources/Other/SPA_ScoringInfo/ImportTemplates/人力盤點頁籤匯入明細匯入範本.xlsx" target="_blank">下載範本</a>
+                                                <input type="file" name="ImportFile_Tab1" accept=".xlsx" class="form-control-file d-inline-block mr-2" style="width:auto;" />
+                                                <button type="button" name="btnImportTab1" class="btn btn-sm btn-info mr-2">匯入檔案</button>
+                                                <button type="button" name="btnCancelImportTab1" class="btn btn-sm btn-secondary">取消</button>
+                                            </div>
+                                        </div>
+
                                         <div id="divDetailEditor_Tab1">
                                             <div style="display: none;">
                                                 <input type="text" name="Source" value="前期匯入" /><br />
@@ -378,6 +393,15 @@
 
                                     <div class="tab-pane fade" id="tab2" role="tabpanel" aria-labelledby="profile-tab">
                                         <!-- 施工達交狀況盤點 -->
+                                        <div class="row mb-4 import-area" data-tab="2">
+                                            <div class="col-12">
+                                                <a class="btn btn-sm btn-light-primary mr-2" href="~/ModuleResources/Other/SPA_ScoringInfo/ImportTemplates/施工達交狀況盤點頁籤明細匯入範本.xlsx" target="_blank">下載範本</a>
+                                                <input type="file" name="ImportFile_Tab2" accept=".xlsx" class="form-control-file d-inline-block mr-2" style="width:auto;" />
+                                                <button type="button" name="btnImportTab2" class="btn btn-sm btn-info mr-2">匯入檔案</button>
+                                                <button type="button" name="btnCancelImportTab2" class="btn btn-sm btn-secondary">取消</button>
+                                            </div>
+                                        </div>
+
                                         <div id="divDetailEditor_Tab2">
                                             <div style="display: none;">
                                                 <input type="text" name="DetailID" value="" /><br />
@@ -477,6 +501,14 @@
 
                                     <div class="tab-pane fade" id="tab3" role="tabpanel" aria-labelledby="contact-tab">
                                         <!-- 施工正確性 -->
+                                        <div class="row mb-4 import-area" data-tab="3">
+                                            <div class="col-12">
+                                                <a class="btn btn-sm btn-light-primary mr-2" href="~/ModuleResources/Other/SPA_ScoringInfo/ImportTemplates/施工正確性頁籤明細匯入範本.xlsx" target="_blank">下載範本</a>
+                                                <input type="file" name="ImportFile_Tab3" accept=".xlsx" class="form-control-file d-inline-block mr-2" style="width:auto;" />
+                                                <button type="button" name="btnImportTab3" class="btn btn-sm btn-info mr-2">匯入檔案</button>
+                                                <button type="button" name="btnCancelImportTab3" class="btn btn-sm btn-secondary">取消</button>
+                                            </div>
+                                        </div>
 
                                         <div class="row">
                                             <div class="col-2">
@@ -1004,6 +1036,9 @@
         var modify_tab5_ApiUrl = platformEnvironment.hostUrl + '@modify_tab5_ApiUrl';
         var modify_tab6_ApiUrl = platformEnvironment.hostUrl + '@modify_tab6_ApiUrl';
         var modify_tab7_ApiUrl = platformEnvironment.hostUrl + '@modify_tab7_ApiUrl';
+        var import_tab1_ApiUrl = platformEnvironment.hostUrl + '@import_tab1_ApiUrl';
+        var import_tab2_ApiUrl = platformEnvironment.hostUrl + '@import_tab2_ApiUrl';
+        var import_tab3_ApiUrl = platformEnvironment.hostUrl + '@import_tab3_ApiUrl';
         var abordApiUrl = platformEnvironment.hostUrl + '@abordApiUrl';
         var readDetailApiUrl = platformEnvironment.hostUrl + '@readDetailApiUrl';
 

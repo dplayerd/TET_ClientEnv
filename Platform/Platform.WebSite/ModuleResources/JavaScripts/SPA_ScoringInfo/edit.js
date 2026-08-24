@@ -47,6 +47,7 @@ var divAddFileAreaSelector = "#divAddFileArea";   // 加入檔案區
 var btnAddFileSelector = "#btnAddFile"            // 加入檔案鈕
 
 var divAbordReasonSelector = "#divAbordReason";   // 填寫中止原因的範例區域
+var sheetSetting = null;                           // SPA評鑑計分資料頁籤顯示設定
 
 
 $(function () {
@@ -132,6 +133,7 @@ $(function () {
             type: "JSON",
             data: { id: id, includeApprovalList: true },
             success: function (data) {
+                sheetSetting = data.SheetSetting;
                 setMainInput(mainForm, data);
             },
             error: function (data) {
@@ -155,6 +157,10 @@ $(function () {
         // 宣告FormData ，並放入主要資料
         var inputData = getMainInput(mainForm);
         validMainInput(inputData);
+
+        if (!confirm("每個頁籤都必須按「儲存」一次(系統會顯示「儲存成功」的對話框)。\n請再次確認：所有頁籤資料是否都已填寫完成")) {
+            return;
+        }
 
         $.ajax({
             url: submitApiUrl,
@@ -280,6 +286,7 @@ $(function () {
 
     // 將輸入內容還原至表單
     window.setMainInput = function (jqObjArea, objFormData) {
+        sheetSetting = objFormData.SheetSetting;
         setFormInput(jqObjArea, objFormData);
 
         // In tab1
@@ -303,6 +310,7 @@ $(function () {
         // 輸出各明細
         setTimeout(function () {
             var canEdit = (objFormData.ApproveStatus == null || objFormData.ApproveStatus == "" || objFormData.ApproveStatus == "已退回") ? true : false;
+            $(".import-area").toggle(canEdit && viewMode != "Detail");
 
             setDetailList_Tab1(canEdit, objFormData.Module1List);
             setDetailList_Tab2(canEdit, objFormData.Module2List);
@@ -341,6 +349,62 @@ $(function () {
         }
         //-- 調整按鈕是否顯示 --
     }
+
+    window.isSheetFieldRequired = function (settingName) {
+        if (sheetSetting == null)
+            return true;
+
+        return sheetSetting[settingName] === true;
+    }
+
+    function getApiErrorMessage(data, defaultMessage) {
+        if (data.responseJSON == undefined || data.responseJSON.Message == null)
+            return defaultMessage;
+
+        try {
+            return JSON.parse(data.responseJSON.Message).join('\n');
+        } catch (ex) {
+            console.log(ex);
+            return data.responseJSON.ExceptionMessage || defaultMessage;
+        }
+    }
+
+    function bindImportButton(buttonName, fileName, apiUrl) {
+        $("[name=" + buttonName + "]").click(function () {
+            var fileInput = $("[name=" + fileName + "]");
+            var files = fileInput.get(0).files;
+            if (files == undefined || files == null || files.length == 0) {
+                alert("請選擇匯入檔案");
+                return;
+            }
+
+            var formData = new FormData();
+            formData.append("file", files[0]);
+
+            $.ajax({
+                url: apiUrl,
+                method: "POST",
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function () {
+                    alert("匯入成功");
+                    location.href = location.href;
+                },
+                error: function (data) {
+                    alert(getApiErrorMessage(data, "匯入失敗，請聯絡管理員。"));
+                }
+            });
+        });
+    }
+
+    bindImportButton("btnImportTab1", "ImportFile_Tab1", import_tab1_ApiUrl);
+    bindImportButton("btnImportTab2", "ImportFile_Tab2", import_tab2_ApiUrl);
+    bindImportButton("btnImportTab3", "ImportFile_Tab3", import_tab3_ApiUrl);
+
+    $("[name=btnCancelImportTab1]").click(function () { $("[name=ImportFile_Tab1]").val(""); });
+    $("[name=btnCancelImportTab2]").click(function () { $("[name=ImportFile_Tab2]").val(""); });
+    $("[name=btnCancelImportTab3]").click(function () { $("[name=ImportFile_Tab3]").val(""); });
 
     // 初始化欄位行為
     var initMainForm = function () {
@@ -400,6 +464,7 @@ $(function () {
             $(ApproveTitleSelector).show();
         } else if (viewMode == "Detail") {
             $(btnSubmitSelector).hide();
+            $(".import-area").hide();
 
             $(ApproveTableSelector).show();
             $(ApproveTitleSelector).show();

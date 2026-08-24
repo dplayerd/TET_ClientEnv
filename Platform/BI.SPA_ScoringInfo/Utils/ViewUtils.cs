@@ -88,6 +88,26 @@ namespace BI.SPA_ScoringInfo.Utils
             return retObj;
         }
 
+        /// <summary> 依 SPA 評鑑計分資料頁籤設定決定頁籤是否顯示 </summary>
+        /// <param name="sheetSetting"></param>
+        /// <returns></returns>
+        public static TabVisiableModel ComputeAcl(SPA_ScoringInfoSheetModel sheetSetting)
+        {
+            if (sheetSetting == null)
+                return null;
+
+            return new TabVisiableModel()
+            {
+                Tab1 = sheetSetting.IsSheet1Show,
+                Tab2 = sheetSetting.IsSheet2Show,
+                Tab3 = sheetSetting.IsSheet3Show,
+                Tab4 = sheetSetting.IsSheet4Show,
+                Tab5 = sheetSetting.IsSheet5Show,
+                Tab6 = sheetSetting.IsSheet6Show,
+                Tab7 = sheetSetting.IsSheet7Show,
+            };
+        }
+
 
         private static bool IsMatch(SPA_ScoringInfoModel model, string serviceItem, string poSource)
         {

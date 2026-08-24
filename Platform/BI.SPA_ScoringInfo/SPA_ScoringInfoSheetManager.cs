@@ -86,6 +86,36 @@ namespace BI.SPA_ScoringInfo
             }
         }
 
+        public SPA_ScoringInfoSheetModel GetDetail(string serviceItem, string poSource)
+        {
+            try
+            {
+                using (PlatformContextModel context = new PlatformContextModel())
+                {
+                    var query =
+                        from item in context.TET_SPA_ScoringInfoSheets
+                        join param in context.TET_Parameters on item.ServiceItemID equals param.ID
+                        where
+                            param.Type == _paraKey_AssessmentItems &&
+                            param.IsEnable &&
+                            param.Item == serviceItem &&
+                            item.POSource == poSource
+                        select item;
+
+                    var result = this.ConvertToModel(query).FirstOrDefault();
+                    if (result != null)
+                        result.ServiceItem = serviceItem;
+
+                    return result;
+                }
+            }
+            catch (Exception ex)
+            {
+                this._logger.WriteError(ex);
+                throw;
+            }
+        }
+
         private IQueryable<SPA_ScoringInfoSheetModel> ConvertToModel(IQueryable<TET_SPA_ScoringInfoSheets> query)
         {
             var result =

@@ -156,9 +156,12 @@ $(function () {
         }
 
         // 基本的必填驗證
-        if (!validField(detailModel.MachineName)) msgList.push("承攬機台名稱 " + reqText);
-        if (!validField(detailModel.MachineNo)) msgList.push("機台Serial No. " + reqText);
-        if (!validField(detailModel.OnTime)) msgList.push("是否準時交付 " + reqText);
+        if (isSheetFieldRequired("IsSheet2ServiceForFill") && !validField(detailModel.ServiceFor)) msgList.push("服務對象 " + reqText);
+        if (isSheetFieldRequired("IsSheet2WorkItemFill") && !validField(detailModel.WorkItem)) msgList.push("作業項目 " + reqText);
+        if (isSheetFieldRequired("IsSheet2MachineNameFill") && !validField(detailModel.MachineName)) msgList.push("承攬機台名稱 " + reqText);
+        if (isSheetFieldRequired("IsSheet2MachineNoFill") && !validField(detailModel.MachineNo)) msgList.push("機台Serial No. " + reqText);
+        if (isSheetFieldRequired("IsSheet2OnTimeFill") && !validField(detailModel.OnTime)) msgList.push("是否準時交付 " + reqText);
+        if (isSheetFieldRequired("IsSheet2RemarkFill") && !validField(detailModel.Remark)) msgList.push("備註 " + reqText);
 
         // 商業邏輯驗證
         // 若評鑑項目=Startup，以下欄位為非必填。

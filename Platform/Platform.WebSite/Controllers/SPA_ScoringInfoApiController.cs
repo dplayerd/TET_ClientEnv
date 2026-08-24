@@ -34,6 +34,7 @@ namespace Platform.WebSite.Controllers
         private SPA_ScoringInfoManager _mgr = new SPA_ScoringInfoManager();
         private SPA_ScoringInfoModulesManager _detailMgr = new SPA_ScoringInfoModulesManager();
         private SPA_ScoringInfoApprovalManager _approvalMgr = new SPA_ScoringInfoApprovalManager();
+        private SPA_ScoringInfoSheetManager _sheetMgr = new SPA_ScoringInfoSheetManager();
 
 
         public class TempPager : DataTablePager
@@ -97,10 +98,14 @@ namespace Platform.WebSite.Controllers
             // 驗證正確性
             List<string> msgList = new List<string>();
             List<string> tempMsgList;
+            var sheetSetting = this.GetSheetSetting(model, msgList);
             var validResult = SPA_ScoringInfoValidator.Valid(model, out tempMsgList);
             if (!validResult)
                 msgList.AddRange(tempMsgList);
-            var validDetailResult = SPA_ScoringInfoModule1Validator.Valid(model.Module1List, out tempMsgList);
+            var validDetailResult = false;
+            tempMsgList = new List<string>();
+            if (sheetSetting != null)
+                validDetailResult = SPA_ScoringInfoModule1Validator.Valid(model.Module1List, sheetSetting, out tempMsgList);
             if (!validDetailResult)
                 msgList.AddRange(tempMsgList);
 
@@ -109,6 +114,7 @@ namespace Platform.WebSite.Controllers
 
             try
             {
+                model.SheetSetting = sheetSetting;
                 // 修改
                 this._detailMgr.Modify_Module1(model, model.Module1List, cUser.ID, cTime);
                 return Ok();
@@ -134,10 +140,14 @@ namespace Platform.WebSite.Controllers
             // 驗證正確性
             List<string> msgList = new List<string>();
             List<string> tempMsgList;
+            var sheetSetting = this.GetSheetSetting(model, msgList);
             var validResult = SPA_ScoringInfoValidator.Valid(model, out tempMsgList);
             if (!validResult)
                 msgList.AddRange(tempMsgList);
-            var validDetailResult = SPA_ScoringInfoModule2Validator.Valid(model, model.Module2List, out tempMsgList);
+            var validDetailResult = false;
+            tempMsgList = new List<string>();
+            if (sheetSetting != null)
+                validDetailResult = SPA_ScoringInfoModule2Validator.Valid(model, model.Module2List, sheetSetting, out tempMsgList);
             if (!validDetailResult)
                 msgList.AddRange(tempMsgList);
 
@@ -146,6 +156,7 @@ namespace Platform.WebSite.Controllers
 
             try
             {
+                model.SheetSetting = sheetSetting;
                 // 修改
                 this._detailMgr.Modify_Module2(model, model.Module2List, cUser.ID, cTime);
                 return Ok();
@@ -172,10 +183,17 @@ namespace Platform.WebSite.Controllers
             // 驗證正確性
             List<string> msgList = new List<string>();
             List<string> tempMsgList;
-            var validResult = SPA_ScoringInfoValidator.Valid_Tab3(model, out tempMsgList);
+            var sheetSetting = this.GetSheetSetting(model, msgList);
+            var validResult = false;
+            tempMsgList = new List<string>();
+            if (sheetSetting != null)
+                validResult = SPA_ScoringInfoValidator.Valid_Tab3(model, sheetSetting, out tempMsgList);
             if (!validResult)
                 msgList.AddRange(tempMsgList);
-            var validDetailResult = SPA_ScoringInfoModule3Validator.Valid(model.Module3List, out tempMsgList);
+            var validDetailResult = false;
+            tempMsgList = new List<string>();
+            if (sheetSetting != null)
+                validDetailResult = SPA_ScoringInfoModule3Validator.Valid(model.Module3List, sheetSetting, out tempMsgList);
             if (!validDetailResult)
                 msgList.AddRange(tempMsgList);
 
@@ -184,8 +202,156 @@ namespace Platform.WebSite.Controllers
 
             try
             {
+                model.SheetSetting = sheetSetting;
                 // 修改
                 this._detailMgr.Modify_Module3(model, model.Module3List, cUser.ID, cTime);
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(JsonConvert.SerializeObject(new string[] { ex.Message }));
+            }
+        }
+
+        [Route("~/api/SPA_ScoringInfoApi/Import_Tab1/{id}")]
+        [HttpPost]
+        public IHttpActionResult Import_Tab1(Guid id)
+        {
+            DateTime cTime = DateTime.Now;
+
+            var cUser = UserProfileService.GetCurrentUser();
+            if (string.IsNullOrWhiteSpace(cUser.ID))
+                throw new UnauthorizedAccessException();
+
+            try
+            {
+                var model = this._mgr.GetOne(id);
+                List<string> msgList = new List<string>();
+                var sheetSetting = this.GetSheetSetting(model, msgList);
+                if (sheetSetting == null)
+                    return BadRequest(JsonConvert.SerializeObject(msgList));
+
+                var importedList = this.ReadImportTab1(model, sheetSetting, out msgList);
+                if (msgList.Any())
+                    return BadRequest(JsonConvert.SerializeObject(msgList));
+
+                var detailList = this._detailMgr.GetList_Module1(id) ?? new List<SPA_ScoringInfoModule1Model>();
+                foreach (var imported in importedList)
+                {
+                    var exists = detailList.FirstOrDefault(obj => obj.Supplier == imported.Supplier && obj.EmpName == imported.EmpName);
+                    if (exists == null)
+                    {
+                        detailList.Add(imported);
+                    }
+                    else
+                    {
+                        imported.ID = exists.ID;
+                        var index = detailList.IndexOf(exists);
+                        detailList[index] = imported;
+                    }
+                }
+
+                model.SheetSetting = sheetSetting;
+                model.Module1List = detailList;
+                this._detailMgr.Modify_Module1(model, detailList, cUser.ID, cTime);
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(JsonConvert.SerializeObject(new string[] { ex.Message }));
+            }
+        }
+
+        [Route("~/api/SPA_ScoringInfoApi/Import_Tab2/{id}")]
+        [HttpPost]
+        public IHttpActionResult Import_Tab2(Guid id)
+        {
+            DateTime cTime = DateTime.Now;
+
+            var cUser = UserProfileService.GetCurrentUser();
+            if (string.IsNullOrWhiteSpace(cUser.ID))
+                throw new UnauthorizedAccessException();
+
+            try
+            {
+                var model = this._mgr.GetOne(id);
+                List<string> msgList = new List<string>();
+                var sheetSetting = this.GetSheetSetting(model, msgList);
+                if (sheetSetting == null)
+                    return BadRequest(JsonConvert.SerializeObject(msgList));
+
+                var importedList = this.ReadImportTab2(model, sheetSetting, out msgList);
+                if (msgList.Any())
+                    return BadRequest(JsonConvert.SerializeObject(msgList));
+
+                var detailList = this._detailMgr.GetList_Module2(id) ?? new List<SPA_ScoringInfoModule2Model>();
+                foreach (var imported in importedList)
+                {
+                    var exists = detailList.FirstOrDefault(obj => obj.MachineName == imported.MachineName && obj.MachineNo == imported.MachineNo);
+                    if (exists == null)
+                    {
+                        detailList.Add(imported);
+                    }
+                    else
+                    {
+                        imported.ID = exists.ID;
+                        var index = detailList.IndexOf(exists);
+                        detailList[index] = imported;
+                    }
+                }
+
+                model.SheetSetting = sheetSetting;
+                model.Module2List = detailList;
+                this._detailMgr.Modify_Module2(model, detailList, cUser.ID, cTime);
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(JsonConvert.SerializeObject(new string[] { ex.Message }));
+            }
+        }
+
+        [Route("~/api/SPA_ScoringInfoApi/Import_Tab3/{id}")]
+        [HttpPost]
+        public IHttpActionResult Import_Tab3(Guid id)
+        {
+            DateTime cTime = DateTime.Now;
+
+            var cUser = UserProfileService.GetCurrentUser();
+            if (string.IsNullOrWhiteSpace(cUser.ID))
+                throw new UnauthorizedAccessException();
+
+            try
+            {
+                var model = this._mgr.GetOne(id);
+                List<string> msgList = new List<string>();
+                var sheetSetting = this.GetSheetSetting(model, msgList);
+                if (sheetSetting == null)
+                    return BadRequest(JsonConvert.SerializeObject(msgList));
+
+                var importedList = this.ReadImportTab3(model, sheetSetting, out msgList);
+                if (msgList.Any())
+                    return BadRequest(JsonConvert.SerializeObject(msgList));
+
+                var detailList = this._detailMgr.GetList_Module3(id) ?? new List<SPA_ScoringInfoModule3Model>();
+                foreach (var imported in importedList)
+                {
+                    var exists = detailList.FirstOrDefault(obj => obj.Date.Date == imported.Date.Date && obj.Location == imported.Location && obj.Description == imported.Description);
+                    if (exists == null)
+                    {
+                        detailList.Add(imported);
+                    }
+                    else
+                    {
+                        imported.ID = exists.ID;
+                        var index = detailList.IndexOf(exists);
+                        detailList[index] = imported;
+                    }
+                }
+
+                model.SheetSetting = sheetSetting;
+                model.Module3List = detailList;
+                this._detailMgr.Modify_Module3(model, detailList, cUser.ID, cTime);
                 return Ok();
             }
             catch (Exception ex)
@@ -209,15 +375,20 @@ namespace Platform.WebSite.Controllers
             // 驗證正確性
             List<string> msgList = new List<string>();
             List<string> tempMsgList;
-            var validResult = SPA_ScoringInfoValidator.Valid_Tab4(model, out tempMsgList);
+            var sheetSetting = this.GetSheetSetting(model, msgList);
+            var validResult = false;
+            tempMsgList = new List<string>();
+            if (sheetSetting != null)
+                validResult = SPA_ScoringInfoValidator.Valid_Tab4(model, sheetSetting, out tempMsgList);
             if (!validResult)
                 msgList.AddRange(tempMsgList);
 
-            if (!validResult)
+            if (!validResult || sheetSetting == null)
                 return BadRequest(JsonConvert.SerializeObject(msgList));
       
             try
             {
+                model.SheetSetting = sheetSetting;
                 // 修改
                 this._mgr.Modify_Tab4(model, cUser.ID, cTime);
                 return Ok();
@@ -244,15 +415,20 @@ namespace Platform.WebSite.Controllers
             // 驗證正確性
             List<string> msgList = new List<string>();
             List<string> tempMsgList;
-            var validResult = SPA_ScoringInfoValidator.Valid_Tab5(model, out tempMsgList);
+            var sheetSetting = this.GetSheetSetting(model, msgList);
+            var validResult = false;
+            tempMsgList = new List<string>();
+            if (sheetSetting != null)
+                validResult = SPA_ScoringInfoValidator.Valid_Tab5(model, sheetSetting, out tempMsgList);
             if (!validResult)
                 msgList.AddRange(tempMsgList);
 
-            if (!validResult)
+            if (!validResult || sheetSetting == null)
                 return BadRequest(JsonConvert.SerializeObject(msgList));
 
             try
             {
+                model.SheetSetting = sheetSetting;
                 // 修改
                 this._mgr.Modify_Tab5(model, cUser.ID, cTime);
                 return Ok();
@@ -280,19 +456,24 @@ namespace Platform.WebSite.Controllers
             // 驗證正確性
             List<string> msgList = new List<string>();
             List<string> tempMsgList;
-            var validResult = SPA_ScoringInfoValidator.Valid_Tab6(model, out tempMsgList);
+            var sheetSetting = this.GetSheetSetting(model, msgList);
+            var validResult = false;
+            tempMsgList = new List<string>();
+            if (sheetSetting != null)
+                validResult = SPA_ScoringInfoValidator.Valid_Tab6(model, sheetSetting, out tempMsgList);
             if (!validResult)
                 msgList.AddRange(tempMsgList);
 
-            var validDetailResult = SPA_ScoringInfoModule4Validator.Valid(model.Module4List, out tempMsgList);
+            var validDetailResult = sheetSetting != null && SPA_ScoringInfoModule4Validator.Valid(model.Module4List, sheetSetting, out tempMsgList);
             if (!validDetailResult)
                 msgList.AddRange(tempMsgList);
 
-            if (!validResult || !validDetailResult)
+            if (!validResult || !validDetailResult || sheetSetting == null)
                 return BadRequest(JsonConvert.SerializeObject(msgList));
          
             try
             {
+                model.SheetSetting = sheetSetting;
                 // 修改
                 this._detailMgr.Modify_Module4(model, model.Module4List, cUser.ID, cTime);
                 return Ok();
@@ -349,15 +530,17 @@ namespace Platform.WebSite.Controllers
             // 驗證正確性
             List<string> msgList = new List<string>();
             List<string> tempMsgList;
+            var sheetSetting = this.GetSheetSetting(model, msgList);
             var validResult = SPA_ScoringInfoValidator.Valid(model, out tempMsgList);
             if (!validResult)
                 msgList.AddRange(tempMsgList);
 
-            if (!validResult)
+            if (!validResult || sheetSetting == null)
                 return BadRequest(JsonConvert.SerializeObject(msgList));
 
             try
             {
+                model.SheetSetting = sheetSetting;
                 // 修改
                 this._mgr.Modify_Tab7(model, fileUploads, cUser.ID, cTime);
                 return Ok();
@@ -384,6 +567,11 @@ namespace Platform.WebSite.Controllers
 
             try
             {
+                var dbModel = this._mgr.GetOne(model.ID.Value);
+                List<string> msgList = new List<string>();
+                var sheetSetting = this.GetSheetSetting(dbModel, msgList);
+                if (sheetSetting == null)
+                    return BadRequest(JsonConvert.SerializeObject(msgList));
 
                 // 送出
                 this._approvalMgr.Submit(model.ID.Value, cUser.ID, cTime);
@@ -669,6 +857,267 @@ namespace Platform.WebSite.Controllers
 
             var msNewOutput = new MemoryStream(msOutput.ToArray());
             return msNewOutput;
+        }
+        #endregion
+
+        #region Private
+        private SPA_ScoringInfoSheetModel GetSheetSetting(SPA_ScoringInfoModel model, List<string> msgList)
+        {
+            if (model == null)
+            {
+                msgList.Add("SPA評鑑計分資料不存在。");
+                return null;
+            }
+
+            if ((string.IsNullOrWhiteSpace(model.ServiceItem) || string.IsNullOrWhiteSpace(model.POSource)) && model.ID.HasValue)
+            {
+                var dbModel = this._mgr.GetOne(model.ID.Value);
+                if (dbModel != null)
+                {
+                    model.ServiceItem = dbModel.ServiceItem;
+                    model.POSource = dbModel.POSource;
+                }
+            }
+
+            var sheetSetting = this._sheetMgr.GetDetail(model.ServiceItem, model.POSource);
+            if (sheetSetting == null)
+                msgList.Add($"找不到 SPA評鑑計分資料頁籤顯示設定，評鑑項目：{model.ServiceItem}，PO Source：{model.POSource}。請先維護設定後再存檔。");
+
+            return sheetSetting;
+        }
+
+        private IWorkbook GetUploadWorkbook()
+        {
+            if (!HttpContext.Current.Request.Files.AllKeys.Any())
+                throw new ArgumentException("請選擇匯入檔案。");
+
+            var file = HttpContext.Current.Request.Files[0];
+            if (file == null || file.ContentLength == 0)
+                throw new ArgumentException("請選擇匯入檔案。");
+
+            return new XSSFWorkbook(file.InputStream);
+        }
+
+        private List<SPA_ScoringInfoModule1Model> ReadImportTab1(SPA_ScoringInfoModel mainModel, SPA_ScoringInfoSheetModel sheetSetting, out List<string> msgList)
+        {
+            msgList = new List<string>();
+            var result = new List<SPA_ScoringInfoModule1Model>();
+
+            var sheet = this.GetUploadWorkbook().GetSheetAt(0);
+            for (int i = 1; i <= sheet.LastRowNum; i++)
+            {
+                var row = sheet.GetRow(i);
+                if (this.IsEmptyRow(row))
+                    continue;
+
+                int rowNo = i + 1;
+                this.ValidMainColumns(mainModel, row, rowNo, msgList);
+
+                result.Add(new SPA_ScoringInfoModule1Model()
+                {
+                    SIID = mainModel.ID.Value,
+                    Source = this.GetCellString(row, 5),
+                    Type = this.GetCellString(row, 6),
+                    Supplier = this.GetCellString(row, 7),
+                    EmpName = this.GetCellString(row, 8),
+                    MajorJob = this.GetCellString(row, 9),
+                    IsIndependent = this.GetCellString(row, 10),
+                    SkillLevel = this.GetCellString(row, 11),
+                    EmpStatus = this.GetCellString(row, 12),
+                    TELSeniorityY = this.GetCellString(row, 13),
+                    TELSeniorityM = this.GetCellString(row, 14),
+                    Remark = this.GetCellString(row, 15),
+                });
+            }
+
+            this.ValidImportValues_Tab1(result, msgList);
+            this.ValidDuplicate(result.GroupBy(obj => obj.Supplier + "___" + obj.EmpName), "員工姓名", msgList);
+            List<string> detailMsgList;
+            this.AddDetailValidationMessage(SPA_ScoringInfoModule1Validator.Valid(result, sheetSetting, out detailMsgList), detailMsgList, msgList);
+            return result;
+        }
+
+        private List<SPA_ScoringInfoModule2Model> ReadImportTab2(SPA_ScoringInfoModel mainModel, SPA_ScoringInfoSheetModel sheetSetting, out List<string> msgList)
+        {
+            msgList = new List<string>();
+            var result = new List<SPA_ScoringInfoModule2Model>();
+
+            var sheet = this.GetUploadWorkbook().GetSheetAt(0);
+            for (int i = 1; i <= sheet.LastRowNum; i++)
+            {
+                var row = sheet.GetRow(i);
+                if (this.IsEmptyRow(row))
+                    continue;
+
+                int rowNo = i + 1;
+                this.ValidMainColumns(mainModel, row, rowNo, msgList);
+
+                result.Add(new SPA_ScoringInfoModule2Model()
+                {
+                    SIID = mainModel.ID.Value,
+                    ServiceFor = this.GetCellString(row, 5),
+                    WorkItem = this.GetCellString(row, 6),
+                    MachineName = this.GetCellString(row, 7),
+                    MachineNo = this.GetCellString(row, 8),
+                    OnTime = this.GetCellString(row, 9),
+                    Remark = this.GetCellString(row, 10),
+                });
+            }
+
+            this.ValidYesNo(result.Select(obj => obj.OnTime), "是否準時交付", msgList);
+            List<string> detailMsgList;
+            this.AddDetailValidationMessage(SPA_ScoringInfoModule2Validator.Valid(mainModel, result, sheetSetting, out detailMsgList), detailMsgList, msgList);
+            return result;
+        }
+
+        private List<SPA_ScoringInfoModule3Model> ReadImportTab3(SPA_ScoringInfoModel mainModel, SPA_ScoringInfoSheetModel sheetSetting, out List<string> msgList)
+        {
+            msgList = new List<string>();
+            var result = new List<SPA_ScoringInfoModule3Model>();
+
+            var sheet = this.GetUploadWorkbook().GetSheetAt(0);
+            for (int i = 1; i <= sheet.LastRowNum; i++)
+            {
+                var row = sheet.GetRow(i);
+                if (this.IsEmptyRow(row))
+                    continue;
+
+                int rowNo = i + 1;
+                this.ValidMainColumns(mainModel, row, rowNo, msgList);
+
+                var date = this.GetCellDate(row, 5);
+                if (!date.HasValue)
+                    msgList.Add($"第{rowNo}筆資料 欄位 時間 欄位值錯誤");
+
+                result.Add(new SPA_ScoringInfoModule3Model()
+                {
+                    SIID = mainModel.ID.Value,
+                    Date = date ?? DateTime.MinValue,
+                    Location = this.GetCellString(row, 6),
+                    TELLoss = this.GetCellString(row, 7),
+                    CustomerLoss = this.GetCellString(row, 8),
+                    Accident = this.GetCellString(row, 9),
+                    Description = this.GetCellString(row, 10),
+                });
+            }
+
+            this.ValidYesNo(result.Select(obj => obj.TELLoss), "TEL財損", msgList);
+            this.ValidYesNo(result.Select(obj => obj.CustomerLoss), "客戶財損", msgList);
+            this.ValidYesNo(result.Select(obj => obj.Accident), "人身事故", msgList);
+            this.ValidDuplicate(result.GroupBy(obj => obj.Date.ToString("yyyy-MM-dd") + "___" + obj.Location + "___" + obj.Description), "時間 + 地點 + 事件說明", msgList);
+            List<string> detailMsgList;
+            this.AddDetailValidationMessage(SPA_ScoringInfoModule3Validator.Valid(result, sheetSetting, out detailMsgList), detailMsgList, msgList);
+            return result;
+        }
+
+        private void ValidMainColumns(SPA_ScoringInfoModel mainModel, IRow row, int rowNo, List<string> msgList)
+        {
+            var period = this.GetCellString(row, 0);
+            var bu = this.GetCellString(row, 1);
+            var serviceFor = this.GetCellString(row, 2);
+            var serviceItem = this.GetCellString(row, 3);
+            var belongTo = this.GetCellString(row, 4);
+
+            bool periodMatch = period == mainModel.Period || period.StartsWith(mainModel.Period + " ", StringComparison.OrdinalIgnoreCase);
+            if (!periodMatch || bu != mainModel.BU || serviceFor != mainModel.ServiceFor || serviceItem != mainModel.ServiceItem || belongTo != mainModel.BelongTo)
+                msgList.Add($"第{rowNo}筆資料 評鑑期間、評鑑單位、服務對象、評鑑項目、受評供應商欄位值與本單據不符");
+        }
+
+        private string GetCellString(IRow row, int cellIndex)
+        {
+            var cell = row?.GetCell(cellIndex);
+            if (cell == null)
+                return string.Empty;
+
+            if (cell.CellType == CellType.Numeric && DateUtil.IsCellDateFormatted(cell))
+                return cell.DateCellValue.ToString("yyyy-MM-dd");
+
+            return cell.ToString()?.Trim() ?? string.Empty;
+        }
+
+        private DateTime? GetCellDate(IRow row, int cellIndex)
+        {
+            var cell = row?.GetCell(cellIndex);
+            if (cell == null)
+                return null;
+
+            if (cell.CellType == CellType.Numeric && DateUtil.IsCellDateFormatted(cell))
+                return cell.DateCellValue.Date;
+
+            DateTime result;
+            if (DateTime.TryParse(this.GetCellString(row, cellIndex), out result))
+                return result.Date;
+
+            return null;
+        }
+
+        private bool IsEmptyRow(IRow row)
+        {
+            if (row == null)
+                return true;
+
+            for (int i = 0; i < row.LastCellNum; i++)
+            {
+                if (!string.IsNullOrWhiteSpace(this.GetCellString(row, i)))
+                    return false;
+            }
+
+            return true;
+        }
+
+        private void AddDetailValidationMessage(bool validResult, List<string> detailMsgList, List<string> msgList)
+        {
+            if (!validResult)
+                msgList.AddRange(detailMsgList);
+        }
+
+        private void ValidDuplicate<T>(IEnumerable<IGrouping<string, T>> groups, string title, List<string> msgList)
+        {
+            var repeated = groups.Where(obj => !string.IsNullOrWhiteSpace(obj.Key.Replace("___", string.Empty)) && obj.Count() > 1).ToList();
+            foreach (var item in repeated)
+                msgList.Add($"{title}{item.Key.Replace("___", " + ")}重複");
+        }
+
+        private void ValidYesNo(IEnumerable<string> values, string title, List<string> msgList)
+        {
+            foreach (var value in values.Where(obj => !string.IsNullOrWhiteSpace(obj)))
+            {
+                if (value != "Yes" && value != "No")
+                    msgList.Add($"欄位 {title} 欄位值錯誤");
+            }
+        }
+
+        private void ValidImportValues_Tab1(List<SPA_ScoringInfoModule1Model> list, List<string> msgList)
+        {
+            string[] sources = new[] { "本期新增", "前期匯入" };
+            string[] types = new[] { "本社社員", "協力廠商" };
+            string[] majorJobs = new[] { "直接", "間接" };
+            string[] isIndependent = new[] { "O", "X", "NA" };
+            string[] empStatus = new[] { "新進", "在職", "離職", "其他" };
+
+            foreach (var item in list)
+            {
+                if (!string.IsNullOrWhiteSpace(item.Source) && !sources.Contains(item.Source))
+                    msgList.Add("欄位 資料來源 欄位值錯誤");
+
+                if (!string.IsNullOrWhiteSpace(item.Type) && !types.Contains(item.Type))
+                    msgList.Add("欄位 本社/協力廠商 欄位值錯誤");
+
+                if (!string.IsNullOrWhiteSpace(item.MajorJob) && !majorJobs.Contains(item.MajorJob))
+                    msgList.Add("欄位 主要負責作業 欄位值錯誤");
+
+                if (!string.IsNullOrWhiteSpace(item.IsIndependent) && !isIndependent.Contains(item.IsIndependent))
+                    msgList.Add("欄位 能否獨立作業 欄位值錯誤");
+
+                if (!string.IsNullOrWhiteSpace(item.EmpStatus) && !empStatus.Contains(item.EmpStatus))
+                    msgList.Add("欄位 員工狀態 欄位值錯誤");
+
+                if (item.Source == "本期新增" && item.EmpStatus != "新進" && item.EmpStatus != "其他")
+                    msgList.Add("欄位 員工狀態 欄位值錯誤");
+
+                if (item.MajorJob == "間接" && (item.IsIndependent != "NA" || item.SkillLevel != "NA"))
+                    msgList.Add("欄位 能否獨立作業、Skill Level 欄位值錯誤");
+            }
         }
         #endregion
     }

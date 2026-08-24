@@ -113,6 +113,9 @@ namespace BI.SPA_ScoringInfo.Models
 
         /// <summary> 作業正確性&人員備齊貢獻度清單 </summary>
         public List<SPA_ScoringInfoModule4Model> Module4List { get; set; } = new List<SPA_ScoringInfoModule4Model>();
+
+        /// <summary> SPA 評鑑計分資料頁籤設定 </summary>
+        public SPA_ScoringInfoSheetModel SheetSetting { get; set; }
         #endregion
 
 

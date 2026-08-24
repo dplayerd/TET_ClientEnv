@@ -214,19 +214,20 @@ $(function () {
         }
 
         // 基本的必填驗證
-        if (!validField(detailModel.Type)) msgList.push("本社/協力廠商 " + reqText);
-        if (!validField(detailModel.Supplier)) msgList.push("供應商名稱 " + reqText);
-        if (!validField(detailModel.EmpName)) msgList.push("員工姓名 " + reqText);
-        if (!validField(detailModel.EmpStatus)) msgList.push("員工狀態 " + reqText);
-        if (!validField(detailModel.TELSeniorityY)) msgList.push("派工至TEL的年資(年) " + reqText);
-        if (!validField(detailModel.TELSeniorityM)) msgList.push("派工至TEL的年資(月) " + reqText);
+        if (isSheetFieldRequired("IsSheet1TypeFill") && !validField(detailModel.Type)) msgList.push("本社/協力廠商 " + reqText);
+        if (isSheetFieldRequired("IsSheet1SupplierFill") && !validField(detailModel.Supplier)) msgList.push("供應商名稱 " + reqText);
+        if (isSheetFieldRequired("IsSheet1EmpNameFill") && !validField(detailModel.EmpName)) msgList.push("員工姓名 " + reqText);
+        if (isSheetFieldRequired("IsSheet1EmpStatusFill") && !validField(detailModel.EmpStatus)) msgList.push("員工狀態 " + reqText);
+        if (isSheetFieldRequired("IsSheet1TELSeniorityYFill") && !validField(detailModel.TELSeniorityY)) msgList.push("派工至TEL的年資(年) " + reqText);
+        if (isSheetFieldRequired("IsSheet1TELSeniorityMFill") && !validField(detailModel.TELSeniorityM)) msgList.push("派工至TEL的年資(月) " + reqText);
+        if (isSheetFieldRequired("IsSheet1RemarkFill") && !validField(detailModel.Remark)) msgList.push("備註 " + reqText);
 
         // 商業邏輯驗證
         // 若評鑑項目=Safety，以下欄位為非必填。
         if (mainModel.ServiceItem != fixText_Safety) {
-            if (!validField(detailModel.MajorJob)) msgList.push("主要負責作業 " + reqText);
-            if (!validField(detailModel.IsIndependent)) msgList.push("能否獨立作業 " + reqText);
-            if (!validField(detailModel.SkillLevel)) msgList.push("Skill Level " + reqText);
+            if (isSheetFieldRequired("IsSheet1MajorJobFill") && !validField(detailModel.MajorJob)) msgList.push("主要負責作業 " + reqText);
+            if (isSheetFieldRequired("IsSheet1IsIndependentFill") && !validField(detailModel.IsIndependent)) msgList.push("能否獨立作業 " + reqText);
+            if (isSheetFieldRequired("IsSheet1SkillLevelFill") && !validField(detailModel.SkillLevel)) msgList.push("Skill Level " + reqText);
         }
 
         return msgList

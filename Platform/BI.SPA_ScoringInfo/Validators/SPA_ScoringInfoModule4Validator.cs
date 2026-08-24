@@ -40,8 +40,21 @@ namespace BI.SPA_ScoringInfo.Validators
         /// <returns></returns>
         public static bool Valid(List<SPA_ScoringInfoModule4Model> modelList, out List<string> msgList)
         {
+            return Valid(modelList, null, out msgList);
+        }
+
+        public static bool Valid(List<SPA_ScoringInfoModule4Model> modelList, SPA_ScoringInfoSheetModel sheetSetting, out List<string> msgList)
+        {
             Dictionary<string, string> dicMsg;
-            var configs = _validConfigs;
+            var configs = sheetSetting == null
+                ? _validConfigs
+                : new List<ValidateConfig>()
+                {
+                    new ValidateConfig() { Required = sheetSetting.IsSheet6DateFill, CanEdit = true, Name = "Date", Title = "時間" },
+                    new ValidateConfig() { Required = sheetSetting.IsSheet6LocationFill, CanEdit = true, Name = "Location", Title = "地點" },
+                    new ValidateConfig() { Required = sheetSetting.IsSheet6IsDamageFill, CanEdit = true, Name = "IsDamage", Title = "造成財損" },
+                    new ValidateConfig() { Required = sheetSetting.IsSheet6DescriptionFill, CanEdit = true, Name = "Description", Title = "事件說明" },
+                };
 
             msgList = new List<string>();
 

@@ -79,6 +79,11 @@ namespace BI.SPA_ScoringInfo.Validators
         /// <returns></returns>
         public static bool Valid_Tab3(SPA_ScoringInfoModel model, out List<string> msgList)
         {
+            return Valid_Tab3(model, null, out msgList);
+        }
+
+        public static bool Valid_Tab3(SPA_ScoringInfoModel model, SPA_ScoringInfoSheetModel sheetSetting, out List<string> msgList)
+        {
             Dictionary<string, string> dicMsg;
             var configs = _validConfigs_tab3;
 
@@ -86,7 +91,11 @@ namespace BI.SPA_ScoringInfo.Validators
             msgList = dicMsg.Values.ToList();
 
 
-            if (string.Compare(_fixText_Startup, model.ServiceItem, true) == 0 || string.Compare(_fixText_FE, model.ServiceItem, true) == 0)
+            bool requireWorkerCount = sheetSetting == null
+                ? (string.Compare(_fixText_Startup, model.ServiceItem, true) == 0 || string.Compare(_fixText_FE, model.ServiceItem, true) == 0)
+                : sheetSetting.IsSheet3WorkerCountFill;
+
+            if (requireWorkerCount)
             {
                 if (!model.WorkerCount.HasValue)
                     msgList.Add(_fixText_WorkerCount + _reqText);
@@ -110,8 +119,19 @@ namespace BI.SPA_ScoringInfo.Validators
         /// <returns></returns>
         public static bool Valid_Tab4(SPA_ScoringInfoModel model, out List<string> msgList)
         {
+            return Valid_Tab4(model, null, out msgList);
+        }
+
+        public static bool Valid_Tab4(SPA_ScoringInfoModel model, SPA_ScoringInfoSheetModel sheetSetting, out List<string> msgList)
+        {
             Dictionary<string, string> dicMsg;
-            var configs = _validConfigs_tab4;
+            var configs = sheetSetting == null
+                ? _validConfigs_tab4
+                : new List<ValidateConfig>()
+                {
+                    new ValidateConfig() { Required = sheetSetting.IsSheet4CorrectnessFill, CanEdit = true, Name = "Correctness", Title = "作業正確性" },
+                    new ValidateConfig() { Required = sheetSetting.IsSheet4ContributionFill, CanEdit = true, Name = "Contribution", Title = "人員備齊貢獻度" },
+                };
 
             var result = ColumnValidator.ValidProperty<SPA_ScoringInfoModel>(model, configs, out dicMsg);
             msgList = dicMsg.Values.ToList();
@@ -127,8 +147,19 @@ namespace BI.SPA_ScoringInfo.Validators
         /// <returns></returns>
         public static bool Valid_Tab5(SPA_ScoringInfoModel model, out List<string> msgList)
         {
+            return Valid_Tab5(model, null, out msgList);
+        }
+
+        public static bool Valid_Tab5(SPA_ScoringInfoModel model, SPA_ScoringInfoSheetModel sheetSetting, out List<string> msgList)
+        {
             Dictionary<string, string> dicMsg;
-            var configs = _validConfigs_tab5;
+            var configs = sheetSetting == null
+                ? _validConfigs_tab5
+                : new List<ValidateConfig>()
+                {
+                    new ValidateConfig() { Required = sheetSetting.IsSheet5SelfTrainingFill, CanEdit = true, Name = "SelfTraining", Title = "供應商自訓程度" },
+                    new ValidateConfig() { Required = sheetSetting.IsSheet5SelfTrainingRemarkFill, CanEdit = true, Name = "SelfTrainingRemark", Title = "備註" },
+                };
 
             var result = ColumnValidator.ValidProperty<SPA_ScoringInfoModel>(model, configs, out dicMsg);
             msgList = dicMsg.Values.ToList();
@@ -144,8 +175,18 @@ namespace BI.SPA_ScoringInfo.Validators
         /// <returns></returns>
         public static bool Valid_Tab6(SPA_ScoringInfoModel model, out List<string> msgList)
         {
+            return Valid_Tab6(model, null, out msgList);
+        }
+
+        public static bool Valid_Tab6(SPA_ScoringInfoModel model, SPA_ScoringInfoSheetModel sheetSetting, out List<string> msgList)
+        {
             Dictionary<string, string> dicMsg;
-            var configs = _validConfigs_tab6;
+            var configs = sheetSetting == null
+                ? _validConfigs_tab6
+                : new List<ValidateConfig>()
+                {
+                    new ValidateConfig() { Required = sheetSetting.IsSheet6CooperationFill, CanEdit = true, Name = "Cooperation", Title = "配合度" },
+                };
 
             var result = ColumnValidator.ValidProperty<SPA_ScoringInfoModel>(model, configs, out dicMsg);
             msgList = dicMsg.Values.ToList();

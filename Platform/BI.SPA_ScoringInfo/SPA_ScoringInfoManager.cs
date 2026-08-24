@@ -30,6 +30,7 @@ namespace BI.SPA_ScoringInfo
         private UserRoleManager _userRoleMgr = new UserRoleManager();
         private SPA_ApproverSetupManager _spa_ApproverSetupManager = new SPA_ApproverSetupManager();
         private SPA_ScoringInfoModulesManager _detailMgr = new SPA_ScoringInfoModulesManager();
+        private SPA_ScoringInfoSheetManager _sheetMgr = new SPA_ScoringInfoSheetManager();
 
         #region Read
         /// <summary> 取得 供應商SPA評鑑計分資料維護 清單 </summary>
@@ -184,6 +185,10 @@ namespace BI.SPA_ScoringInfo
                         };
 
                     var result = query.FirstOrDefault();
+                    if (result == null)
+                        return null;
+
+                    result.SheetSetting = this._sheetMgr.GetDetail(result.ServiceItem, result.POSource);
 
 
                     result.Module1List = _detailMgr.GetList_Module1(id);
@@ -308,7 +313,7 @@ namespace BI.SPA_ScoringInfo
             //--- 先檢查是否能通過商業邏輯 ---
             List<string> tempMsgList;
             List<string> msgList = new List<string>();
-            var validResult = SPA_ScoringInfoValidator.Valid_Tab4(model, out tempMsgList);
+            var validResult = SPA_ScoringInfoValidator.Valid_Tab4(model, model.SheetSetting, out tempMsgList);
             if (!validResult)
                 msgList.AddRange(tempMsgList);
 
@@ -358,7 +363,7 @@ namespace BI.SPA_ScoringInfo
             //--- 先檢查是否能通過商業邏輯 ---
             List<string> tempMsgList;
             List<string> msgList = new List<string>();
-            var validResult = SPA_ScoringInfoValidator.Valid_Tab5(model, out tempMsgList);
+            var validResult = SPA_ScoringInfoValidator.Valid_Tab5(model, model.SheetSetting, out tempMsgList);
             if (!validResult)
                 msgList.AddRange(tempMsgList);
 

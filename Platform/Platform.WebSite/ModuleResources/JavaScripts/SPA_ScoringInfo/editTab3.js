@@ -189,12 +189,12 @@ $(function () {
 
 
         // 基本的必填驗證
-        if (detailModel.Date.length == 0) msgList.push("時間 " + reqText);
-        if (detailModel.Location.length == 0) msgList.push("地點 " + reqText);
-        if (detailModel.TELLoss.length == 0) msgList.push("TEL財損 " + reqText);
-        if (detailModel.CustomerLoss.length == 0) msgList.push("客戶財損 " + reqText);
-        if (detailModel.Accident.length == 0) msgList.push("人身事故 " + reqText);
-        if (detailModel.Description.length == 0) msgList.push("事件說明 " + reqText);
+        if (isSheetFieldRequired("IsSheet3DateFill") && detailModel.Date.length == 0) msgList.push("時間 " + reqText);
+        if (isSheetFieldRequired("IsSheet3LocationFill") && detailModel.Location.length == 0) msgList.push("地點 " + reqText);
+        if (isSheetFieldRequired("IsSheet3TELLossFill") && detailModel.TELLoss.length == 0) msgList.push("TEL財損 " + reqText);
+        if (isSheetFieldRequired("IsSheet3CustomerLossFill") && detailModel.CustomerLoss.length == 0) msgList.push("客戶財損 " + reqText);
+        if (isSheetFieldRequired("IsSheet3AccidentFill") && detailModel.Accident.length == 0) msgList.push("人身事故 " + reqText);
+        if (isSheetFieldRequired("IsSheet3DescriptionFill") && detailModel.Description.length == 0) msgList.push("事件說明 " + reqText);
 
         //// 商業邏輯驗證
         //// 若評鑑項目=Startup，以下欄位為必填。

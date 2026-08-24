@@ -13,6 +13,18 @@ $(function () {
     $(btnSave_tab5_Selector).click(function () {
         var url = modify_tab5_ApiUrl
         var inputData = getMainInput(mainForm);
+        var msgList = [];
+
+        if (isSheetFieldRequired("IsSheet5SelfTrainingFill") && (inputData.SelfTraining == null || inputData.SelfTraining.length == 0))
+            msgList.push("供應商自訓程度 為必填欄位");
+
+        if (isSheetFieldRequired("IsSheet5SelfTrainingRemarkFill") && (inputData.SelfTrainingRemark == null || inputData.SelfTrainingRemark.length == 0))
+            msgList.push("備註 為必填欄位");
+
+        if (msgList.length > 0) {
+            alert(msgList.join("\n"));
+            return;
+        }
         
         $.ajax({
             url: url,

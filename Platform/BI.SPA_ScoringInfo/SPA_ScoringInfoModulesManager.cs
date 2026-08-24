@@ -408,8 +408,8 @@ namespace BI.SPA_ScoringInfo
                     var validResult = SPA_ScoringInfoValidator.Valid(mainModel, out tempMsgList);
                     if (!validResult)
                         msgList.AddRange(tempMsgList);
-                    var validDetailResult = SPA_ScoringInfoModule1Validator.Valid(module1List, out tempMsgList);
-                    if (!validResult)
+                    var validDetailResult = SPA_ScoringInfoModule1Validator.Valid(module1List, mainModel.SheetSetting, out tempMsgList);
+                    if (!validDetailResult)
                         msgList.AddRange(tempMsgList);
 
                     if (!validResult || !validDetailResult)
@@ -542,8 +542,8 @@ namespace BI.SPA_ScoringInfo
                     var validResult = SPA_ScoringInfoValidator.Valid(mainModel, out tempMsgList);
                     if (!validResult)
                         msgList.AddRange(tempMsgList);
-                    var validDetailResult = SPA_ScoringInfoModule2Validator.Valid(mainModel, Module2List, out tempMsgList);
-                    if (!validResult)
+                    var validDetailResult = SPA_ScoringInfoModule2Validator.Valid(mainModel, Module2List, mainModel.SheetSetting, out tempMsgList);
+                    if (!validDetailResult)
                         msgList.AddRange(tempMsgList);
 
                     if (!validResult || !validDetailResult)
@@ -659,11 +659,11 @@ namespace BI.SPA_ScoringInfo
                     //--- 先檢查是否能通過商業邏輯 ---
                     List<string> tempMsgList;
                     List<string> msgList = new List<string>();
-                    var validResult = SPA_ScoringInfoValidator.Valid_Tab3(mainModel, out tempMsgList);
+                    var validResult = SPA_ScoringInfoValidator.Valid_Tab3(mainModel, mainModel.SheetSetting, out tempMsgList);
                     if (!validResult)
                         msgList.AddRange(tempMsgList);
-                    var validDetailResult = SPA_ScoringInfoModule3Validator.Valid(module3List, out tempMsgList);
-                    if (!validResult)
+                    var validDetailResult = SPA_ScoringInfoModule3Validator.Valid(module3List, mainModel.SheetSetting, out tempMsgList);
+                    if (!validDetailResult)
                         msgList.AddRange(tempMsgList);
 
                     if (!validResult || !validDetailResult)
@@ -781,11 +781,11 @@ namespace BI.SPA_ScoringInfo
                     //--- 先檢查是否能通過商業邏輯 ---
                     List<string> tempMsgList;
                     List<string> msgList = new List<string>();
-                    var validResult = SPA_ScoringInfoValidator.Valid_Tab6(mainModel, out tempMsgList);
+                    var validResult = SPA_ScoringInfoValidator.Valid_Tab6(mainModel, mainModel.SheetSetting, out tempMsgList);
                     if (!validResult)
                         msgList.AddRange(tempMsgList);
-                    var validDetailResult = SPA_ScoringInfoModule4Validator.Valid(module4List, out tempMsgList);
-                    if (!validResult)
+                    var validDetailResult = SPA_ScoringInfoModule4Validator.Valid(module4List, mainModel.SheetSetting, out tempMsgList);
+                    if (!validDetailResult)
                         msgList.AddRange(tempMsgList);
 
                     if (!validResult || !validDetailResult)

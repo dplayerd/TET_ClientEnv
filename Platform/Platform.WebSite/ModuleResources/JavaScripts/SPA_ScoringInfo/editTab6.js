@@ -178,10 +178,10 @@ $(function () {
 
 
         // 基本的必填驗證
-        if (detailModel.Date.length == 0) msgList.push("時間 " + reqText);
-        if (detailModel.Location.length == 0) msgList.push("地點 " + reqText);
-        if (detailModel.IsDamage.length == 0) msgList.push("造成財損 " + reqText);
-        if (detailModel.Description.length == 0) msgList.push("事件說明 " + reqText);
+        if (isSheetFieldRequired("IsSheet6DateFill") && detailModel.Date.length == 0) msgList.push("時間 " + reqText);
+        if (isSheetFieldRequired("IsSheet6LocationFill") && detailModel.Location.length == 0) msgList.push("地點 " + reqText);
+        if (isSheetFieldRequired("IsSheet6IsDamageFill") && detailModel.IsDamage.length == 0) msgList.push("造成財損 " + reqText);
+        if (isSheetFieldRequired("IsSheet6DescriptionFill") && detailModel.Description.length == 0) msgList.push("事件說明 " + reqText);
 
         // 商業邏輯驗證
         return msgList
@@ -235,6 +235,15 @@ $(function () {
         inputData.Advantage = mainForm.find("[name=Advantage]").val();
         inputData.Improved = mainForm.find("[name=Improved]").val();
         inputData.Comment = mainForm.find("[name=Comment]").val();
+        var msgList = [];
+
+        if (isSheetFieldRequired("IsSheet6CooperationFill") && (inputData.Cooperation == null || inputData.Cooperation.length == 0))
+            msgList.push("配合度 為必填欄位");
+
+        if (msgList.length > 0) {
+            alert(msgList.join("\n"));
+            return;
+        }
 
         $.ajax({
             url: url,
