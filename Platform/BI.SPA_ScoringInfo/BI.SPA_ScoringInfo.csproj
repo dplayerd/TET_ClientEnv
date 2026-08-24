@@ -68,6 +68,7 @@
     <Compile Include="Models\Exporting\SPA_ScoringInfoExportTab5Model.cs" />
     <Compile Include="Models\Exporting\SPA_ScoringInfoExportTab6Model.cs" />
     <Compile Include="Models\SPA_ScoringInfoApprovalModel.cs" />
+    <Compile Include="Models\SPA_ScoringInfoDetailModel.cs" />
     <Compile Include="Models\SPA_ScoringInfoModel.cs" />
     <Compile Include="Models\SPA_ScoringInfoAttachmentModel.cs" />
     <Compile Include="Models\SPA_ScoringInfoModule1Model.cs" />

@@ -239,6 +239,8 @@
     <Content Include="ModuleResources\JavaScripts\SPA_Period\edit.js" />
     <Content Include="ModuleResources\JavaScripts\SPA_Period\index.js" />
     <Content Include="ModuleResources\JavaScripts\SPA_ApproverSetup\index.js" />
+    <Content Include="ModuleResources\JavaScripts\SPA_ScoringInfoSheetSetup\edit.js" />
+    <Content Include="ModuleResources\JavaScripts\SPA_ScoringInfoSheetSetup\index.js" />
     <Content Include="ModuleResources\JavaScripts\SPA_ScoringInfo\edit.js" />
     <Content Include="ModuleResources\JavaScripts\SPA_ScoringInfo\editTab1.js" />
     <Content Include="ModuleResources\JavaScripts\SPA_ScoringInfo\editTab2.js" />
@@ -328,6 +330,8 @@
     <Compile Include="Controllers\SPA_ScoringInfoApiController.cs" />
     <Compile Include="Controllers\SPA_ScoringInfoApprovalApiController.cs" />
     <Compile Include="Controllers\SPA_ScoringInfoController.cs" />
+    <Compile Include="Controllers\SPA_ScoringInfoSheetSetupApiController.cs" />
+    <Compile Include="Controllers\SPA_ScoringInfoSheetSetupController.cs" />
     <Compile Include="Controllers\SPA_ScoringRatioApiController.cs" />
     <Compile Include="Controllers\SPA_ScoringRatioController.cs" />
     <Compile Include="Controllers\SPA_ViolationApiController.cs" />
@@ -525,6 +529,8 @@
     <Content Include="Views\SupplierApproval\SPA_CostServiceApproval.cshtml" />
     <Content Include="Views\SupplierApproval\SPA_ScoringInfoApproval.cshtml" />
     <Content Include="Views\SupplierApproval\SPA_VIolationApproval.cshtml" />
+    <Content Include="Views\SPA_ScoringInfoSheetSetup\Edit.cshtml" />
+    <Content Include="Views\SPA_ScoringInfoSheetSetup\Index.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
