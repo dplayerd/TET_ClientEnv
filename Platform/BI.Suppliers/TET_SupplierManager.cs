@@ -10,6 +10,8 @@ using BI.Suppliers.Models;
 using BI.Suppliers.Enums;
 using BI.Suppliers.Utils;
 using Platform.Auth;
+using Platform.Auth.Models;
+using BI.Suppliers.Flows;
 using BI.Suppliers.Validators;
 using BI.Shared;
 using BI.STQA.Models;
@@ -438,7 +440,7 @@ namespace BI.Suppliers
 
                         // 如果需要包含審核紀錄再查出來，避免速度過慢
                         if (includeApprovalList)
-                            result.ApprovalList = this.GetApprovalList(context, ID);
+                            result.ApprovalList = this.GetApprovalList(context, result);
 
                         // 如果需要包含 STQA 再查出來，避免速度過慢
                         if (includeSTQAList)
@@ -646,57 +648,179 @@ namespace BI.Suppliers
 
         /// <summary> 取得簽核人資料 </summary>
         /// <param name="context"></param>
-        /// <param name="ID"></param>
+        /// <param name="supplierModel"></param>
         /// <returns></returns>
-        private List<TET_SupplierApprovalModel> GetApprovalList(PlatformContextModel context, Guid ID)
+        private List<TET_SupplierApprovalModel> GetApprovalList(PlatformContextModel context, TET_SupplierModel supplierModel)
         {
-            var query =
+            if (supplierModel?.ID == null)
+                return new List<TET_SupplierApprovalModel>();
+
+            var sourceList =
                 (from item in context.TET_SupplierApproval
-                 join user in context.Users on item.Approver equals user.UserID
-                 where
-                    item.SupplierID == ID 
+                 where item.SupplierID == supplierModel.ID.Value
                  orderby item.CreateDate
-                 select
-                     new TET_SupplierApprovalModel()
-                     {
-                         ID = item.ID,
-                         SupplierID = item.SupplierID,
-                         Type = item.Type,
-                         Description = item.Description,
-                         Level = item.Level,
-                         Approver = user.FirstNameEN + " " + user.LastNameEN + " (" + item.Approver + ")",
-                         Result = item.Result,
-                         Comment = item.Comment,
-                         CreateUser = item.CreateUser,
-                         CreateDate = item.CreateDate,
-                         ModifyUser = item.ModifyUser,
-                         ModifyDate = item.ModifyDate,
-                     });
+                 select item).ToList();
 
+            var approverKeyList = sourceList
+                .Where(obj => !string.IsNullOrWhiteSpace(obj.Approver))
+                .Select(obj => obj.Approver)
+                .Distinct()
+                .ToList();
 
-            var result = query.ToList();
+            var userList =
+                (from item in context.Users
+                 where approverKeyList.Contains(item.EmpID) || approverKeyList.Contains(item.UserID)
+                 select new UserAccountModel()
+                 {
+                     ID = item.UserID,
+                     EmpID = item.EmpID,
+                     FirstNameEN = item.FirstNameEN,
+                     LastNameEN = item.LastNameEN,
+                 }).ToList();
 
-
-            // 如果是 User_GL 這關，而且是加簽人，要把關卡名稱換了
-            var supplierCoSign =
-                (from item in context.TET_Supplier
-                 where item.ID == ID
-                 select item.CoSignApprover).FirstOrDefault();
-
-            if (supplierCoSign != null)
-            {
-                foreach (var ritem in result)
+            var result = sourceList
+                .Select(item =>
                 {
-                    if (ApprovalUtils.ParseApprovalLevel(ritem.Level) == ApprovalLevel.User_GL)
+                    var approverInfo = userList.FirstOrDefault(obj =>
+                        string.Compare(obj.EmpID, item.Approver, true) == 0 ||
+                        string.Compare(obj.ID, item.Approver, true) == 0);
+                    var level = ApprovalUtils.ParseApprovalLevel(item.Level);
+
+                    return new TET_SupplierApprovalModel()
                     {
-                        var coSigns = JsonConvert.DeserializeObject<List<string>>(supplierCoSign);
-                        if (coSigns.Contains(ritem.Approver))
-                            ritem.Level = ModuleConfig.CoSignApproverLevelName;
-                    }
-                }
-            }
+                        ID = item.ID,
+                        SupplierID = item.SupplierID,
+                        Type = item.Type,
+                        Description = item.Description,
+                        Level = this.GetLevelDisplayName(item.Approver, level, supplierModel.CoSignApprover_Text),
+                        Approver = this.FormatApproverName(approverInfo, item.Approver),
+                        Result = item.Result,
+                        Comment = item.Comment,
+                        CreateUser = item.CreateUser,
+                        CreateDate = item.CreateDate,
+                        ModifyUser = item.ModifyUser,
+                        ModifyDate = item.ModifyDate,
+                    };
+                }).ToList();
+
+            this.AppendPendingNewSupplierApprovalSteps(result, sourceList, supplierModel);
 
             return result;
+        }
+
+        /// <summary> 補上新增供應商審核中的預計後續關卡 </summary>
+        /// <param name="result">畫面顯示用審核清單</param>
+        /// <param name="sourceList">資料庫原始審核清單</param>
+        /// <param name="supplierModel">供應商資料</param>
+        private void AppendPendingNewSupplierApprovalSteps(List<TET_SupplierApprovalModel> result, List<TET_SupplierApproval> sourceList, TET_SupplierModel supplierModel)
+        {
+            if (supplierModel?.ID == null)
+                return;
+
+            if (supplierModel.Version != 0)
+                return;
+
+            if (string.Compare(supplierModel.ApproveStatus, ApprovalStatus.Verify.ToText(), true) != 0)
+                return;
+
+            if (!sourceList.Any(obj => string.Compare(obj.Type, ApprovalType.New.ToText(), true) == 0))
+                return;
+
+            var flowList = NewSupplierFlow.GetFlowList();
+            var pendingLevelList = sourceList
+                .Where(obj => string.IsNullOrWhiteSpace(obj.Result))
+                .Select(obj => ApprovalUtils.ParseApprovalLevel(obj.Level))
+                .Where(obj => obj != ApprovalLevel.Empty)
+                .ToList();
+
+            var baseLevelList = pendingLevelList.Any()
+                ? pendingLevelList
+                : sourceList.Select(obj => ApprovalUtils.ParseApprovalLevel(obj.Level)).Where(obj => obj != ApprovalLevel.Empty).ToList();
+
+            var baseFlowIndex = baseLevelList
+                .Select(obj => flowList.FindIndex(flow => flow.Level == obj))
+                .Where(obj => obj >= 0)
+                .DefaultIfEmpty(-1)
+                .Max();
+
+            if (baseFlowIndex < 0)
+                return;
+
+            var description = sourceList.Select(obj => obj.Description).FirstOrDefault(obj => !string.IsNullOrWhiteSpace(obj));
+
+            foreach (var flow in flowList.Skip(baseFlowIndex + 1))
+            {
+                var approverList = this.GetLevelApproverList(flow, supplierModel.CreateUser)
+                    .Where(obj => obj != null)
+                    .ToList();
+
+                if (!approverList.Any())
+                    approverList.Add(null);
+
+                foreach (var approver in approverList)
+                {
+                    result.Add(new TET_SupplierApprovalModel()
+                    {
+                        ID = Guid.Empty,
+                        SupplierID = supplierModel.ID.Value,
+                        Type = ApprovalType.New.ToText(),
+                        Description = description,
+                        Level = flow.Level.ToText(),
+                        Approver = this.FormatApproverName(approver, string.Empty),
+                        Result = "未來審核關卡",
+                        IsSimulated = true,
+                    });
+                }
+            }
+        }
+
+        /// <summary> 依照關卡取得簽核人 (User_GL 會回傳管理者) </summary>
+        /// <param name="flow">流程</param>
+        /// <param name="applicantID">申請人帳號</param>
+        /// <returns></returns>
+        private List<UserAccountModel> GetLevelApproverList(FlowModel flow, string applicantID)
+        {
+            switch (flow.Level)
+            {
+                case ApprovalLevel.User_GL:
+                    var manager = this._userMgr.GetUserLeader(applicantID);
+                    return manager == null ? new List<UserAccountModel>() : new List<UserAccountModel>() { manager };
+
+                case ApprovalLevel.SRI_SS:
+                    return this._userRoleMgr.GetUserListInRole(ApprovalRole.SRI_SS_Approval.ToID().Value);
+
+                case ApprovalLevel.SRI_SS_GL:
+                    return this._userRoleMgr.GetUserListInRole(ApprovalRole.SRI_SS_GL.ToID().Value);
+
+                case ApprovalLevel.ACC_First:
+                    return this._userRoleMgr.GetUserListInRole(ApprovalRole.ACC_First.ToID().Value);
+
+                case ApprovalLevel.ACC_Second:
+                    return this._userRoleMgr.GetUserListInRole(ApprovalRole.ACC_Second.ToID().Value);
+
+                case ApprovalLevel.ACC_Last:
+                    return this._userRoleMgr.GetUserListInRole(ApprovalRole.ACC_Last.ToID().Value);
+
+                case ApprovalLevel.Empty:
+                default:
+                    return new List<UserAccountModel>();
+            }
+        }
+
+        /// <summary> 格式化審核者顯示名稱 </summary>
+        /// <param name="user">使用者資料</param>
+        /// <param name="fallback">查無使用者時的顯示文字</param>
+        /// <returns></returns>
+        private string FormatApproverName(UserAccountModel user, string fallback)
+        {
+            if (user == null)
+                return fallback;
+
+            var name = $"{user.FirstNameEN} {user.LastNameEN}".Trim();
+            if (string.IsNullOrWhiteSpace(name))
+                return $"({user.EmpID})";
+
+            return $"{name}({user.EmpID})";
         }
 
         /// <summary> 取得最新版所有供應商的歸屬公司 </summary>
