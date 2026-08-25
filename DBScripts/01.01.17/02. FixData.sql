@@ -2,7 +2,7 @@
 INSERT [Modules] 
 	([ID], [Name], [Controller], [Action], [AdminController], [AdminAction], [CreateUser], [CreateDate], [ModifyUser], [ModifyDate]) 
 VALUES 
-	(N'5C64E882-3C20-44DB-A1E1-26BB87899193', N'SPA_ScoringInfoSheetSetup', N'SPA_ScoringInfoSheetSetup', N'Index', N'SPA_ScoringInfoSheetSetup', N'Index', N'system', '2026-08-23 21:10:03.150', N'system', '2026-08-23 21:10:03.150', NULL, NULL)
+	(N'5C64E882-3C20-44DB-A1E1-26BB87899193', N'SPA_ScoringInfoSheetSetup', N'SPA_ScoringInfoSheetSetup', N'Index', N'SPA_ScoringInfoSheetSetup', N'Index', N'system', '2026-08-23 21:10:03.150', N'system', '2026-08-23 21:10:03.150')
 
 
 -- 新增頁面
