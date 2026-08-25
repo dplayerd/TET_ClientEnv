@@ -19,6 +19,13 @@ namespace BI.SPA_ScoringInfo.Flows
             new FlowModel() { Level = ApprovalLevel.QSM, Role = ApprovalRole.QSM, IsStart = false, IsLast = true },
         };
 
+        /// <summary> 取得 SPA 評鑑計分資料完整流程 </summary>
+        /// <returns></returns>
+        public static List<FlowModel> GetFlowList()
+        {
+            return _mainFlow.Select(obj => obj.ToCopy()).ToList();
+        }
+
         /// <summary> 取得指定關卡 </summary>
         /// <param name="lvl"></param>
         /// <returns></returns>

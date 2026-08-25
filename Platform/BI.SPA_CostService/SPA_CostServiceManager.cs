@@ -8,6 +8,12 @@ using Platform.Infra;
 using Platform.LogService;
 using Platform.ORM;
 using Platform.Auth;
+using Platform.Auth.Models;
+using BI.SPA_ApproverSetup;
+using BI.SPA_ApproverSetup.Models;
+using BI.SPA_CostService.Enums;
+using BI.SPA_CostService.Flows;
+using BI.SPA_CostService.Utils;
 using BI.SPA_CostService.Validators;
 using System.Xml.Linq;
 using Platform.FileSystem;
@@ -15,7 +21,6 @@ using BI.Shared.Extensions;
 using System.IO;
 using System.Web.Hosting;
 using BI.SPA_CostService.Models.Exporting;
-using BI.SPA_ApproverSetup.Enums;
 using System.Web.UI.WebControls;
 using BI.Shared.Utils;
 
@@ -29,6 +34,8 @@ namespace BI.SPA_CostService
 
         private Logger _logger = new Logger();
         private UserManager _userMgr = new UserManager();
+        private UserRoleManager _roleMgr = new UserRoleManager();
+        private SPA_ApproverSetupManager _spa_ApproverSetupManager = new SPA_ApproverSetupManager();
 
         #region Read
         /// <summary>
@@ -192,30 +199,7 @@ namespace BI.SPA_CostService
                             item.AttachmentList = detailAttachList;
                         }
 
-                        var approvalQuery =
-                              from item in context.TET_SPA_CostServiceApproval
-                              join user in context.Users on item.Approver equals user.UserID
-                              where
-                                  item.CSID == id
-                              orderby item.CreateDate, item.ModifyDate
-                              select
-                                  new SPA_CostServiceApprovalModel()
-                                  {
-                                      ID = item.ID,
-                                      CSID = item.CSID,
-                                      Type = item.Type,
-                                      Description = item.Description,
-                                      Level = item.Level,
-                                      Approver = user.FirstNameEN + " " + user.LastNameEN + " (" + item.Approver + ")",
-                                      Result = item.Result,
-                                      Comment = item.Comment,
-                                      CreateUser = item.CreateUser,
-                                      CreateDate = item.CreateDate,
-                                      ModifyUser = item.ModifyUser,
-                                      ModifyDate = item.ModifyDate,
-                                  };
-
-                        result.ApprovalList = approvalQuery.ToList();
+                        result.ApprovalList = this.GetApprovalList(context, result);
                     }
 
                     return result;
@@ -226,6 +210,204 @@ namespace BI.SPA_CostService
                 this._logger.WriteError(ex);
                 throw;
             }
+        }
+
+        /// <summary> 取得審核資訊顯示清單 </summary>
+        /// <param name="context"></param>
+        /// <param name="mainModel">Cost&Service資料</param>
+        /// <returns></returns>
+        private List<SPA_CostServiceApprovalModel> GetApprovalList(PlatformContextModel context, SPA_CostServiceModel mainModel)
+        {
+            if (mainModel?.ID == null)
+                return new List<SPA_CostServiceApprovalModel>();
+
+            var sourceList =
+                (from item in context.TET_SPA_CostServiceApproval
+                 where item.CSID == mainModel.ID.Value
+                 orderby item.CreateDate, item.ModifyDate
+                 select item).ToList();
+
+            var approverKeyList = sourceList
+                .Where(obj => !string.IsNullOrWhiteSpace(obj.Approver))
+                .Select(obj => obj.Approver)
+                .Distinct()
+                .ToList();
+
+            var userList =
+                (from item in context.Users
+                 where approverKeyList.Contains(item.EmpID) || approverKeyList.Contains(item.UserID)
+                 select new UserAccountModel()
+                 {
+                     ID = item.UserID,
+                     EmpID = item.EmpID,
+                     FirstNameEN = item.FirstNameEN,
+                     LastNameEN = item.LastNameEN,
+                 }).ToList();
+
+            var result = sourceList
+                .Select(item =>
+                {
+                    var approverInfo = userList.FirstOrDefault(obj =>
+                        string.Compare(obj.EmpID, item.Approver, true) == 0 ||
+                        string.Compare(obj.ID, item.Approver, true) == 0);
+
+                    return new SPA_CostServiceApprovalModel()
+                    {
+                        ID = item.ID,
+                        CSID = item.CSID,
+                        Type = item.Type,
+                        Description = item.Description,
+                        Level = item.Level,
+                        Approver = this.FormatApproverName(approverInfo, item.Approver),
+                        Result = item.Result,
+                        Comment = item.Comment,
+                        CreateUser = item.CreateUser,
+                        CreateDate = item.CreateDate,
+                        ModifyUser = item.ModifyUser,
+                        ModifyDate = item.ModifyDate,
+                    };
+                }).ToList();
+
+            this.AppendPendingApprovalSteps(result, sourceList, mainModel);
+
+            return result;
+        }
+
+        /// <summary> 補上審核中的預計後續關卡 </summary>
+        /// <param name="result">畫面顯示用審核清單</param>
+        /// <param name="sourceList">資料庫原始審核清單</param>
+        /// <param name="mainModel">Cost&Service資料</param>
+        private void AppendPendingApprovalSteps(List<SPA_CostServiceApprovalModel> result, List<TET_SPA_CostServiceApproval> sourceList, SPA_CostServiceModel mainModel)
+        {
+            if (mainModel?.ID == null)
+                return;
+
+            if (string.Compare(mainModel.ApproveStatus, ApprovalStatus.Verify.ToText(), true) != 0)
+                return;
+
+            if (!sourceList.Any())
+                return;
+
+            var flowList = NewApprovalFlow.GetFlowList();
+            var pendingLevelList = sourceList
+                .Where(obj => string.IsNullOrWhiteSpace(obj.Result))
+                .Select(obj => ApprovalUtils.ParseApprovalLevel(obj.Level))
+                .Where(obj => obj != ApprovalLevel.Empty)
+                .ToList();
+
+            var baseLevelList = pendingLevelList.Any()
+                ? pendingLevelList
+                : sourceList.Select(obj => ApprovalUtils.ParseApprovalLevel(obj.Level)).Where(obj => obj != ApprovalLevel.Empty).ToList();
+
+            var baseFlowIndex = baseLevelList
+                .Select(obj => flowList.FindIndex(flow => flow.Level == obj))
+                .Where(obj => obj >= 0)
+                .DefaultIfEmpty(-1)
+                .Max();
+
+            if (baseFlowIndex < 0)
+                return;
+
+            var description = sourceList.Select(obj => obj.Description).FirstOrDefault(obj => !string.IsNullOrWhiteSpace(obj));
+            var type = sourceList.Select(obj => obj.Type).FirstOrDefault(obj => !string.IsNullOrWhiteSpace(obj));
+
+            foreach (var flow in flowList.Skip(baseFlowIndex + 1))
+            {
+                var approverList = this.GetLevelApproverList(flow, mainModel)
+                    .Where(obj => obj != null)
+                    .ToList();
+
+                if (!approverList.Any())
+                    approverList.Add(null);
+
+                foreach (var approver in approverList)
+                {
+                    result.Add(new SPA_CostServiceApprovalModel()
+                    {
+                        ID = Guid.Empty,
+                        CSID = mainModel.ID.Value,
+                        Type = type,
+                        Description = description,
+                        Level = flow.Level.ToText(),
+                        Approver = this.FormatApproverName(approver, string.Empty),
+                        Result = "未來審核關卡",
+                        IsSimulated = true,
+                    });
+                }
+            }
+        }
+
+        /// <summary> 依照關卡取得預計簽核人 </summary>
+        /// <param name="flow">流程</param>
+        /// <param name="mainModel">Cost&Service資料</param>
+        /// <returns></returns>
+        private List<UserAccountModel> GetLevelApproverList(FlowModel flow, SPA_CostServiceModel mainModel)
+        {
+            switch (flow.Level)
+            {
+                case ApprovalLevel.SRI_SS_GL:
+                    return this._roleMgr.GetUserListInRole(ApprovalRole.SRI_SS_GL.ToID().Value);
+
+                case ApprovalLevel.BU:
+                    return this.GetBUApproverList(mainModel);
+
+                case ApprovalLevel.QSM:
+                    return this._roleMgr.GetUserListInRole(ApprovalRole.QSM.ToID().Value);
+
+                case ApprovalLevel.Empty:
+                default:
+                    return new List<UserAccountModel>();
+            }
+        }
+
+        /// <summary> 依供應商SPA評鑑審核者設定取得 BU 關卡預計簽核人 </summary>
+        /// <param name="mainModel">Cost&Service資料</param>
+        /// <returns></returns>
+        private List<UserAccountModel> GetBUApproverList(SPA_CostServiceModel mainModel)
+        {
+            if (mainModel?.DetailList == null || !mainModel.DetailList.Any())
+                return new List<UserAccountModel>();
+
+            var setupList = this._spa_ApproverSetupManager.GetList(new List<Guid>(), new List<Guid>(), mainModel.CreateUser, DateTime.Now, new Pager() { AllowPaging = false });
+            if (setupList == null)
+                return new List<UserAccountModel>();
+
+            var approverIdList = new List<string>();
+
+            foreach (var detail in mainModel.DetailList)
+            {
+                if (detail.IsEvaluate != _isEvaluateText)
+                    continue;
+
+                var selectedItem = setupList.Where(obj => obj.BUText == detail.BU && obj.ServiceItemText == detail.AssessmentItem).FirstOrDefault();
+
+                if (selectedItem == null || selectedItem.InfoFills == null || selectedItem.InfoFills.Length == 0)
+                    continue;
+
+                foreach (var approver in selectedItem.InfoFills)
+                {
+                    if (!approverIdList.Contains(approver))
+                        approverIdList.Add(approver);
+                }
+            }
+
+            return this._userMgr.GetUserList_AccountModel(approverIdList.ToArray());
+        }
+
+        /// <summary> 格式化審核者顯示名稱 </summary>
+        /// <param name="user">使用者資料</param>
+        /// <param name="fallback">查無使用者時的顯示文字</param>
+        /// <returns></returns>
+        private string FormatApproverName(UserAccountModel user, string fallback)
+        {
+            if (user == null)
+                return fallback;
+
+            var name = $"{user.FirstNameEN} {user.LastNameEN}".Trim();
+            if (string.IsNullOrWhiteSpace(name))
+                return $"({user.EmpID})";
+
+            return $"{name}({user.EmpID})";
         }
 
         /// <summary> 取得前一期的明細 </summary>

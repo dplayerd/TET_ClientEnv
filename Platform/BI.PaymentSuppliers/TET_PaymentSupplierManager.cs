@@ -10,6 +10,8 @@ using BI.PaymentSuppliers.Models;
 using BI.PaymentSuppliers.Enums;
 using BI.PaymentSuppliers.Utils;
 using Platform.Auth;
+using Platform.Auth.Models;
+using BI.PaymentSuppliers.Flows;
 using BI.PaymentSuppliers.Validators;
 using BI.Shared;
 using Newtonsoft.Json;
@@ -348,7 +350,7 @@ namespace BI.PaymentSuppliers
                     {
                         result.ContactList = this._contactMgr.GetTET_PaymentSupplierContactList(context, ID);
                         result.AttachmentList = this._attachmentMgr.GetTET_PaymentSupplierAttachmentsList(context, ID);
-                        result.ApprovalList = this.GetApprovalList(context, ID);
+                        result.ApprovalList = this.GetApprovalList(context, result);
                     }
 
                     return result;
@@ -445,56 +447,190 @@ namespace BI.PaymentSuppliers
 
         /// <summary> 取得簽核人資料 </summary>
         /// <param name="context"></param>
-        /// <param name="ID"></param>
+        /// <param name="mainModel"></param>
         /// <returns></returns>
-        private List<TET_PaymentSupplierApprovalModel> GetApprovalList(PlatformContextModel context, Guid ID)
+        private List<TET_PaymentSupplierApprovalModel> GetApprovalList(PlatformContextModel context, TET_PaymentSupplierModel mainModel)
         {
-            var query =
+            if (mainModel?.ID == null)
+                return new List<TET_PaymentSupplierApprovalModel>();
+
+            var sourceList =
                 (from item in context.TET_PaymentSupplierApproval
-                 join user in context.Users on item.Approver equals user.UserID
-                 where
-                     item.PSID == ID 
+                 where item.PSID == mainModel.ID.Value
                  orderby item.CreateDate
-                 select
-                     new TET_PaymentSupplierApprovalModel()
-                     {
-                         ID = item.ID,
-                         PSID = item.PSID,
-                         Type = item.Type,
-                         Description = item.Description,
-                         Level = item.Level,
-                         Approver = user.FirstNameEN + " " + user.LastNameEN + " (" + item.Approver + ")",
-                         Result = item.Result,
-                         Comment = item.Comment,
-                         CreateUser = item.CreateUser,
-                         CreateDate = item.CreateDate,
-                         ModifyUser = item.ModifyUser,
-                         ModifyDate = item.ModifyDate,
-                     });
+                 select item).ToList();
 
-            var result = query.ToList();
+            var approverKeyList = sourceList
+                .Where(obj => !string.IsNullOrWhiteSpace(obj.Approver))
+                .Select(obj => obj.Approver)
+                .Distinct()
+                .ToList();
 
+            var userList =
+                (from item in context.Users
+                 where approverKeyList.Contains(item.EmpID) || approverKeyList.Contains(item.UserID)
+                 select new UserAccountModel()
+                 {
+                     ID = item.UserID,
+                     EmpID = item.EmpID,
+                     FirstNameEN = item.FirstNameEN,
+                     LastNameEN = item.LastNameEN,
+                 }).ToList();
 
-            // 如果是 User_GL 這關，而且是加簽人，要把關卡名稱換了
-            var supplierCoSign =
-                (from item in context.TET_PaymentSupplier
-                 where item.ID == ID
-                 select item.CoSignApprover).FirstOrDefault();
-
-            if (supplierCoSign != null)
-            {
-                foreach (var ritem in result)
+            var result = sourceList
+                .Select(item =>
                 {
-                    if (ApprovalUtils.ParseApprovalLevel(ritem.Level) == ApprovalLevel.User_GL)
+                    var approverInfo = userList.FirstOrDefault(obj =>
+                        string.Compare(obj.EmpID, item.Approver, true) == 0 ||
+                        string.Compare(obj.ID, item.Approver, true) == 0);
+                    var level = ApprovalUtils.ParseApprovalLevel(item.Level);
+
+                    return new TET_PaymentSupplierApprovalModel()
                     {
-                        var coSigns = JsonConvert.DeserializeObject<List<string>>(supplierCoSign);
-                        if (coSigns.Contains(ritem.Approver))
-                            ritem.Level = ModuleConfig.CoSignApproverLevelName;
-                    }
-                }
-            }
+                        ID = item.ID,
+                        PSID = item.PSID,
+                        Type = item.Type,
+                        Description = item.Description,
+                        Level = this.GetLevelDisplayName(item.Approver, level, mainModel.CoSignApprover_Text),
+                        Approver = this.FormatApproverName(approverInfo, item.Approver),
+                        Result = item.Result,
+                        Comment = item.Comment,
+                        CreateUser = item.CreateUser,
+                        CreateDate = item.CreateDate,
+                        ModifyUser = item.ModifyUser,
+                        ModifyDate = item.ModifyDate,
+                    };
+                }).ToList();
+
+            this.AppendPendingApprovalSteps(result, sourceList, mainModel);
 
             return result;
+        }
+
+        /// <summary> 補上一般付款對象審核中的預計後續關卡 </summary>
+        /// <param name="result">畫面顯示用審核清單</param>
+        /// <param name="sourceList">資料庫原始審核清單</param>
+        /// <param name="mainModel">一般付款對象資料</param>
+        private void AppendPendingApprovalSteps(List<TET_PaymentSupplierApprovalModel> result, List<TET_PaymentSupplierApproval> sourceList, TET_PaymentSupplierModel mainModel)
+        {
+            if (mainModel?.ID == null)
+                return;
+
+            if (string.Compare(mainModel.ApproveStatus, ApprovalStatus.Verify.ToText(), true) != 0)
+                return;
+
+            if (!sourceList.Any())
+                return;
+
+            var type = sourceList.Select(obj => obj.Type).FirstOrDefault(obj => !string.IsNullOrWhiteSpace(obj));
+            var flowList = this.GetApprovalFlowList(type);
+            if (!flowList.Any())
+                return;
+
+            var pendingLevelList = sourceList
+                .Where(obj => string.IsNullOrWhiteSpace(obj.Result))
+                .Select(obj => ApprovalUtils.ParseApprovalLevel(obj.Level))
+                .Where(obj => obj != ApprovalLevel.Empty)
+                .ToList();
+
+            var baseLevelList = pendingLevelList.Any()
+                ? pendingLevelList
+                : sourceList.Select(obj => ApprovalUtils.ParseApprovalLevel(obj.Level)).Where(obj => obj != ApprovalLevel.Empty).ToList();
+
+            var baseFlowIndex = baseLevelList
+                .Select(obj => flowList.FindIndex(flow => flow.Level == obj))
+                .Where(obj => obj >= 0)
+                .DefaultIfEmpty(-1)
+                .Max();
+
+            if (baseFlowIndex < 0)
+                return;
+
+            var description = sourceList.Select(obj => obj.Description).FirstOrDefault(obj => !string.IsNullOrWhiteSpace(obj));
+            if (string.IsNullOrWhiteSpace(type))
+                type = ApprovalType.New.ToText();
+
+            foreach (var flow in flowList.Skip(baseFlowIndex + 1))
+            {
+                var approverList = this.GetLevelApproverList(flow, mainModel.CreateUser)
+                    .Where(obj => obj != null)
+                    .ToList();
+
+                if (!approverList.Any())
+                    approverList.Add(null);
+
+                foreach (var approver in approverList)
+                {
+                    result.Add(new TET_PaymentSupplierApprovalModel()
+                    {
+                        ID = Guid.Empty,
+                        PSID = mainModel.ID.Value,
+                        Type = type,
+                        Description = description,
+                        Level = flow.Level.ToText(),
+                        Approver = this.FormatApproverName(approver, string.Empty),
+                        Result = "未來審核關卡",
+                        IsSimulated = true,
+                    });
+                }
+            }
+        }
+
+        /// <summary> 取得一般付款對象審核流程 </summary>
+        /// <param name="type">審核類型</param>
+        /// <returns></returns>
+        private List<FlowModel> GetApprovalFlowList(string type)
+        {
+            if (string.Compare(type, ApprovalType.New.ToText(), true) == 0)
+                return NewPaymentSupplierFlow.GetFlowList();
+
+            if (string.Compare(type, ApprovalType.Modify.ToText(), true) == 0)
+                return ModifyPaymentSupplierFlow.GetFlowList();
+
+            return new List<FlowModel>();
+        }
+
+        /// <summary> 依照關卡取得預計簽核人 </summary>
+        /// <param name="flow">流程</param>
+        /// <param name="applicantID">申請人帳號</param>
+        /// <returns></returns>
+        private List<UserAccountModel> GetLevelApproverList(FlowModel flow, string applicantID)
+        {
+            switch (flow.Level)
+            {
+                case ApprovalLevel.User_GL:
+                    var manager = this._userMgr.GetUserLeader(applicantID);
+                    return manager == null ? new List<UserAccountModel>() : new List<UserAccountModel>() { manager };
+
+                case ApprovalLevel.ACC_First:
+                    return this._userRoleMgr.GetUserListInRole(ApprovalRole.ACC_First.ToID().Value);
+
+                case ApprovalLevel.ACC_Second:
+                    return this._userRoleMgr.GetUserListInRole(ApprovalRole.ACC_Second.ToID().Value);
+
+                case ApprovalLevel.ACC_Last:
+                    return this._userRoleMgr.GetUserListInRole(ApprovalRole.ACC_Last.ToID().Value);
+
+                case ApprovalLevel.Empty:
+                default:
+                    return new List<UserAccountModel>();
+            }
+        }
+
+        /// <summary> 格式化審核者顯示名稱 </summary>
+        /// <param name="user">使用者資料</param>
+        /// <param name="fallback">查無使用者時的顯示文字</param>
+        /// <returns></returns>
+        private string FormatApproverName(UserAccountModel user, string fallback)
+        {
+            if (user == null)
+                return fallback;
+
+            var name = $"{user.FirstNameEN} {user.LastNameEN}".Trim();
+            if (string.IsNullOrWhiteSpace(name))
+                return $"({user.EmpID})";
+
+            return $"{name}({user.EmpID})";
         }
 
         /// <summary> 檢查供應商代碼是否已存在 </summary>

@@ -2,11 +2,14 @@
 using BI.Shared.Extensions;
 using BI.Shared.Utils;
 using BI.SPA_Violation.Enums;
+using BI.SPA_Violation.Flows;
 using BI.SPA_Violation.Models;
 using BI.SPA_Violation.Models.Exporting;
+using BI.SPA_Violation.Utils;
 using BI.SPA_Violation.Validators;
 using Platform.AbstractionClass;
 using Platform.Auth;
+using Platform.Auth.Models;
 using Platform.FileSystem;
 using Platform.Infra;
 using Platform.LogService;
@@ -25,6 +28,8 @@ namespace BI.SPA_Violation
     {
         private Logger _logger = new Logger();
         private UserManager _userMgr = new UserManager();
+        private UserRoleManager _roleMgr = new UserRoleManager();
+        private SPA_ViolationApprovalManager _approvalMgr = new SPA_ViolationApprovalManager();
 
         #region Read
 
@@ -169,30 +174,7 @@ namespace BI.SPA_Violation
                             item.AttachmentList = detailAttachList;
                         }
 
-                        var approvalQuery =
-                              from item in context.TET_SPA_ViolationApproval
-                              join user in context.Users on item.Approver equals user.UserID
-                              where
-                                  item.ViolationID == id
-                              orderby item.CreateDate, item.ModifyDate
-                              select
-                                  new SPA_ViolationApprovalModel()
-                                  {
-                                      ID = item.ID,
-                                      ViolationID = item.ViolationID,
-                                      Type = item.Type,
-                                      Description = item.Description,
-                                      Level = item.Level,
-                                      Approver = user.FirstNameEN + " " + user.LastNameEN + " (" + item.Approver + ")",
-                                      Result = item.Result,
-                                      Comment = item.Comment,
-                                      CreateUser = item.CreateUser,
-                                      CreateDate = item.CreateDate,
-                                      ModifyUser = item.ModifyUser,
-                                      ModifyDate = item.ModifyDate,
-                                  };
-
-                        result.ApprovalList = approvalQuery.ToList();
+                        result.ApprovalList = this.GetApprovalList(context, result);
                     }
 
                     return result;
@@ -203,6 +185,164 @@ namespace BI.SPA_Violation
                 this._logger.WriteError(ex);
                 throw;
             }
+        }
+
+        /// <summary> 取得審核資訊顯示清單 </summary>
+        /// <param name="context"></param>
+        /// <param name="mainModel">違規紀錄資料</param>
+        /// <returns></returns>
+        private List<SPA_ViolationApprovalModel> GetApprovalList(PlatformContextModel context, SPA_ViolationModel mainModel)
+        {
+            if (mainModel?.ID == null)
+                return new List<SPA_ViolationApprovalModel>();
+
+            var sourceList =
+                (from item in context.TET_SPA_ViolationApproval
+                 where item.ViolationID == mainModel.ID.Value
+                 orderby item.CreateDate, item.ModifyDate
+                 select item).ToList();
+
+            var result = this.BuildApprovalList(context, sourceList);
+            this.AppendPendingApprovalSteps(result, sourceList, mainModel);
+            return result;
+        }
+
+        private List<SPA_ViolationApprovalModel> BuildApprovalList(PlatformContextModel context, List<TET_SPA_ViolationApproval> sourceList)
+        {
+            var approverKeyList = sourceList
+                .Where(obj => !string.IsNullOrWhiteSpace(obj.Approver))
+                .Select(obj => obj.Approver)
+                .Distinct()
+                .ToList();
+
+            var userList =
+                (from item in context.Users
+                 where approverKeyList.Contains(item.EmpID) || approverKeyList.Contains(item.UserID)
+                 select new UserAccountModel()
+                 {
+                     ID = item.UserID,
+                     EmpID = item.EmpID,
+                     FirstNameEN = item.FirstNameEN,
+                     LastNameEN = item.LastNameEN,
+                 }).ToList();
+
+            return sourceList
+                .Select(item =>
+                {
+                    var approverInfo = userList.FirstOrDefault(obj =>
+                        string.Compare(obj.EmpID, item.Approver, true) == 0 ||
+                        string.Compare(obj.ID, item.Approver, true) == 0);
+
+                    return new SPA_ViolationApprovalModel()
+                    {
+                        ID = item.ID,
+                        ViolationID = item.ViolationID,
+                        Type = item.Type,
+                        Description = item.Description,
+                        Level = item.Level,
+                        Approver = this.FormatApproverName(approverInfo, item.Approver),
+                        Result = item.Result,
+                        Comment = item.Comment,
+                        CreateUser = item.CreateUser,
+                        CreateDate = item.CreateDate,
+                        ModifyUser = item.ModifyUser,
+                        ModifyDate = item.ModifyDate,
+                    };
+                }).ToList();
+        }
+
+        private void AppendPendingApprovalSteps(List<SPA_ViolationApprovalModel> result, List<TET_SPA_ViolationApproval> sourceList, SPA_ViolationModel mainModel)
+        {
+            if (mainModel?.ID == null)
+                return;
+
+            if (string.Compare(mainModel.ApproveStatus, ApprovalStatus.Verify.ToText(), true) != 0 || !sourceList.Any())
+                return;
+
+            var flowList = NewApprovalFlow.GetFlowList();
+            var baseFlowIndex = this.GetBaseFlowIndex(flowList, sourceList.Select(obj => obj.Level), sourceList.Where(obj => string.IsNullOrWhiteSpace(obj.Result)).Select(obj => obj.Level));
+            if (baseFlowIndex < 0)
+                return;
+
+            var type = sourceList.Select(obj => obj.Type).FirstOrDefault(obj => !string.IsNullOrWhiteSpace(obj));
+            var description = sourceList.Select(obj => obj.Description).FirstOrDefault(obj => !string.IsNullOrWhiteSpace(obj));
+
+            foreach (var flow in flowList.Skip(baseFlowIndex + 1))
+            {
+                var approverList = this.GetLevelApproverList(flow, mainModel).Where(obj => obj != null).ToList();
+                if (!approverList.Any() && flow.Level == ApprovalLevel.Level_2)
+                    continue;
+
+                if (!approverList.Any())
+                    approverList.Add(null);
+
+                foreach (var approver in approverList)
+                {
+                    result.Add(new SPA_ViolationApprovalModel()
+                    {
+                        ID = Guid.Empty,
+                        ViolationID = mainModel.ID.Value,
+                        Type = type,
+                        Description = description,
+                        Level = flow.Level.ToText(),
+                        Approver = this.FormatApproverName(approver, string.Empty),
+                        Result = "未來審核關卡",
+                        IsSimulated = true,
+                    });
+                }
+            }
+        }
+
+        private int GetBaseFlowIndex(List<FlowModel> flowList, IEnumerable<string> allLevelList, IEnumerable<string> pendingLevelList)
+        {
+            var source = pendingLevelList.Any() ? pendingLevelList : allLevelList;
+            return source
+                .Select(obj => ApprovalUtils.ParseApprovalLevel(obj))
+                .Where(obj => obj != ApprovalLevel.Empty)
+                .Select(obj => flowList.FindIndex(flow => flow.Level == obj))
+                .Where(obj => obj >= 0)
+                .DefaultIfEmpty(-1)
+                .Max();
+        }
+
+        private List<UserAccountModel> GetLevelApproverList(FlowModel flow, SPA_ViolationModel mainModel)
+        {
+            switch (flow.Level)
+            {
+                case ApprovalLevel.Level_1:
+                    return this.GetSetupApproverList("Level_1", mainModel);
+
+                case ApprovalLevel.Level_2:
+                    return this.GetSetupApproverList("Level_2", mainModel);
+
+                case ApprovalLevel.QSM:
+                    return this._roleMgr.GetUserListInRole(ApprovalRole.QSM.ToID().Value);
+
+                case ApprovalLevel.Empty:
+                default:
+                    return new List<UserAccountModel>();
+            }
+        }
+
+        private List<UserAccountModel> GetSetupApproverList(string level, SPA_ViolationModel mainModel)
+        {
+            var approverDic = this._approvalMgr.GetApprover(level, mainModel.CreateUser, DateTime.Now);
+            if (approverDic == null)
+                return new List<UserAccountModel>();
+
+            return approverDic.SelectMany(obj => obj.Value).Where(obj => obj != null).ToList();
+        }
+
+        private string FormatApproverName(UserAccountModel user, string fallback)
+        {
+            if (user == null)
+                return fallback;
+
+            var name = $"{user.FirstNameEN} {user.LastNameEN}".Trim();
+            if (string.IsNullOrWhiteSpace(name))
+                return $"({user.EmpID})";
+
+            return $"{name}({user.EmpID})";
         }
 
         /// <summary> 查詢附件 </summary>

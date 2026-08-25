@@ -32,6 +32,28 @@ namespace BI.Suppliers.Flows
             new FlowModel() { Level = ApprovalLevel.ACC_Last, Role = ApprovalRole.ACC_Last, IsLast = true },
         };
 
+        /// <summary> 取得供應商異動完整流程 </summary>
+        /// <param name="supplierModel"></param>
+        /// <returns></returns>
+        public static List<FlowModel> GetFlowList(TET_SupplierModel supplierModel)
+        {
+            var source = IsSriSs(supplierModel) ? _withSRI_SS_SupplierFlow : _noSRI_SS_SupplierFlow;
+            var result = source.Select(obj => obj.ToCopy()).ToList();
+
+            var revisionType = ApprovalUtils.ParseRevisionType(supplierModel.RevisionType);
+            if (revisionType == RevisionType.Same)
+            {
+                var sriSsGl = result.Where(obj => obj.Level == ApprovalLevel.SRI_SS_GL).FirstOrDefault();
+                if (sriSsGl != null)
+                {
+                    sriSsGl.IsLast = true;
+                    result = result.Take(result.IndexOf(sriSsGl) + 1).ToList();
+                }
+            }
+
+            return result;
+        }
+
         /// <summary> 取得目前的關卡 </summary>
         /// <param name="cApprovalModel"></param>
         /// <param name="supplierModel"></param>

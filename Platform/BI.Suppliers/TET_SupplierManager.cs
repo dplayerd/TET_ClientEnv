@@ -703,30 +703,31 @@ namespace BI.Suppliers
                     };
                 }).ToList();
 
-            this.AppendPendingNewSupplierApprovalSteps(result, sourceList, supplierModel);
+            this.AppendPendingApprovalSteps(result, sourceList, supplierModel);
 
             return result;
         }
 
-        /// <summary> 補上新增供應商審核中的預計後續關卡 </summary>
+        /// <summary> 補上供應商審核中的預計後續關卡 </summary>
         /// <param name="result">畫面顯示用審核清單</param>
         /// <param name="sourceList">資料庫原始審核清單</param>
         /// <param name="supplierModel">供應商資料</param>
-        private void AppendPendingNewSupplierApprovalSteps(List<TET_SupplierApprovalModel> result, List<TET_SupplierApproval> sourceList, TET_SupplierModel supplierModel)
+        private void AppendPendingApprovalSteps(List<TET_SupplierApprovalModel> result, List<TET_SupplierApproval> sourceList, TET_SupplierModel supplierModel)
         {
             if (supplierModel?.ID == null)
-                return;
-
-            if (supplierModel.Version != 0)
                 return;
 
             if (string.Compare(supplierModel.ApproveStatus, ApprovalStatus.Verify.ToText(), true) != 0)
                 return;
 
-            if (!sourceList.Any(obj => string.Compare(obj.Type, ApprovalType.New.ToText(), true) == 0))
+            if (!sourceList.Any())
                 return;
 
-            var flowList = NewSupplierFlow.GetFlowList();
+            var type = sourceList.Select(obj => obj.Type).FirstOrDefault(obj => !string.IsNullOrWhiteSpace(obj));
+            var flowList = this.GetApprovalFlowList(type, supplierModel);
+            if (!flowList.Any())
+                return;
+
             var pendingLevelList = sourceList
                 .Where(obj => string.IsNullOrWhiteSpace(obj.Result))
                 .Select(obj => ApprovalUtils.ParseApprovalLevel(obj.Level))
@@ -747,6 +748,8 @@ namespace BI.Suppliers
                 return;
 
             var description = sourceList.Select(obj => obj.Description).FirstOrDefault(obj => !string.IsNullOrWhiteSpace(obj));
+            if (string.IsNullOrWhiteSpace(type))
+                type = ApprovalType.New.ToText();
 
             foreach (var flow in flowList.Skip(baseFlowIndex + 1))
             {
@@ -763,7 +766,7 @@ namespace BI.Suppliers
                     {
                         ID = Guid.Empty,
                         SupplierID = supplierModel.ID.Value,
-                        Type = ApprovalType.New.ToText(),
+                        Type = type,
                         Description = description,
                         Level = flow.Level.ToText(),
                         Approver = this.FormatApproverName(approver, string.Empty),
@@ -772,6 +775,21 @@ namespace BI.Suppliers
                     });
                 }
             }
+        }
+
+        /// <summary> 取得供應商審核流程 </summary>
+        /// <param name="type">審核類型</param>
+        /// <param name="supplierModel">供應商資料</param>
+        /// <returns></returns>
+        private List<FlowModel> GetApprovalFlowList(string type, TET_SupplierModel supplierModel)
+        {
+            if (string.Compare(type, ApprovalType.New.ToText(), true) == 0)
+                return NewSupplierFlow.GetFlowList();
+
+            if (string.Compare(type, ApprovalType.Modify.ToText(), true) == 0)
+                return ModifySupplierFlow.GetFlowList(supplierModel);
+
+            return new List<FlowModel>();
         }
 
         /// <summary> 依照關卡取得簽核人 (User_GL 會回傳管理者) </summary>

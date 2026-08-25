@@ -21,6 +21,13 @@ namespace BI.PaymentSuppliers.Flows
             new FlowModel() { Level = ApprovalLevel.ACC_Last, Role = ApprovalRole.ACC_Last, IsLast = true },
         };
 
+        /// <summary> 取得一般付款對象異動完整流程 </summary>
+        /// <returns></returns>
+        public static List<FlowModel> GetFlowList()
+        {
+            return _PaymentSupplierFlow.Select(obj => obj.ToCopy()).ToList();
+        }
+
         /// <summary> 取得目前的關卡 </summary>
         /// <param name="cApprovalModel"></param>
         /// <param name="paymentsupplierModel"></param>

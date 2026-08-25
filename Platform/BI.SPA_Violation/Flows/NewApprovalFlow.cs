@@ -19,6 +19,13 @@ namespace BI.SPA_Violation.Flows
             new FlowModel() { Level = ApprovalLevel.QSM, Role = ApprovalRole.QSM, IsStart = false, IsLast = true },
         };
 
+        /// <summary> 取得 Cost&Service 資料審核完整流程 </summary>
+        /// <returns></returns>
+        public static List<FlowModel> GetFlowList()
+        {
+            return _mainFlow.Select(obj => obj.ToCopy()).ToList();
+        }
+
         /// <summary> 取得指定關卡 </summary>
         /// <param name="lvl"></param>
         /// <returns></returns>

@@ -42,6 +42,9 @@ namespace BI.PaymentSuppliers.Models
         /// <summary> ModifyDate </summary>
         public DateTime ModifyDate { get; set; }
 
+        /// <summary> 是否為預計後續審核步驟 </summary>
+        public bool IsSimulated { get; set; }
+
         #region 其它欄位
         /// <summary> 顯示用審核關卡名稱 </summary>
         public string Level_Text
@@ -60,11 +63,11 @@ namespace BI.PaymentSuppliers.Models
         public Guid ApprovalID { get { return this.ID; } set { this.ID = value; } }
 
         /// <summary> CreateDate </summary>
-        public string CreateDate_Text { get { return this.CreateDate.ToString("yyyy-MM-dd HH:mm:ss"); } }
+        public string CreateDate_Text { get { return this.CreateDate == DateTime.MinValue ? string.Empty : this.CreateDate.ToString("yyyy-MM-dd HH:mm:ss"); } }
 
 
         /// <summary> ModifyDate </summary>
-        public string ModifyDate_Text { get { return this.ModifyDate.ToString("yyyy-MM-dd HH:mm:ss"); } }
+        public string ModifyDate_Text { get { return this.ModifyDate == DateTime.MinValue ? string.Empty : this.ModifyDate.ToString("yyyy-MM-dd HH:mm:ss"); } }
         #endregion
     }
 }
