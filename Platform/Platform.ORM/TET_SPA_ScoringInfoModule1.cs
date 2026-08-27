@@ -16,15 +16,12 @@ namespace Platform.ORM
         [StringLength(16)]
         public string Source { get; set; }
 
-        [Required]
         [StringLength(16)]
         public string Type { get; set; }
 
-        [Required]
         [StringLength(128)]
         public string Supplier { get; set; }
 
-        [Required]
         [StringLength(64)]
         public string EmpName { get; set; }
 

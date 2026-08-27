@@ -176,12 +176,15 @@ $(function () {
         var reqText = "為必填欄位";
         var msgList = [];
 
+        var validField = function (txtField) {
+            return !(txtField == null || txtField.length == 0);
+        };
 
         // 基本的必填驗證
-        if (isSheetFieldRequired("IsSheet6DateFill") && detailModel.Date.length == 0) msgList.push("時間 " + reqText);
-        if (isSheetFieldRequired("IsSheet6LocationFill") && detailModel.Location.length == 0) msgList.push("地點 " + reqText);
-        if (isSheetFieldRequired("IsSheet6IsDamageFill") && detailModel.IsDamage.length == 0) msgList.push("造成財損 " + reqText);
-        if (isSheetFieldRequired("IsSheet6DescriptionFill") && detailModel.Description.length == 0) msgList.push("事件說明 " + reqText);
+        if (isSheetFieldRequired("IsSheet6DateFill") && !validField(detailModel.Date)) msgList.push("時間 " + reqText);
+        if (isSheetFieldRequired("IsSheet6LocationFill") && !validField(detailModel.Location)) msgList.push("地點 " + reqText);
+        if (isSheetFieldRequired("IsSheet6IsDamageFill") && !validField(detailModel.IsDamage)) msgList.push("造成財損 " + reqText);
+        if (isSheetFieldRequired("IsSheet6DescriptionFill") && !validField(detailModel.Description)) msgList.push("事件說明 " + reqText);
 
         // 商業邏輯驗證
         return msgList

@@ -17,7 +17,7 @@ namespace BI.SPA_ScoringInfo.Models
         public Guid SIID { get; set; }
 
         /// <summary> 時間 </summary>
-        public DateTime Date { get; set; }
+        public DateTime? Date { get; set; }
 
         /// <summary> 地點 </summary>
         public string Location { get; set; }
@@ -49,7 +49,7 @@ namespace BI.SPA_ScoringInfo.Models
 
 
         #region Program
-        public string DateText { get { return this.Date.ToString("yyyy-MM-dd"); } }
+        public string DateText { get { return this.Date?.ToString("yyyy-MM-dd") ?? string.Empty; } }
         #endregion
     }
 }

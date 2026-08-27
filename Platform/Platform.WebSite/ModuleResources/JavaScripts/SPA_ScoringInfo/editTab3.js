@@ -187,14 +187,17 @@ $(function () {
         var reqText = "為必填欄位";
         var msgList = [];
 
+        var validField = function (txtField) {
+            return !(txtField == null || txtField.length == 0);
+        };
 
         // 基本的必填驗證
-        if (isSheetFieldRequired("IsSheet3DateFill") && detailModel.Date.length == 0) msgList.push("時間 " + reqText);
-        if (isSheetFieldRequired("IsSheet3LocationFill") && detailModel.Location.length == 0) msgList.push("地點 " + reqText);
-        if (isSheetFieldRequired("IsSheet3TELLossFill") && detailModel.TELLoss.length == 0) msgList.push("TEL財損 " + reqText);
-        if (isSheetFieldRequired("IsSheet3CustomerLossFill") && detailModel.CustomerLoss.length == 0) msgList.push("客戶財損 " + reqText);
-        if (isSheetFieldRequired("IsSheet3AccidentFill") && detailModel.Accident.length == 0) msgList.push("人身事故 " + reqText);
-        if (isSheetFieldRequired("IsSheet3DescriptionFill") && detailModel.Description.length == 0) msgList.push("事件說明 " + reqText);
+        if (isSheetFieldRequired("IsSheet3DateFill") && !validField(detailModel.Date)) msgList.push("時間 " + reqText);
+        if (isSheetFieldRequired("IsSheet3LocationFill") && !validField(detailModel.Location)) msgList.push("地點 " + reqText);
+        if (isSheetFieldRequired("IsSheet3TELLossFill") && !validField(detailModel.TELLoss)) msgList.push("TEL財損 " + reqText);
+        if (isSheetFieldRequired("IsSheet3CustomerLossFill") && !validField(detailModel.CustomerLoss)) msgList.push("客戶財損 " + reqText);
+        if (isSheetFieldRequired("IsSheet3AccidentFill") && !validField(detailModel.Accident)) msgList.push("人身事故 " + reqText);
+        if (isSheetFieldRequired("IsSheet3DescriptionFill") && !validField(detailModel.Description)) msgList.push("事件說明 " + reqText);
 
         //// 商業邏輯驗證
         //// 若評鑑項目=Startup，以下欄位為必填。

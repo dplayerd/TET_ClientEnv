@@ -13,13 +13,11 @@ namespace Platform.ORM
         public Guid SIID { get; set; }
 
         [Column(TypeName = "date")]
-        public DateTime Date { get; set; }
+        public DateTime? Date { get; set; }
 
-        [Required]
         [StringLength(64)]
         public string Location { get; set; }
 
-        [Required]
         [StringLength(16)]
         public string IsDamage { get; set; }
 

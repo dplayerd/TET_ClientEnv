@@ -18,15 +18,12 @@ namespace Platform.ORM
         [StringLength(64)]
         public string WorkItem { get; set; }
 
-        [Required]
         [StringLength(64)]
         public string MachineName { get; set; }
 
-        [Required]
         [StringLength(64)]
         public string MachineNo { get; set; }
 
-        [Required]
         [StringLength(16)]
         public string OnTime { get; set; }
 

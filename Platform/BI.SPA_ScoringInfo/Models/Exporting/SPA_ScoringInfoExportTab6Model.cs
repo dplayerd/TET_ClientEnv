@@ -43,7 +43,7 @@ namespace BI.SPA_ScoringInfo.Models.Exporting
 
         #region 基本欄位 - Module4
         /// <summary> 時間 </summary>
-        public DateTime Date { get; set; }
+        public DateTime? Date { get; set; }
 
         /// <summary> 地點 </summary>
         public string Location { get; set; }

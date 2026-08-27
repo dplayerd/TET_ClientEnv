@@ -336,7 +336,7 @@ namespace Platform.WebSite.Controllers
                 var detailList = this._detailMgr.GetList_Module3(id) ?? new List<SPA_ScoringInfoModule3Model>();
                 foreach (var imported in importedList)
                 {
-                    var exists = detailList.FirstOrDefault(obj => obj.Date.Date == imported.Date.Date && obj.Location == imported.Location && obj.Description == imported.Description);
+                    var exists = detailList.FirstOrDefault(obj => obj.Date?.Date == imported.Date?.Date && obj.Location == imported.Location && obj.Description == imported.Description);
                     if (exists == null)
                     {
                         detailList.Add(imported);
@@ -777,7 +777,7 @@ namespace Platform.WebSite.Controllers
                 row.CreateCell(03).SetStyle(normalStyle).SetCellValue(item.ServiceItem);
                 row.CreateCell(04).SetStyle(normalStyle).SetCellValue(item.BelongTo);
 
-                row.CreateCell(05).SetStyle(normalStyle).SetCellValue(item.Date.ToString("yyyy-MM-dd"));
+                row.CreateCell(05).SetStyle(normalStyle).SetCellValue(item.Date?.ToString("yyyy-MM-dd") ?? string.Empty);
                 row.CreateCell(06).SetStyle(normalStyle).SetCellValue(item.Location);
                 row.CreateCell(07).SetStyle(normalStyle).SetCellValue(item.TELLoss);
                 row.CreateCell(08).SetStyle(normalStyle).SetCellValue(item.CustomerLoss);
@@ -845,7 +845,7 @@ namespace Platform.WebSite.Controllers
                 row.CreateCell(03).SetStyle(normalStyle).SetCellValue(item.ServiceItem);
                 row.CreateCell(04).SetStyle(normalStyle).SetCellValue(item.BelongTo);
 
-                row.CreateCell(05).SetStyle(normalStyle).SetCellValue(item.Date.ToString("yyyy-MM-dd"));
+                row.CreateCell(05).SetStyle(normalStyle).SetCellValue(item.Date?.ToString("yyyy-MM-dd") ?? string.Empty);
                 row.CreateCell(06).SetStyle(normalStyle).SetCellValue(item.Location);
                 row.CreateCell(07).SetStyle(normalStyle).SetCellValue(item.IsDamage);
                 row.CreateCell(08).SetStyle(normalStyle).SetCellValue(item.Description);
@@ -986,13 +986,13 @@ namespace Platform.WebSite.Controllers
                 this.ValidMainColumns(mainModel, row, rowNo, msgList);
 
                 var date = this.GetCellDate(row, 5);
-                if (!date.HasValue)
+                if (sheetSetting.IsSheet3DateFill && !date.HasValue)
                     msgList.Add($"第{rowNo}筆資料 欄位 時間 欄位值錯誤");
 
                 result.Add(new SPA_ScoringInfoModule3Model()
                 {
                     SIID = mainModel.ID.Value,
-                    Date = date ?? DateTime.MinValue,
+                    Date = date,
                     Location = this.GetCellString(row, 6),
                     TELLoss = this.GetCellString(row, 7),
                     CustomerLoss = this.GetCellString(row, 8),
@@ -1004,7 +1004,7 @@ namespace Platform.WebSite.Controllers
             this.ValidYesNo(result.Select(obj => obj.TELLoss), "TEL財損", msgList);
             this.ValidYesNo(result.Select(obj => obj.CustomerLoss), "客戶財損", msgList);
             this.ValidYesNo(result.Select(obj => obj.Accident), "人身事故", msgList);
-            this.ValidDuplicate(result.GroupBy(obj => obj.Date.ToString("yyyy-MM-dd") + "___" + obj.Location + "___" + obj.Description), "時間 + 地點 + 事件說明", msgList);
+            this.ValidDuplicate(result.GroupBy(obj => obj.Date?.ToString("yyyy-MM-dd") + "___" + obj.Location + "___" + obj.Description), "時間 + 地點 + 事件說明", msgList);
             List<string> detailMsgList;
             this.AddDetailValidationMessage(SPA_ScoringInfoModule3Validator.Valid(result, sheetSetting, out detailMsgList), detailMsgList, msgList);
             return result;
