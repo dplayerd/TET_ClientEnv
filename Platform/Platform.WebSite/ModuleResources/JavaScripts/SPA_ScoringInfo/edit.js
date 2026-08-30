@@ -373,7 +373,7 @@ $(function () {
         }
     }
 
-    function bindImportButton(buttonName, fileName, apiUrl) {
+    function bindImportButton(buttonName, fileName, apiUrl, appendFormData) {
         $("[name=" + buttonName + "]").click(function () {
             var fileInput = $("[name=" + fileName + "]");
             var files = fileInput.get(0).files;
@@ -384,6 +384,9 @@ $(function () {
 
             var formData = new FormData();
             formData.append("file", files[0]);
+            if (appendFormData != undefined && appendFormData != null) {
+                appendFormData(formData);
+            }
 
             $.ajax({
                 url: apiUrl,
@@ -404,7 +407,9 @@ $(function () {
 
     bindImportButton("btnImportTab1", "ImportFile_Tab1", import_tab1_ApiUrl);
     bindImportButton("btnImportTab2", "ImportFile_Tab2", import_tab2_ApiUrl);
-    bindImportButton("btnImportTab3", "ImportFile_Tab3", import_tab3_ApiUrl);
+    bindImportButton("btnImportTab3", "ImportFile_Tab3", import_tab3_ApiUrl, function (formData) {
+        formData.append("WorkerCount", mainForm.find("[name=WorkerCount]").val());
+    });
 
     $("[name=btnCancelImportTab1]").click(function () { $("[name=ImportFile_Tab1]").val(""); });
     $("[name=btnCancelImportTab2]").click(function () { $("[name=ImportFile_Tab2]").val(""); });

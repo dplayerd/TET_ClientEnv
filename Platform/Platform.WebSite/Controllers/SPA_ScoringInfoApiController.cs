@@ -329,6 +329,13 @@ namespace Platform.WebSite.Controllers
                 if (sheetSetting == null)
                     return BadRequest(JsonConvert.SerializeObject(msgList));
 
+                this.ApplyWorkerCountFromRequest(model, msgList);
+                if (!msgList.Any() && !SPA_ScoringInfoValidator.Valid_Tab3(model, sheetSetting, out var mainMsgList))
+                    msgList.AddRange(mainMsgList);
+
+                if (msgList.Any())
+                    return BadRequest(JsonConvert.SerializeObject(msgList));
+
                 var importedList = this.ReadImportTab3(model, sheetSetting, out msgList);
                 if (msgList.Any())
                     return BadRequest(JsonConvert.SerializeObject(msgList));
@@ -358,6 +365,28 @@ namespace Platform.WebSite.Controllers
             {
                 return BadRequest(JsonConvert.SerializeObject(new string[] { ex.Message }));
             }
+        }
+
+        private void ApplyWorkerCountFromRequest(SPA_ScoringInfoModel model, List<string> msgList)
+        {
+            var workerCountText = HttpContext.Current.Request.Form["WorkerCount"];
+            if (workerCountText == null)
+                return;
+
+            if (string.IsNullOrWhiteSpace(workerCountText))
+            {
+                model.WorkerCount = null;
+                return;
+            }
+
+            int workerCount;
+            if (int.TryParse(workerCountText, out workerCount))
+            {
+                model.WorkerCount = workerCount;
+                return;
+            }
+
+            msgList.Add("出工人數必須為正整數");
         }
 
         [Route("~/api/SPA_ScoringInfoApi/Modify_Tab4/{id}")]
@@ -985,11 +1014,12 @@ namespace Platform.WebSite.Controllers
                 int rowNo = i + 1;
                 this.ValidMainColumns(mainModel, row, rowNo, msgList);
 
+                var dateText = this.GetCellString(row, 5);
                 var date = this.GetCellDate(row, 5);
-                if (sheetSetting.IsSheet3DateFill && !date.HasValue)
+                if (!string.IsNullOrWhiteSpace(dateText) && !date.HasValue)
                     msgList.Add($"第{rowNo}筆資料 欄位 時間 欄位值錯誤");
 
-                result.Add(new SPA_ScoringInfoModule3Model()
+                var imported = new SPA_ScoringInfoModule3Model()
                 {
                     SIID = mainModel.ID.Value,
                     Date = date,
@@ -998,16 +1028,60 @@ namespace Platform.WebSite.Controllers
                     CustomerLoss = this.GetCellString(row, 8),
                     Accident = this.GetCellString(row, 9),
                     Description = this.GetCellString(row, 10),
-                });
+                };
+
+                this.ValidImportRequired_Tab3(imported, dateText, sheetSetting, rowNo, msgList);
+                this.ValidImportYesNo(imported.TELLoss, "TEL財損", rowNo, msgList);
+                this.ValidImportYesNo(imported.CustomerLoss, "客戶財損", rowNo, msgList);
+                this.ValidImportYesNo(imported.Accident, "人身事故", rowNo, msgList);
+                result.Add(imported);
             }
 
-            this.ValidYesNo(result.Select(obj => obj.TELLoss), "TEL財損", msgList);
-            this.ValidYesNo(result.Select(obj => obj.CustomerLoss), "客戶財損", msgList);
-            this.ValidYesNo(result.Select(obj => obj.Accident), "人身事故", msgList);
-            this.ValidDuplicate(result.GroupBy(obj => obj.Date?.ToString("yyyy-MM-dd") + "___" + obj.Location + "___" + obj.Description), "時間 + 地點 + 事件說明", msgList);
-            List<string> detailMsgList;
-            this.AddDetailValidationMessage(SPA_ScoringInfoModule3Validator.Valid(result, sheetSetting, out detailMsgList), detailMsgList, msgList);
+            this.ValidDuplicate_Tab3(result, msgList);
             return result;
+        }
+
+        private void ValidImportRequired_Tab3(SPA_ScoringInfoModule3Model model, string dateText, SPA_ScoringInfoSheetModel sheetSetting, int rowNo, List<string> msgList)
+        {
+            if (sheetSetting.IsSheet3DateFill && string.IsNullOrWhiteSpace(dateText))
+                msgList.Add($"第{rowNo}筆資料 欄位 時間 為必填欄位");
+
+            if (sheetSetting.IsSheet3LocationFill && string.IsNullOrWhiteSpace(model.Location))
+                msgList.Add($"第{rowNo}筆資料 欄位 地點 為必填欄位");
+
+            if (sheetSetting.IsSheet3TELLossFill && string.IsNullOrWhiteSpace(model.TELLoss))
+                msgList.Add($"第{rowNo}筆資料 欄位 TEL財損 為必填欄位");
+
+            if (sheetSetting.IsSheet3CustomerLossFill && string.IsNullOrWhiteSpace(model.CustomerLoss))
+                msgList.Add($"第{rowNo}筆資料 欄位 客戶財損 為必填欄位");
+
+            if (sheetSetting.IsSheet3AccidentFill && string.IsNullOrWhiteSpace(model.Accident))
+                msgList.Add($"第{rowNo}筆資料 欄位 人身事故 為必填欄位");
+
+            if (sheetSetting.IsSheet3DescriptionFill && string.IsNullOrWhiteSpace(model.Description))
+                msgList.Add($"第{rowNo}筆資料 欄位 事件說明 為必填欄位");
+        }
+
+        private void ValidImportYesNo(string value, string title, int rowNo, List<string> msgList)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+                return;
+
+            if (value != "Yes" && value != "No")
+                msgList.Add($"第{rowNo}筆資料 欄位 {title} 欄位值錯誤");
+        }
+
+        private void ValidDuplicate_Tab3(List<SPA_ScoringInfoModule3Model> list, List<string> msgList)
+        {
+            var repeated = list.GroupBy(obj => obj.Date?.ToString("yyyy-MM-dd") + "___" + obj.Location + "___" + obj.Description)
+                .Where(obj => !string.IsNullOrWhiteSpace(obj.Key.Replace("___", string.Empty)) && obj.Count() > 1)
+                .ToList();
+
+            foreach (var item in repeated)
+            {
+                var parts = item.Key.Split(new[] { "___" }, StringSplitOptions.None);
+                msgList.Add($"時間{parts[0]} + 地點{parts[1]} + 事件說明{parts[2]} 重複");
+            }
         }
 
         private void ValidMainColumns(SPA_ScoringInfoModel mainModel, IRow row, int rowNo, List<string> msgList)
