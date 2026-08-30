@@ -31,7 +31,7 @@
     Uri import_tab1_ApiUrl = new Uri("api/SPA_ScoringInfoApi/Import_Tab1/" + id, UriKind.Relative);
     Uri import_tab2_ApiUrl = new Uri("api/SPA_ScoringInfoApi/Import_Tab2/" + id, UriKind.Relative);
     Uri import_tab3_ApiUrl = new Uri("api/SPA_ScoringInfoApi/Import_Tab3/" + id, UriKind.Relative);
-    Uri abordApiUrl = new Uri("api/SPA_ScoringInfoApi/Abord/" + id, UriKind.Relative);
+    Uri notEvaluateApiUrl = new Uri("api/SPA_ScoringInfoApi/NotEvaluate/" + id, UriKind.Relative);
 
     Uri listPageUrl = new Uri("SPA_ScoringInfo/Index/" + masterInfo.CurrentPage.ID, UriKind.Relative);
     Uri readPrevPeriodDetailApiUrl = new Uri("api/SPA_ScoringInfoApi/ReadPrevPeriodDetail/", UriKind.Relative);
@@ -984,7 +984,7 @@
                                     </div>
                                     <div>
                                         <button type="button" id="btnSubmit" class="btn btn-primary mr-2">送出</button>
-                                        <button type="button" id="btnAbord" class="btn btn-danger mr-2">中止</button>
+                                        <button type="button" id="btnAbord" class="btn btn-danger mr-2">不評鑑</button>
                                     </div>
                                 </div>
                             </div>
@@ -1000,11 +1000,6 @@
             <!--end::Example-->
         </div>
     </div>
-</div>
-
-<div id="divAbordReason" style="display: none;">
-    <p class="col-12 h6 text-danger">請填寫中止原因</p>
-    <textarea class="form-control" name="AbordReason" rows="3"></textarea>
 </div>
 
 @* --將 js 註冊至頁尾-- *@
@@ -1040,7 +1035,7 @@
         var import_tab1_ApiUrl = platformEnvironment.hostUrl + '@import_tab1_ApiUrl';
         var import_tab2_ApiUrl = platformEnvironment.hostUrl + '@import_tab2_ApiUrl';
         var import_tab3_ApiUrl = platformEnvironment.hostUrl + '@import_tab3_ApiUrl';
-        var abordApiUrl = platformEnvironment.hostUrl + '@abordApiUrl';
+        var notEvaluateApiUrl = platformEnvironment.hostUrl + '@notEvaluateApiUrl';
         var readDetailApiUrl = platformEnvironment.hostUrl + '@readDetailApiUrl';
 
         var listPageUrl = platformEnvironment.hostUrl + '@listPageUrl';

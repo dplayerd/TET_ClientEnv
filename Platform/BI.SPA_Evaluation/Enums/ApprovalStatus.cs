@@ -20,7 +20,10 @@ namespace BI.SPA_Evaluation.Enums
         Completed,
 
         /// <summary> 已退回 </summary>
-        Rejected
+        Rejected,
+
+        /// <summary> 不評鑑 </summary>
+        NotEvaluate
     }
 
     /// <summary> 審核狀態擴充 </summary>
@@ -45,6 +48,9 @@ namespace BI.SPA_Evaluation.Enums
 
                 case ApprovalStatus.Rejected:
                     return "已退回";
+
+                case ApprovalStatus.NotEvaluate:
+                    return "不評鑑";
 
                 default:
                     return null;

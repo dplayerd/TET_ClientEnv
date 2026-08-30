@@ -37,6 +37,7 @@ namespace Platform.WebSite.Controllers
         private SPA_ViolationApprovalManager _violationApprovalManager = new SPA_ViolationApprovalManager();
         private SPA_ScoringInfoApprovalManager _scoringInfoApprovalManager = new SPA_ScoringInfoApprovalManager();
         private SPA_ScoringInfoManager _scoringInfoManager = new SPA_ScoringInfoManager();
+        private SPA_ScoringInfoSheetManager _scoringInfoSheetManager = new SPA_ScoringInfoSheetManager();
 
 
         // GET: SupplierApproval
@@ -297,7 +298,8 @@ namespace Platform.WebSite.Controllers
             this.ViewBag.ParentID = model.SIID;
 
             var mainModel = this._scoringInfoManager.GetOne(model.SIID);
-            this.ViewBag.TabVisiable = BI.SPA_ScoringInfo.Utils.ViewUtils.ComputeAcl(mainModel);
+            var sheetSetting = this._scoringInfoSheetManager.GetDetail(mainModel.ServiceItem, mainModel.POSource);
+            this.ViewBag.TabVisiable = BI.SPA_ScoringInfo.Utils.ViewUtils.ComputeAcl(sheetSetting) ?? new BI.SPA_ScoringInfo.Models.TabVisiableModel();
 
             this.InitAction(id);
             return View(approvalID);

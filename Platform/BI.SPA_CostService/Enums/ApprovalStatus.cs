@@ -20,7 +20,10 @@ namespace BI.SPA_CostService.Enums
         Completed,
 
         /// <summary> 已退回 </summary>
-        Rejected
+        Rejected,
+
+        /// <summary> 不評鑑 </summary>
+        NotEvaluate
     }
 
     /// <summary> 審核狀態擴充 </summary>
@@ -42,6 +45,9 @@ namespace BI.SPA_CostService.Enums
 
                 case ApprovalStatus.Completed:
                     return "已完成";
+
+                case ApprovalStatus.NotEvaluate:
+                    return "不評鑑";
 
                 case ApprovalStatus.Rejected:
                     return "已退回";

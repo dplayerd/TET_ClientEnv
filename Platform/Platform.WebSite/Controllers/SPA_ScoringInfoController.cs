@@ -47,7 +47,8 @@ namespace Platform.WebSite.Controllers
                 new KeyTextModel() { Key = string.Empty, Text = "未送出" },
                 new KeyTextModel() { Key = ApprovalStatus.Verify.ToText(), Text = ApprovalStatus.Verify.ToText() },
                 new KeyTextModel() { Key = ApprovalStatus.Completed.ToText(), Text = ApprovalStatus.Completed.ToText() },
-                new KeyTextModel() { Key = ApprovalStatus.Rejected.ToText(), Text = ApprovalStatus.Rejected.ToText() }
+                new KeyTextModel() { Key = ApprovalStatus.Rejected.ToText(), Text = ApprovalStatus.Rejected.ToText() },
+                new KeyTextModel() { Key = ApprovalStatus.NotEvaluate.ToText(), Text = ApprovalStatus.NotEvaluate.ToText() }
             };
 
 

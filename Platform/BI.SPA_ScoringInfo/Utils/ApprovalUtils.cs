@@ -41,7 +41,7 @@ namespace BI.SPA_ScoringInfo.Utils
 
         #region ApprovalStatus
         /// <summary> ApprovalStatus 轉換錯誤訊息 </summary>
-        public static string ParseApprovalStatusError = $"Result is required, and must be ['{ApprovalStatus.Verify.ToText()}', '{ApprovalStatus.Rejected.ToText()}', '{ApprovalStatus.Completed.ToText()}']";
+        public static string ParseApprovalStatusError = $"Result is required, and must be ['{ApprovalStatus.Verify.ToText()}', '{ApprovalStatus.Rejected.ToText()}', '{ApprovalStatus.Completed.ToText()}', '{ApprovalStatus.NotEvaluate.ToText()}']";
 
         /// <summary> 文字轉為 ApprovalStatus </summary>
         /// <param name="val"></param>
@@ -59,6 +59,8 @@ namespace BI.SPA_ScoringInfo.Utils
                 enm = ApprovalStatus.Rejected;
             else if (val == ApprovalStatus.Completed.ToText())      // 已完成
                 enm = ApprovalStatus.Completed;
+            else if (val == ApprovalStatus.NotEvaluate.ToText())    // 不評鑑
+                enm = ApprovalStatus.NotEvaluate;
             else
                 enm = ApprovalStatus.Empty;
 

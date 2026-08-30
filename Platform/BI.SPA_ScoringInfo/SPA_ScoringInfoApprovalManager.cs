@@ -227,6 +227,52 @@ namespace BI.SPA_ScoringInfo
             }
         }
 
+        /// <summary> 將 SPA_ScoringInfo 改為不評鑑 </summary>
+        /// <param name="id">主鍵</param>
+        /// <param name="userID">目前登入者</param>
+        /// <param name="cDate">目前時間</param>
+        public void MarkAsNotEvaluate(Guid id, string userID, DateTime cDate)
+        {
+            if (id == Guid.Empty || string.IsNullOrWhiteSpace(userID))
+                throw new ArgumentNullException("ID, UserID is required");
+
+            try
+            {
+                using (PlatformContextModel context = new PlatformContextModel())
+                {
+                    var dbModel =
+                        (from item in context.TET_SPA_ScoringInfo
+                         where item.ID == id
+                         select item).FirstOrDefault();
+
+                    if (dbModel == null)
+                        throw new NullReferenceException($"{id} don't exists.");
+
+                    if (!string.IsNullOrWhiteSpace(dbModel.ApproveStatus) &&
+                        ApprovalUtils.ParseApprovalStatus(dbModel.ApproveStatus) != ApprovalStatus.Rejected)
+                        throw new Exception("審核狀態必須為空，或是已退回.");
+
+                    dbModel.ApproveStatus = ApprovalStatus.NotEvaluate.ToText();
+                    dbModel.ModifyUser = userID;
+                    dbModel.ModifyDate = cDate;
+
+                    var approvalList =
+                        (from item in context.TET_SPA_ScoringInfoApproval
+                         where item.SIID == id
+                         select item).ToList();
+
+                    var nonResultApprovalList = approvalList.Where(item => string.IsNullOrEmpty(item.Result)).ToList();
+                    context.TET_SPA_ScoringInfoApproval.RemoveRange(nonResultApprovalList);
+                    context.SaveChanges();
+                }
+            }
+            catch (Exception ex)
+            {
+                this._logger.WriteError(ex);
+                throw;
+            }
+        }
+
 
         #region Approval
         /// <summary> 送出 SPA_ScoringInfo資料維護審核資料 </summary>

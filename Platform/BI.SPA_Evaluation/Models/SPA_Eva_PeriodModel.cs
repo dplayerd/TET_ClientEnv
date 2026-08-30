@@ -70,7 +70,9 @@ namespace BI.SPA_Evaluation.Models
                     return false;
 
                 // 檢查是否全都通過了
-                var hasNotCompleted_ScoringInfo = this.ScoringInfoList.Where(obj => obj.ApproveStatus != ApprovalStatus.Completed.ToText()).Any();
+                var hasNotCompleted_ScoringInfo = this.ScoringInfoList
+                    .Where(obj => obj.ApproveStatus != ApprovalStatus.Completed.ToText() && obj.ApproveStatus != ApprovalStatus.NotEvaluate.ToText())
+                    .Any();
                 var hasNotCompleted_Violation = this.ViolationList.Where(obj => obj.ApproveStatus != ApprovalStatus.Completed.ToText()).Any();
 
                 if (hasNotCompleted_ScoringInfo || hasNotCompleted_Violation)

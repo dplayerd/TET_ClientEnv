@@ -41,12 +41,11 @@ var ApproveTemplateSelector = "#divApproveTemplate";    // 簽核紀錄範本
 
 var formMain = "#formMain"                        // 主要編輯區
 var btnSubmitSelector = "#btnSubmit";             // 送出鈕
-var btnAbordSelector = "#btnAbord";               // 中止鈕
+var btnAbordSelector = "#btnAbord";               // 不評鑑鈕
 
 var divAddFileAreaSelector = "#divAddFileArea";   // 加入檔案區
 var btnAddFileSelector = "#btnAddFile"            // 加入檔案鈕
 
-var divAbordReasonSelector = "#divAbordReason";   // 填寫中止原因的範例區域
 var sheetSetting = null;                           // SPA評鑑計分資料頁籤顯示設定
 
 
@@ -187,55 +186,26 @@ $(function () {
         });
     });
 
-    // 中止鈕
-    $(btnAbord).click(function () {
+    // 不評鑑鈕
+    $(btnAbordSelector).click(function () {
         if (id.trim() == "")
             return;
 
-        // eventAbordClick
-        function eventAbordClick(funcCallback) {
-            var reason = modal.find("[name=AbordReason]").val();
-            if (reason.trim() == "") {
-                alert("中止原因為必填");
-                return;
-            }
-
-            $.ajax({
-                url: abordApiUrl,
-                method: "POST",
-                type: "JSON",
-                data: { id: id, reason: reason },
-                success: function (data) {
-                    alert('中止完成');
-                    funcCallback(true);
-                    location.href = listPageUrl;
-                },
-                error: function (data) {
-                    if (data.responseJSON == undefined || data.responseJSON.Message == null) {
-                        alert("失敗，請聯絡管理員。");
-                        funcCallback(false);
-                    }
-                    else {
-                        try {
-                            var msg = JSON.parse(data.responseJSON.Message).join('\n');
-                            alert(msg);
-                            funcCallback(false);
-                        } catch (ex) {
-                            console.log(ex);
-                            alert(data.responseJSON.ExceptionMessage);
-                            funcCallback(false);
-                        }
-                    }
-                }
-            });
+        if (!confirm("選擇不評鑑，該廠商的評鑑作業終止，並且無法恢復。")) {
+            return;
         }
 
-        var modal = showModalUI({
-            bodyHtml: $(divAbordReasonSelector).html(),
-            title: "中止申請",
-            buttons: [
-                { style: "btn-sm btn-danger", text: "中止", onclick: function (funcCallback) { eventAbordClick(funcCallback); } },
-            ]
+        $.ajax({
+            url: notEvaluateApiUrl,
+            method: "POST",
+            type: "JSON",
+            success: function (data) {
+                alert('不評鑑完成');
+                location.href = listPageUrl;
+            },
+            error: function (data) {
+                alert(getApiErrorMessage(data, "失敗，請聯絡管理員。"));
+            }
         });
     });
 
@@ -326,21 +296,20 @@ $(function () {
 
         //-- 調整按鈕是否顯示 --
         if (objFormData.ApproveStatus == null || objFormData.ApproveStatus == "已退回") {
-            if (canSubmit)
+            if (canSubmit) {
                 $(btnSubmitSelector).show();
+                $(btnAbordSelector).show();
+            }
             $(btnAddFileSelector).show();
         } else {
             $(btnSubmitSelector).hide();
+            $(btnAbordSelector).hide();
             $(btnAddFileSelector).hide();
         }
 
         if (viewMode == 'Create' || viewMode == "Edit") {
-            if (objFormData.ApproveStatus == "審核中") {
-                if (canSubmit)
-                    $(btnAbordSelector).show();
-            } else {
+            if (!(objFormData.ApproveStatus == null || objFormData.ApproveStatus == "已退回") || !canSubmit)
                 $(btnAbordSelector).hide();
-            }
         }
         else if (viewMode == 'Detail') {
             $(btnAbordSelector).hide();

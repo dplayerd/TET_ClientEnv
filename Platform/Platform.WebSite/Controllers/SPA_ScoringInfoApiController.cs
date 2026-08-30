@@ -640,6 +640,27 @@ namespace Platform.WebSite.Controllers
                 return BadRequest(JsonConvert.SerializeObject(new string[] { ex.Message }));
             }
         }
+
+        [Route("~/api/SPA_ScoringInfoApi/NotEvaluate/{id}")]
+        [HttpPost]
+        public IHttpActionResult NotEvaluate(Guid id)
+        {
+            DateTime cTime = DateTime.Now;
+
+            var cUser = UserProfileService.GetCurrentUser();
+            if (string.IsNullOrWhiteSpace(cUser.ID))
+                throw new UnauthorizedAccessException();
+
+            try
+            {
+                this._approvalMgr.MarkAsNotEvaluate(id, cUser.ID, cTime);
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(JsonConvert.SerializeObject(new string[] { ex.Message }));
+            }
+        }
         #endregion
 
         #region Export
