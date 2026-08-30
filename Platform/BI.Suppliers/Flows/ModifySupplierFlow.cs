@@ -54,6 +54,15 @@ namespace BI.Suppliers.Flows
             return result;
         }
 
+        /// <summary> 取得供應商異動完整預跑顯示流程 </summary>
+        /// <param name="supplierModel"></param>
+        /// <returns></returns>
+        public static List<FlowModel> GetPreviewFlowList(TET_SupplierModel supplierModel)
+        {
+            var source = IsSriSs(supplierModel) ? _withSRI_SS_SupplierFlow : _noSRI_SS_SupplierFlow;
+            return source.Select(obj => obj.ToCopy()).ToList();
+        }
+
         /// <summary> 取得目前的關卡 </summary>
         /// <param name="cApprovalModel"></param>
         /// <param name="supplierModel"></param>

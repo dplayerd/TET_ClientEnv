@@ -787,7 +787,7 @@ namespace BI.Suppliers
                 return NewSupplierFlow.GetFlowList();
 
             if (string.Compare(type, ApprovalType.Modify.ToText(), true) == 0)
-                return ModifySupplierFlow.GetFlowList(supplierModel);
+                return ModifySupplierFlow.GetPreviewFlowList(supplierModel);
 
             return new List<FlowModel>();
         }

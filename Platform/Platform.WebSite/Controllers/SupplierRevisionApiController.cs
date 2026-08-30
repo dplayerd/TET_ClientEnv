@@ -133,6 +133,28 @@ namespace Platform.WebSite.Controllers
         }
 
 
+        [Route("~/api/SupplierRevisionApi/PreviewApprovalList")]
+        [HttpPost]
+        public IHttpActionResult PreviewApprovalList([FromBody] TET_SupplierModel model)
+        {
+            DateTime cDate = DateTime.Now;
+
+            var cUser = UserProfileService.GetCurrentUser();
+            if (string.IsNullOrWhiteSpace(cUser.ID))
+                throw new UnauthorizedAccessException();
+
+            try
+            {
+                var result = this._mgr.GetRevisionApprovalPreviewList(model, cUser.ID, cDate);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(JsonConvert.SerializeObject(new string[] { ex.Message }));
+            }
+        }
+
+
         [Route("~/api/SupplierRevisionApi/Submit")]
         [HttpPost]
         public IHttpActionResult Submit()

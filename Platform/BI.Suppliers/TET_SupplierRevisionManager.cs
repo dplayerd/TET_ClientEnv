@@ -14,6 +14,7 @@ using System.Xml.Linq;
 using Platform.Auth.Models;
 using BI.Suppliers.Validators;
 using Newtonsoft.Json;
+using BI.Suppliers.Flows;
 
 namespace BI.Suppliers
 {
@@ -78,6 +79,104 @@ namespace BI.Suppliers
             {
                 this._logger.WriteError(ex);
                 return default;
+            }
+        }
+
+        /// <summary> 取得供應商資訊異動審核預跑清單 </summary>
+        /// <param name="model">供應商異動資料</param>
+        /// <param name="userID">目前登入者</param>
+        /// <param name="cDate">目前時間</param>
+        /// <returns></returns>
+        public List<TET_SupplierApprovalModel> GetRevisionApprovalPreviewList(TET_SupplierModel model, string userID, DateTime cDate)
+        {
+            if (model == null)
+                throw new ArgumentNullException("Model is required.");
+
+            if (!model.ID.HasValue)
+                throw new ArgumentException("Supplier is required.");
+
+            var user = _userMgr.GetUser(userID);
+            if (user == null)
+                throw new Exception("User is required.");
+
+            try
+            {
+                using (PlatformContextModel context = new PlatformContextModel())
+                {
+                    var dbModel =
+                        (from item in context.TET_Supplier
+                         where item.ID == model.ID
+                         select item).FirstOrDefault();
+
+                    if (dbModel == null)
+                        throw new NullReferenceException($"{model.ID} don't exists.");
+
+                    var dbModel_LastVersion =
+                        (from item in context.TET_Supplier
+                         where
+                            item.VenderCode == dbModel.VenderCode &&
+                            item.Version == dbModel.Version - 1
+                         select item).FirstOrDefault();
+
+                    var previewEntity = this.ToPreviewEntity(dbModel, model, userID);
+                    if (HasDiffInBankFields(previewEntity, dbModel_LastVersion))
+                        previewEntity.RevisionType = RevisionType.Changed.ToText();
+                    else
+                        previewEntity.RevisionType = RevisionType.Same.ToText();
+
+                    var previewModel = this.ToPreviewModel(previewEntity);
+                    var flowList = ModifySupplierFlow.GetPreviewFlowList(previewModel);
+                    var description = $"{ApprovalType.Modify.ToText()}_{previewEntity.CName}_{user.UnitName}_{user.FirstNameEN} {user.LastNameEN}";
+
+                    var result = new List<TET_SupplierApprovalModel>()
+                    {
+                        new TET_SupplierApprovalModel()
+                        {
+                            ID = Guid.Empty,
+                            SupplierID = previewEntity.ID,
+                            Type = ApprovalType.Modify.ToText(),
+                            Description = description,
+                            Level = ApprovalLevel.Applicant.ToText(),
+                            Approver = this.FormatApproverName(user, userID),
+                            Result = ApprovalResult.SentToApproval.ToText(),
+                            CreateDate = cDate,
+                            ModifyDate = cDate,
+                            IsSimulated = true,
+                        }
+                    };
+
+                    foreach (var flow in flowList)
+                    {
+                        var approverList = this.GetLevelApproverList(flow, userID)
+                            .Where(obj => obj != null)
+                            .ToList();
+
+                        if (!approverList.Any())
+                            approverList.Add(null);
+
+                        foreach (var approver in approverList)
+                        {
+                            result.Add(new TET_SupplierApprovalModel()
+                            {
+                                ID = Guid.Empty,
+                                SupplierID = previewEntity.ID,
+                                Type = ApprovalType.Modify.ToText(),
+                                Description = description,
+                                Level = this.GetLevelDisplayName(approver?.EmpID, flow.Level, previewEntity.CoSignApprover),
+                                Approver = this.FormatApproverName(approver, string.Empty),
+                                Result = "未來審核關卡",
+                                IsSimulated = true,
+                            });
+                        }
+                    }
+
+                    return result;
+                }
+            }
+            catch (Exception ex)
+            {
+                this._logger.WriteError(ex);
+                throw;
             }
         }
         #endregion
@@ -402,6 +501,117 @@ namespace BI.Suppliers
         }
 
         #region Private methods
+        /// <summary> 轉為預跑用供應商資料 </summary>
+        /// <param name="source"></param>
+        /// <param name="input"></param>
+        /// <param name="userID"></param>
+        /// <returns></returns>
+        private TET_Supplier ToPreviewEntity(TET_Supplier source, TET_SupplierModel input, string userID)
+        {
+            return new TET_Supplier()
+            {
+                ID = source.ID,
+                VenderCode = source.VenderCode,
+                Version = source.Version,
+                CName = input.CName,
+                BankCountry = input.BankCountry,
+                BankName = input.BankName,
+                BankCode = input.BankCode,
+                BankBranchName = input.BankBranchName,
+                BankBranchCode = input.BankBranchCode,
+                Currency = input.Currency,
+                BankAccountName = input.BankAccountName,
+                BankAccountNo = input.BankAccountNo,
+                CompanyCity = string.IsNullOrEmpty(input.CompanyCity) ? null : input.CompanyCity,
+                BankAddress = string.IsNullOrEmpty(input.BankAddress) ? null : input.BankAddress,
+                SwiftCode = string.IsNullOrEmpty(input.SwiftCode) ? null : input.SwiftCode,
+                CoSignApprover = input.CoSignApprover_Text ?? source.CoSignApprover,
+                RevisionType = source.RevisionType,
+                CreateUser = string.IsNullOrWhiteSpace(source.CreateUser) ? userID : source.CreateUser,
+            };
+        }
+
+        /// <summary> 轉為流程判斷用供應商模型 </summary>
+        /// <param name="source"></param>
+        /// <returns></returns>
+        private TET_SupplierModel ToPreviewModel(TET_Supplier source)
+        {
+            return new TET_SupplierModel()
+            {
+                ID = source.ID,
+                CName = source.CName,
+                CoSignApprover_Text = source.CoSignApprover,
+                RevisionType = source.RevisionType,
+                CreateUser = source.CreateUser,
+            };
+        }
+
+        /// <summary> 依照關卡取得簽核人 </summary>
+        /// <param name="flow"></param>
+        /// <param name="applicantID"></param>
+        /// <returns></returns>
+        private List<UserAccountModel> GetLevelApproverList(FlowModel flow, string applicantID)
+        {
+            switch (flow.Level)
+            {
+                case ApprovalLevel.User_GL:
+                    var manager = this._userMgr.GetUserLeader(applicantID);
+                    return manager == null ? new List<UserAccountModel>() : new List<UserAccountModel>() { manager };
+
+                case ApprovalLevel.SRI_SS:
+                    return this._userRoleMgr.GetUserListInRole(ApprovalRole.SRI_SS_Approval.ToID().Value);
+
+                case ApprovalLevel.SRI_SS_GL:
+                    return this._userRoleMgr.GetUserListInRole(ApprovalRole.SRI_SS_GL.ToID().Value);
+
+                case ApprovalLevel.ACC_First:
+                    return this._userRoleMgr.GetUserListInRole(ApprovalRole.ACC_First.ToID().Value);
+
+                case ApprovalLevel.ACC_Second:
+                    return this._userRoleMgr.GetUserListInRole(ApprovalRole.ACC_Second.ToID().Value);
+
+                case ApprovalLevel.ACC_Last:
+                    return this._userRoleMgr.GetUserListInRole(ApprovalRole.ACC_Last.ToID().Value);
+
+                case ApprovalLevel.Empty:
+                default:
+                    return new List<UserAccountModel>();
+            }
+        }
+
+        /// <summary> 格式化審核者顯示名稱 </summary>
+        /// <param name="user">使用者資料</param>
+        /// <param name="fallback">查無使用者時的顯示文字</param>
+        /// <returns></returns>
+        private string FormatApproverName(UserAccountModel user, string fallback)
+        {
+            if (user == null)
+                return fallback;
+
+            var name = $"{user.FirstNameEN} {user.LastNameEN}".Trim();
+            if (string.IsNullOrWhiteSpace(name))
+                return $"({user.EmpID})";
+
+            return $"{name}({user.EmpID})";
+        }
+
+
+        /// <summary> 格式化審核者顯示名稱 </summary>
+        /// <param name="user">使用者資料</param>
+        /// <param name="fallback">查無使用者時的顯示文字</param>
+        /// <returns></returns>
+        private string FormatApproverName(UserModel user, string fallback)
+        {
+            if (user == null)
+                return fallback;
+
+            var name = $"{user.FirstNameEN} {user.LastNameEN}".Trim();
+            if (string.IsNullOrWhiteSpace(name))
+                return $"({user.EmpID})";
+
+            return $"{name}({user.EmpID})";
+        }
+
         /// <summary> 檢查銀行相關欄位是否有變動過 </summary>
         /// <param name="newVersion"></param>
         /// <param name="oldVersion"></param>
