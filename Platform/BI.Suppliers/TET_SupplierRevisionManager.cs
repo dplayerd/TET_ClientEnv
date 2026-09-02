@@ -119,10 +119,6 @@ namespace BI.Suppliers
                          select item).FirstOrDefault();
 
                     var previewEntity = this.ToPreviewEntity(dbModel, model, userID);
-                    if (HasDiffInBankFields(previewEntity, dbModel_LastVersion))
-                        previewEntity.RevisionType = RevisionType.Changed.ToText();
-                    else
-                        previewEntity.RevisionType = RevisionType.Same.ToText();
 
                     var previewModel = this.ToPreviewModel(previewEntity);
                     var flowList = ModifySupplierFlow.GetPreviewFlowList(previewModel);

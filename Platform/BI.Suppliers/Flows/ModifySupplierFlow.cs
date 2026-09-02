@@ -69,7 +69,7 @@ namespace BI.Suppliers.Flows
             var retList =
                 (revisionType == RevisionType.Same)
                     ? source.Where(obj => !accFlow.Contains(obj.Level))
-                    : source.Where(obj => !accFlow.Contains(obj.Level));
+                    : source;
 
             return retList.Select(obj => obj.ToCopy()).ToList();
         }
