@@ -330,8 +330,8 @@ namespace Platform.WebSite.Controllers
                     return BadRequest(JsonConvert.SerializeObject(msgList));
 
                 this.ApplyWorkerCountFromRequest(model, msgList);
-                if (!msgList.Any() && !SPA_ScoringInfoValidator.Valid_Tab3(model, sheetSetting, out var mainMsgList))
-                    msgList.AddRange(mainMsgList);
+                //if (!msgList.Any() && !SPA_ScoringInfoValidator.Valid_Tab3(model, sheetSetting, out var mainMsgList))
+                //    msgList.AddRange(mainMsgList);
 
                 if (msgList.Any())
                     return BadRequest(JsonConvert.SerializeObject(msgList));
@@ -358,7 +358,7 @@ namespace Platform.WebSite.Controllers
 
                 model.SheetSetting = sheetSetting;
                 model.Module3List = detailList;
-                this._detailMgr.Modify_Module3(model, detailList, cUser.ID, cTime);
+                this._detailMgr.Modify_Module3(model, detailList, cUser.ID, cTime, false);
                 return Ok();
             }
             catch (Exception ex)
@@ -1051,7 +1051,7 @@ namespace Platform.WebSite.Controllers
                     Description = this.GetCellString(row, 10),
                 };
 
-                this.ValidImportRequired_Tab3(imported, dateText, sheetSetting, rowNo, msgList);
+                //this.ValidImportRequired_Tab3(imported, dateText, sheetSetting, rowNo, msgList);
                 this.ValidImportYesNo(imported.TELLoss, "TEL財損", rowNo, msgList);
                 this.ValidImportYesNo(imported.CustomerLoss, "客戶財損", rowNo, msgList);
                 this.ValidImportYesNo(imported.Accident, "人身事故", rowNo, msgList);
@@ -1088,7 +1088,11 @@ namespace Platform.WebSite.Controllers
             if (string.IsNullOrWhiteSpace(value))
                 return;
 
-            if (value != "Yes" && value != "No")
+
+            var isYes = (string.Compare("YES", value, true) == 0);
+            var isNo = (string.Compare("NO", value, true) == 0);
+
+            if (!isYes && !isNo)
                 msgList.Add($"第{rowNo}筆資料 欄位 {title} 欄位值錯誤");
         }
 

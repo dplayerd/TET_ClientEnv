@@ -648,6 +648,17 @@ namespace BI.SPA_ScoringInfo
         /// <param name="cDate">目前時間</param>
         public void Modify_Module3(SPA_ScoringInfoModel mainModel, List<SPA_ScoringInfoModule3Model> module3List, string userID, DateTime cDate)
         {
+            this.Modify_Module3(mainModel, module3List, userID, cDate, true);
+        }
+
+        /// <summary> 修改 施工正確性 </summary>
+        /// <param name="mainModel"></param>
+        /// <param name="module3List"></param>
+        /// <param name="userID">目前登入者</param>
+        /// <param name="cDate">目前時間</param>
+        /// <param name="isValidate">是否檢查欄位</param>
+        public void Modify_Module3(SPA_ScoringInfoModel mainModel, List<SPA_ScoringInfoModule3Model> module3List, string userID, DateTime cDate, bool isValidate)
+        {
             if (module3List == null)
                 throw new ArgumentNullException("Module3 is required.");
 
@@ -656,19 +667,22 @@ namespace BI.SPA_ScoringInfo
                 using (PlatformContextModel context = new PlatformContextModel())
                 {
 
-                    //--- 先檢查是否能通過商業邏輯 ---
-                    List<string> tempMsgList;
-                    List<string> msgList = new List<string>();
-                    var validResult = SPA_ScoringInfoValidator.Valid_Tab3(mainModel, mainModel.SheetSetting, out tempMsgList);
-                    if (!validResult)
-                        msgList.AddRange(tempMsgList);
-                    var validDetailResult = SPA_ScoringInfoModule3Validator.Valid(module3List, mainModel.SheetSetting, out tempMsgList);
-                    if (!validDetailResult)
-                        msgList.AddRange(tempMsgList);
+                    if (isValidate)
+                    {
+                        //--- 先檢查是否能通過商業邏輯 ---
+                        List<string> tempMsgList;
+                        List<string> msgList = new List<string>();
+                        var validResult = SPA_ScoringInfoValidator.Valid_Tab3(mainModel, mainModel.SheetSetting, out tempMsgList);
+                        if (!validResult)
+                            msgList.AddRange(tempMsgList);
+                        var validDetailResult = SPA_ScoringInfoModule3Validator.Valid(module3List, mainModel.SheetSetting, out tempMsgList);
+                        if (!validDetailResult)
+                            msgList.AddRange(tempMsgList);
 
-                    if (!validResult || !validDetailResult)
-                        throw new ArgumentException(string.Join(Environment.NewLine, msgList));
-                    //--- 先檢查是否能通過商業邏輯 ---
+                        if (!validResult || !validDetailResult)
+                            throw new ArgumentException(string.Join(Environment.NewLine, msgList));
+                        //--- 先檢查是否能通過商業邏輯 ---
+                    }
 
 
                     var dbModel =
