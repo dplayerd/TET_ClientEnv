@@ -60,7 +60,18 @@ namespace BI.Suppliers.Flows
         public static List<FlowModel> GetPreviewFlowList(TET_SupplierModel supplierModel)
         {
             var source = IsSriSs(supplierModel) ? _withSRI_SS_SupplierFlow : _noSRI_SS_SupplierFlow;
-            return source.Select(obj => obj.ToCopy()).ToList();
+
+            var revisionType = ApprovalUtils.ParseRevisionType(supplierModel.RevisionType);
+
+            // 如果 RevisionType = Same ，是沒有 ACC 相關關卡的
+            var accFlow = new[] { ApprovalLevel.ACC_First, ApprovalLevel.ACC_Second, ApprovalLevel.ACC_Last };
+
+            var retList =
+                (revisionType == RevisionType.Same)
+                    ? source.Where(obj => !accFlow.Contains(obj.Level))
+                    : source.Where(obj => !accFlow.Contains(obj.Level));
+
+            return retList.Select(obj => obj.ToCopy()).ToList();
         }
 
         /// <summary> 取得目前的關卡 </summary>
