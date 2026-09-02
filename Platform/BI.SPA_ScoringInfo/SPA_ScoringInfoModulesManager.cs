@@ -394,6 +394,17 @@ namespace BI.SPA_ScoringInfo
         /// <param name="cDate">目前時間</param>
         public void Modify_Module1(SPA_ScoringInfoModel mainModel, List<SPA_ScoringInfoModule1Model> module1List, string userID, DateTime cDate)
         {
+            this.Modify_Module1(mainModel, module1List, userID, cDate, true);
+        }
+
+        /// <summary> 修改 人力盤點 </summary>
+        /// <param name="mainModel"></param>
+        /// <param name="module1List"></param>
+        /// <param name="userID">目前登入者</param>
+        /// <param name="cDate">目前時間</param>
+        /// <param name="isValidate">是否檢查欄位</param>
+        public void Modify_Module1(SPA_ScoringInfoModel mainModel, List<SPA_ScoringInfoModule1Model> module1List, string userID, DateTime cDate, bool isValidate)
+        {
             if (module1List == null)
                 throw new ArgumentNullException("Module1 is required.");
 
@@ -402,19 +413,22 @@ namespace BI.SPA_ScoringInfo
                 using (PlatformContextModel context = new PlatformContextModel())
                 {
 
-                    //--- 先檢查是否能通過商業邏輯 ---
-                    List<string> tempMsgList;
-                    List<string> msgList = new List<string>();
-                    var validResult = SPA_ScoringInfoValidator.Valid(mainModel, out tempMsgList);
-                    if (!validResult)
-                        msgList.AddRange(tempMsgList);
-                    var validDetailResult = SPA_ScoringInfoModule1Validator.Valid(module1List, mainModel.SheetSetting, out tempMsgList);
-                    if (!validDetailResult)
-                        msgList.AddRange(tempMsgList);
+                    if (isValidate)
+                    {
+                        //--- 先檢查是否能通過商業邏輯 ---
+                        List<string> tempMsgList;
+                        List<string> msgList = new List<string>();
+                        var validResult = SPA_ScoringInfoValidator.Valid(mainModel, out tempMsgList);
+                        if (!validResult)
+                            msgList.AddRange(tempMsgList);
+                        var validDetailResult = SPA_ScoringInfoModule1Validator.Valid(module1List, mainModel.SheetSetting, out tempMsgList);
+                        if (!validDetailResult)
+                            msgList.AddRange(tempMsgList);
 
-                    if (!validResult || !validDetailResult)
-                        throw new ArgumentException(string.Join(Environment.NewLine, msgList));
-                    //--- 先檢查是否能通過商業邏輯 ---
+                        if (!validResult || !validDetailResult)
+                            throw new ArgumentException(string.Join(Environment.NewLine, msgList));
+                        //--- 先檢查是否能通過商業邏輯 ---
+                    }
 
 
                     var dbModel =
@@ -529,6 +543,17 @@ namespace BI.SPA_ScoringInfo
         /// <param name="cDate">目前時間</param>
         public void Modify_Module2(SPA_ScoringInfoModel mainModel, List<SPA_ScoringInfoModule2Model> Module2List, string userID, DateTime cDate)
         {
+            this.Modify_Module2(mainModel, Module2List, userID, cDate, true);
+        }
+
+        /// <summary> 修改 施工達交狀況盤點 </summary>
+        /// <param name="mainModel"></param>
+        /// <param name="Module2List"></param>
+        /// <param name="userID">目前登入者</param>
+        /// <param name="cDate">目前時間</param>
+        /// <param name="isValidate">是否檢查欄位</param>
+        public void Modify_Module2(SPA_ScoringInfoModel mainModel, List<SPA_ScoringInfoModule2Model> Module2List, string userID, DateTime cDate, bool isValidate)
+        {
             if (Module2List == null)
                 throw new ArgumentNullException("Module2 is required.");
 
@@ -536,19 +561,22 @@ namespace BI.SPA_ScoringInfo
             {
                 using (PlatformContextModel context = new PlatformContextModel())
                 {
-                    //--- 先檢查是否能通過商業邏輯 ---
-                    List<string> tempMsgList;
-                    List<string> msgList = new List<string>();
-                    var validResult = SPA_ScoringInfoValidator.Valid(mainModel, out tempMsgList);
-                    if (!validResult)
-                        msgList.AddRange(tempMsgList);
-                    var validDetailResult = SPA_ScoringInfoModule2Validator.Valid(mainModel, Module2List, mainModel.SheetSetting, out tempMsgList);
-                    if (!validDetailResult)
-                        msgList.AddRange(tempMsgList);
+                    if (isValidate)
+                    {
+                        //--- 先檢查是否能通過商業邏輯 ---
+                        List<string> tempMsgList;
+                        List<string> msgList = new List<string>();
+                        var validResult = SPA_ScoringInfoValidator.Valid(mainModel, out tempMsgList);
+                        if (!validResult)
+                            msgList.AddRange(tempMsgList);
+                        var validDetailResult = SPA_ScoringInfoModule2Validator.Valid(mainModel, Module2List, mainModel.SheetSetting, out tempMsgList);
+                        if (!validDetailResult)
+                            msgList.AddRange(tempMsgList);
 
-                    if (!validResult || !validDetailResult)
-                        throw new ArgumentException(string.Join(Environment.NewLine, msgList));
-                    //--- 先檢查是否能通過商業邏輯 ---
+                        if (!validResult || !validDetailResult)
+                            throw new ArgumentException(string.Join(Environment.NewLine, msgList));
+                        //--- 先檢查是否能通過商業邏輯 ---
+                    }
 
 
                     var dbModel =

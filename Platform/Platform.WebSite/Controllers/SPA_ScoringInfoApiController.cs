@@ -253,7 +253,7 @@ namespace Platform.WebSite.Controllers
 
                 model.SheetSetting = sheetSetting;
                 model.Module1List = detailList;
-                this._detailMgr.Modify_Module1(model, detailList, cUser.ID, cTime);
+                this._detailMgr.Modify_Module1(model, detailList, cUser.ID, cTime, false);
                 return Ok();
             }
             catch (Exception ex)
@@ -302,7 +302,7 @@ namespace Platform.WebSite.Controllers
 
                 model.SheetSetting = sheetSetting;
                 model.Module2List = detailList;
-                this._detailMgr.Modify_Module2(model, detailList, cUser.ID, cTime);
+                this._detailMgr.Modify_Module2(model, detailList, cUser.ID, cTime, false);
                 return Ok();
             }
             catch (Exception ex)
@@ -1012,9 +1012,13 @@ namespace Platform.WebSite.Controllers
                     OnTime = this.GetCellString(row, 9),
                     Remark = this.GetCellString(row, 10),
                 });
+
+                this.ValidYesNo(rowNo, result.Select(obj => obj.OnTime), "是否準時交付", msgList);
             }
 
-            this.ValidYesNo(result.Select(obj => obj.OnTime), "是否準時交付", msgList);
+            this.ValidImportValues_Tab2(result, msgList);
+
+
             List<string> detailMsgList;
             this.AddDetailValidationMessage(SPA_ScoringInfoModule2Validator.Valid(mainModel, result, sheetSetting, out detailMsgList), detailMsgList, msgList);
             return result;
@@ -1177,47 +1181,81 @@ namespace Platform.WebSite.Controllers
                 msgList.Add($"{title}{item.Key.Replace("___", " + ")}重複");
         }
 
-        private void ValidYesNo(IEnumerable<string> values, string title, List<string> msgList)
+        private void ValidYesNo(int rowNo, IEnumerable<string> values, string title, List<string> msgList)
         {
             foreach (var value in values.Where(obj => !string.IsNullOrWhiteSpace(obj)))
             {
-                if (value != "Yes" && value != "No")
-                    msgList.Add($"欄位 {title} 欄位值錯誤");
+                var isYes = (string.Compare("YES", value, true) == 0);
+                var isNo = (string.Compare("NO", value, true) == 0);
+
+                if (!isYes && !isNo)
+                    msgList.Add($"第{rowNo}筆資料 欄位 {title} 欄位值錯誤");
             }
         }
+
 
         private void ValidImportValues_Tab1(List<SPA_ScoringInfoModule1Model> list, List<string> msgList)
         {
+            var majorJobs_Parameters = TET_ParameterService.GetTET_ParametersList1("SPA主要負責作業");
+
+
             string[] sources = new[] { "本期新增", "前期匯入" };
             string[] types = new[] { "本社社員", "協力廠商" };
-            string[] majorJobs = new[] { "直接", "間接" };
+            string[] majorJobs = majorJobs_Parameters.Select(obj=>obj.Text).ToArray();
             string[] isIndependent = new[] { "O", "X", "NA" };
             string[] empStatus = new[] { "新進", "在職", "離職", "其他" };
 
+            int rowNo = 0;
             foreach (var item in list)
             {
+                rowNo += 1;
+
                 if (!string.IsNullOrWhiteSpace(item.Source) && !sources.Contains(item.Source))
-                    msgList.Add("欄位 資料來源 欄位值錯誤");
+                    msgList.Add($"第{rowNo}筆資料 欄位 資料來源 欄位值錯誤");
 
                 if (!string.IsNullOrWhiteSpace(item.Type) && !types.Contains(item.Type))
-                    msgList.Add("欄位 本社/協力廠商 欄位值錯誤");
+                    msgList.Add($"第{rowNo}筆資料 欄位 本社/協力廠商 欄位值錯誤");
 
                 if (!string.IsNullOrWhiteSpace(item.MajorJob) && !majorJobs.Contains(item.MajorJob))
-                    msgList.Add("欄位 主要負責作業 欄位值錯誤");
+                    msgList.Add($"第{rowNo}筆資料 欄位 主要負責作業 欄位值錯誤");
 
                 if (!string.IsNullOrWhiteSpace(item.IsIndependent) && !isIndependent.Contains(item.IsIndependent))
-                    msgList.Add("欄位 能否獨立作業 欄位值錯誤");
+                    msgList.Add($"第{rowNo}筆資料 欄位 能否獨立作業 欄位值錯誤");
 
                 if (!string.IsNullOrWhiteSpace(item.EmpStatus) && !empStatus.Contains(item.EmpStatus))
-                    msgList.Add("欄位 員工狀態 欄位值錯誤");
+                    msgList.Add($"第{rowNo}筆資料 欄位 員工狀態 欄位值錯誤");
 
                 if (item.Source == "本期新增" && item.EmpStatus != "新進" && item.EmpStatus != "其他")
-                    msgList.Add("欄位 員工狀態 欄位值錯誤");
+                    msgList.Add($"第{rowNo}筆資料 欄位 員工狀態 欄位值錯誤");
 
                 if (item.MajorJob == "間接" && (item.IsIndependent != "NA" || item.SkillLevel != "NA"))
-                    msgList.Add("欄位 能否獨立作業、Skill Level 欄位值錯誤");
+                    msgList.Add($"第{rowNo}筆資料 欄位 能否獨立作業、Skill Level 欄位值錯誤");
             }
         }
+
+        private void ValidImportValues_Tab2(List<SPA_ScoringInfoModule2Model> list, List<string> msgList)
+        {
+            var ServiceFor_Parameters = TET_ParameterService.GetTET_ParametersList1("SPA服務對象");
+            var WorkItem_Parameters = TET_ParameterService.GetTET_ParametersList1("SPA作業項目");
+
+
+
+            string[] serviceFor = ServiceFor_Parameters.Select(obj => obj.Text).ToArray();
+            string[] workItem = WorkItem_Parameters.Select(obj => obj.Text).ToArray();
+
+            int rowNo = 0; 
+            foreach (var item in list)
+            {
+                rowNo += 1;
+
+                if (!string.IsNullOrWhiteSpace(item.ServiceFor) && !serviceFor.Contains(item.ServiceFor))
+                    msgList.Add($"第{rowNo}筆資料 欄位 服務對象 欄位值錯誤");
+
+                if (!string.IsNullOrWhiteSpace(item.WorkItem) && !workItem.Contains(item.WorkItem))
+                    msgList.Add($"第{rowNo}筆資料 欄位 作業項目 欄位值錯誤");
+            }
+        }
+
         #endregion
     }
 }
