@@ -18,6 +18,7 @@ namespace Platform.ORM
         public virtual DbSet<MailPool> MailPools { get; set; }
         public virtual DbSet<MailPoolWithCC> MailPoolWithCCs { get; set; }
         public virtual DbSet<MediaFile> MediaFiles { get; set; }
+        public virtual DbSet<MailReminderExecutionLog> MailReminderExecutionLogs { get; set; }
         public virtual DbSet<Module> Modules { get; set; }
         public virtual DbSet<PageFunctionRole> PageFunctionRoles { get; set; }
         public virtual DbSet<PageRole> PageRoles { get; set; }

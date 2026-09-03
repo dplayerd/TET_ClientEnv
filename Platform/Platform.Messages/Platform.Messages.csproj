@@ -45,6 +45,7 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -56,7 +57,9 @@
   <ItemGroup>
     <Compile Include="Enums\MailPriorityEnum.cs" />
     <Compile Include="Enums\MailStatusEnum.cs" />
+    <Compile Include="IMailQueueService.cs" />
     <Compile Include="MailPoolManager.cs" />
+    <Compile Include="MailQueueService.cs" />
     <Compile Include="Models\MailPoolModel.cs" />
     <Compile Include="Models\MailPoolWithCCModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

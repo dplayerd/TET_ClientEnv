@@ -311,6 +311,7 @@
     <Compile Include="Controllers\RoleManagementApiController.cs" />
     <Compile Include="Controllers\SampleDataApiController.cs" />
     <Compile Include="Controllers\SampleDataController.cs" />
+    <Compile Include="Controllers\ScheduledMailApiController.cs" />
     <Compile Include="Controllers\SiteController.cs" />
     <Compile Include="Controllers\ParametersController.cs" />
     <Compile Include="Controllers\SPAController.cs" />
@@ -385,6 +386,12 @@
     <Compile Include="Services\PageRoleService.cs" />
     <Compile Include="Services\PageService.cs" />
     <Compile Include="Services\RoleService.cs" />
+    <Compile Include="Services\ScheduledMail\ApprovalReminderMailService.cs" />
+    <Compile Include="Services\ScheduledMail\IReminderMailService.cs" />
+    <Compile Include="Services\ScheduledMail\ReminderMailExecutionHelper.cs" />
+    <Compile Include="Services\ScheduledMail\ReminderMailGenerateResult.cs" />
+    <Compile Include="Services\ScheduledMail\ScheduledMailConfig.cs" />
+    <Compile Include="Services\ScheduledMail\SPAScoringInfoReminderMailService.cs" />
     <Compile Include="Services\SiteService.cs" />
     <Compile Include="Services\TET_ParameterService.cs" />
     <Compile Include="Services\TET_UserService.cs" />
@@ -606,6 +613,10 @@
     <ProjectReference Include="..\Platform.LogService\Platform.LogService.csproj">
       <Project>{1d495112-15c2-467a-8d1f-30a799977f99}</Project>
       <Name>Platform.LogService</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Platform.Messages\Platform.Messages.csproj">
+      <Project>{6119cd6a-395e-4418-b54d-3484b7fde53e}</Project>
+      <Name>Platform.Messages</Name>
     </ProjectReference>
     <ProjectReference Include="..\Platform.ORM\Platform.ORM.csproj">
       <Project>{91e6d1c4-b7ec-4e9c-a0a3-ecd4a8f2d565}</Project>

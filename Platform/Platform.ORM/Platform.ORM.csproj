@@ -68,6 +68,7 @@
     <Compile Include="Role.cs" />
     <Compile Include="Site.cs" />
     <Compile Include="SystemUser.cs" />
+    <Compile Include="MailReminderExecutionLog.cs" />
     <Compile Include="TET_Parameters.cs" />
     <Compile Include="TET_PaymentSupplier.cs" />
     <Compile Include="TET_PaymentSupplierApproval.cs" />
