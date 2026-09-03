@@ -1062,7 +1062,7 @@ namespace Platform.WebSite.Controllers
                 if (this.IsEmptyRow(row))
                     continue;
 
-                int rowNo = i + 1;
+                int rowNo = i;
                 this.ValidMainColumns(mainModel, row, rowNo, msgList);
 
                 var dateText = this.GetCellString(row, 5);
@@ -1081,7 +1081,7 @@ namespace Platform.WebSite.Controllers
                     Description = this.GetCellString(row, 10),
                 };
 
-                //this.ValidImportRequired_Tab3(imported, dateText, sheetSetting, rowNo, msgList);
+                this.ValidImportRequired_Tab3(imported, dateText, sheetSetting, rowNo, msgList);
 
 
 
@@ -1292,9 +1292,6 @@ namespace Platform.WebSite.Controllers
             {
                 rowNo += 1;
 
-                if (!string.IsNullOrWhiteSpace(item.ServiceFor) && !serviceFor.Contains(item.ServiceFor))
-                    msgList.Add($"第{rowNo}筆資料 欄位 服務對象 欄位值錯誤");
-
                 if (sheetSetting.IsSheet2ServiceForFill)
                     this.ValidImportText(item.ServiceFor, "服務對象", rowNo, msgList, serviceFor);
 
@@ -1322,7 +1319,7 @@ namespace Platform.WebSite.Controllers
         {
             if (string.IsNullOrWhiteSpace(value))
             {
-                msgList.Add($"第{rowNo}筆資料 欄位 {title} 欄位值為空");
+                msgList.Add($"第{rowNo}筆資料 欄位 {title} 欄位值為必填欄位");
                 return;
             }
 
@@ -1343,7 +1340,7 @@ namespace Platform.WebSite.Controllers
         {
             if (string.IsNullOrWhiteSpace(value))
             {
-                msgList.Add($"第{rowNo}筆資料 欄位 {title} 欄位值為空");
+                msgList.Add($"第{rowNo}筆資料 欄位 {title} 欄位值為必填欄位");
                 return;
             }
 
