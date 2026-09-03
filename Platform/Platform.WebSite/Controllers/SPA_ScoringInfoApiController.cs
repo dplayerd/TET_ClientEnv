@@ -1,11 +1,9 @@
-﻿using BI.Shared.Utils;
-using BI.SPA_ScoringInfo.Models;
+﻿using BI.SPA_ScoringInfo.Models;
 using BI.SPA_ScoringInfo.Validators;
 using BI.SPA_ScoringInfo;
 using Newtonsoft.Json;
 using NPOI.SS.UserModel;
 using NPOI.XSSF.UserModel;
-using Org.BouncyCastle.Asn1.Ocsp;
 using Platform.WebSite.Models;
 using Platform.WebSite.Services;
 using Platform.WebSite.Util;
@@ -18,12 +16,9 @@ using System.Net;
 using System.Web;
 using System.Web.Http;
 using BI.SPA_ScoringInfo.Models.Exporting;
-using BI.SPA_ScoringInfo;
-using BI.SPA_ScoringInfo.Models;
-using BI.SPA_CostService.Models;
 using System.Web.UI.WebControls;
 using Platform.AbstractionClass;
-using BI.SPA_ApproverSetup.Enums;
+using System.Web.Http.Results;
 
 namespace Platform.WebSite.Controllers
 {
@@ -60,7 +55,7 @@ namespace Platform.WebSite.Controllers
 
 
             var pager = filter.ToPager();
-            var list = this._mgr.GetList(filter.period, filter.bu, filter.serviceFor, filter.serviceItem, filter.approveStatus,filter.belongTo, cUser.ID, cTime, pager);
+            var list = this._mgr.GetList(filter.period, filter.bu, filter.serviceFor, filter.serviceItem, filter.approveStatus, filter.belongTo, cUser.ID, cTime, pager);
 
             WebApiDataContainer<SPA_ScoringInfoModel> retList = new WebApiDataContainer<SPA_ScoringInfoModel>();
             retList.recordsFiltered = pager.TotalRow;
@@ -217,6 +212,25 @@ namespace Platform.WebSite.Controllers
         [HttpPost]
         public IHttpActionResult Import_Tab1(Guid id)
         {
+            return SharedImportTab1(id, true);
+        }
+
+
+        [Route("~/api/SPA_ScoringInfoApi/Import_Tab1_Force/{id}")]
+        [HttpPost]
+        public IHttpActionResult Import_Tab1_Force(Guid id)
+        {
+            return SharedImportTab1(id, false);
+        }
+
+
+        /// <summary> 共用匯入 Tab1 資料 </summary>
+        /// <param name="id"></param>
+        /// <param name="validNameDuplicate"> 是否檢查姓名重覆檢查 </param>
+        /// <returns></returns>
+        /// <exception cref="UnauthorizedAccessException"></exception>
+        private IHttpActionResult SharedImportTab1(Guid id, bool validNameDuplicate)
+        {
             DateTime cTime = DateTime.Now;
 
             var cUser = UserProfileService.GetCurrentUser();
@@ -231,9 +245,24 @@ namespace Platform.WebSite.Controllers
                 if (sheetSetting == null)
                     return BadRequest(JsonConvert.SerializeObject(msgList));
 
-                var importedList = this.ReadImportTab1(model, sheetSetting, out msgList);
+                var importedList = this.ReadImportTab1(model, validNameDuplicate, sheetSetting, out msgList);
                 if (msgList.Any())
                     return BadRequest(JsonConvert.SerializeObject(msgList));
+
+                // 如果是強制匯入，就忽略檢查姓名的重覆
+                if (validNameDuplicate)
+                {
+                    var duplicateMsgList = new List<string>();
+                    bool isDuplicated = this.ValidDuplicate(importedList.GroupBy(obj => obj.Supplier + "___" + obj.EmpName), "員工姓名", duplicateMsgList);
+                    if (isDuplicated)
+                    {
+                        return Content(HttpStatusCode.Conflict, new
+                        {
+                            Code = "NameDuplicate",
+                            Messages = duplicateMsgList
+                        });
+                    }
+                }
 
                 var detailList = this._detailMgr.GetList_Module1(id) ?? new List<SPA_ScoringInfoModule1Model>();
                 foreach (var imported in importedList)
@@ -414,7 +443,7 @@ namespace Platform.WebSite.Controllers
 
             if (!validResult || sheetSetting == null)
                 return BadRequest(JsonConvert.SerializeObject(msgList));
-      
+
             try
             {
                 model.SheetSetting = sheetSetting;
@@ -499,7 +528,7 @@ namespace Platform.WebSite.Controllers
 
             if (!validResult || !validDetailResult || sheetSetting == null)
                 return BadRequest(JsonConvert.SerializeObject(msgList));
-         
+
             try
             {
                 model.SheetSetting = sheetSetting;
@@ -948,7 +977,7 @@ namespace Platform.WebSite.Controllers
             return new XSSFWorkbook(file.InputStream);
         }
 
-        private List<SPA_ScoringInfoModule1Model> ReadImportTab1(SPA_ScoringInfoModel mainModel, SPA_ScoringInfoSheetModel sheetSetting, out List<string> msgList)
+        private List<SPA_ScoringInfoModule1Model> ReadImportTab1(SPA_ScoringInfoModel mainModel, bool forceImport, SPA_ScoringInfoSheetModel sheetSetting, out List<string> msgList)
         {
             msgList = new List<string>();
             var result = new List<SPA_ScoringInfoModule1Model>();
@@ -980,8 +1009,8 @@ namespace Platform.WebSite.Controllers
                 });
             }
 
-            this.ValidImportValues_Tab1(result, msgList);
-            this.ValidDuplicate(result.GroupBy(obj => obj.Supplier + "___" + obj.EmpName), "員工姓名", msgList);
+            this.ValidImportValues_Tab1(result, mainModel, sheetSetting, msgList);
+
             List<string> detailMsgList;
             this.AddDetailValidationMessage(SPA_ScoringInfoModule1Validator.Valid(result, sheetSetting, out detailMsgList), detailMsgList, msgList);
             return result;
@@ -1002,7 +1031,7 @@ namespace Platform.WebSite.Controllers
                 int rowNo = i + 1;
                 this.ValidMainColumns(mainModel, row, rowNo, msgList);
 
-                result.Add(new SPA_ScoringInfoModule2Model()
+                var imported = new SPA_ScoringInfoModule2Model()
                 {
                     SIID = mainModel.ID.Value,
                     ServiceFor = this.GetCellString(row, 5),
@@ -1011,16 +1040,13 @@ namespace Platform.WebSite.Controllers
                     MachineNo = this.GetCellString(row, 8),
                     OnTime = this.GetCellString(row, 9),
                     Remark = this.GetCellString(row, 10),
-                });
+                };
 
-                this.ValidYesNo(rowNo, result.Select(obj => obj.OnTime), "是否準時交付", msgList);
+                result.Add(imported);
             }
 
-            this.ValidImportValues_Tab2(result, msgList);
+            this.ValidImportValues_Tab2(result, sheetSetting, msgList);
 
-
-            List<string> detailMsgList;
-            this.AddDetailValidationMessage(SPA_ScoringInfoModule2Validator.Valid(mainModel, result, sheetSetting, out detailMsgList), detailMsgList, msgList);
             return result;
         }
 
@@ -1056,6 +1082,9 @@ namespace Platform.WebSite.Controllers
                 };
 
                 //this.ValidImportRequired_Tab3(imported, dateText, sheetSetting, rowNo, msgList);
+
+
+
                 this.ValidImportYesNo(imported.TELLoss, "TEL財損", rowNo, msgList);
                 this.ValidImportYesNo(imported.CustomerLoss, "客戶財損", rowNo, msgList);
                 this.ValidImportYesNo(imported.Accident, "人身事故", rowNo, msgList);
@@ -1087,18 +1116,6 @@ namespace Platform.WebSite.Controllers
                 msgList.Add($"第{rowNo}筆資料 欄位 事件說明 為必填欄位");
         }
 
-        private void ValidImportYesNo(string value, string title, int rowNo, List<string> msgList)
-        {
-            if (string.IsNullOrWhiteSpace(value))
-                return;
-
-
-            var isYes = (string.Compare("YES", value, true) == 0);
-            var isNo = (string.Compare("NO", value, true) == 0);
-
-            if (!isYes && !isNo)
-                msgList.Add($"第{rowNo}筆資料 欄位 {title} 欄位值錯誤");
-        }
 
         private void ValidDuplicate_Tab3(List<SPA_ScoringInfoModule3Model> list, List<string> msgList)
         {
@@ -1174,34 +1191,38 @@ namespace Platform.WebSite.Controllers
                 msgList.AddRange(detailMsgList);
         }
 
-        private void ValidDuplicate<T>(IEnumerable<IGrouping<string, T>> groups, string title, List<string> msgList)
+        /// <summary> 檢查是否重覆 </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="groups"></param>
+        /// <param name="title"></param>
+        /// <param name="msgList"></param>
+        /// <returns></returns>
+        private bool ValidDuplicate<T>(IEnumerable<IGrouping<string, T>> groups, string title, List<string> msgList)
         {
+            bool isDuplicated = false;
+
             var repeated = groups.Where(obj => !string.IsNullOrWhiteSpace(obj.Key.Replace("___", string.Empty)) && obj.Count() > 1).ToList();
+
             foreach (var item in repeated)
-                msgList.Add($"{title}{item.Key.Replace("___", " + ")}重複");
-        }
-
-        private void ValidYesNo(int rowNo, IEnumerable<string> values, string title, List<string> msgList)
-        {
-            foreach (var value in values.Where(obj => !string.IsNullOrWhiteSpace(obj)))
             {
-                var isYes = (string.Compare("YES", value, true) == 0);
-                var isNo = (string.Compare("NO", value, true) == 0);
-
-                if (!isYes && !isNo)
-                    msgList.Add($"第{rowNo}筆資料 欄位 {title} 欄位值錯誤");
+                msgList.Add($"{title}{item.Key.Replace("___", " + ")}重複");
+                isDuplicated = true;
             }
+
+            return isDuplicated;
         }
 
-
-        private void ValidImportValues_Tab1(List<SPA_ScoringInfoModule1Model> list, List<string> msgList)
+        private void ValidImportValues_Tab1(List<SPA_ScoringInfoModule1Model> list, SPA_ScoringInfoModel mainModel, SPA_ScoringInfoSheetModel sheetSetting, List<string> msgList)
         {
             var majorJobs_Parameters = TET_ParameterService.GetTET_ParametersList1("SPA主要負責作業");
 
+            int maxTELSeniorityY = 40;  // 0~40 年
+            int maxTELSeniorityM = 11;  // 0~11 個月
 
-            string[] sources = new[] { "本期新增", "前期匯入" };
+
             string[] types = new[] { "本社社員", "協力廠商" };
-            string[] majorJobs = majorJobs_Parameters.Select(obj=>obj.Text).ToArray();
+            string[] sources = new[] { "本期新增", "前期匯入" };
+            string[] majorJobs = majorJobs_Parameters.Select(obj => obj.Text).ToArray();
             string[] isIndependent = new[] { "O", "X", "NA" };
             string[] empStatus = new[] { "新進", "在職", "離職", "其他" };
 
@@ -1210,30 +1231,53 @@ namespace Platform.WebSite.Controllers
             {
                 rowNo += 1;
 
-                if (!string.IsNullOrWhiteSpace(item.Source) && !sources.Contains(item.Source))
-                    msgList.Add($"第{rowNo}筆資料 欄位 資料來源 欄位值錯誤");
+                if (sheetSetting.IsSheet1TypeFill)
+                    this.ValidImportText(item.Type, "本社/協力廠商", rowNo, msgList, types);
 
-                if (!string.IsNullOrWhiteSpace(item.Type) && !types.Contains(item.Type))
-                    msgList.Add($"第{rowNo}筆資料 欄位 本社/協力廠商 欄位值錯誤");
+                if (sheetSetting.IsSheet1SupplierFill)
+                    this.ValidImportText(item.Supplier, "供應商名稱", rowNo, msgList);
 
-                if (!string.IsNullOrWhiteSpace(item.MajorJob) && !majorJobs.Contains(item.MajorJob))
-                    msgList.Add($"第{rowNo}筆資料 欄位 主要負責作業 欄位值錯誤");
+                if (sheetSetting.IsSheet1TypeFill && sheetSetting.IsSheet1SupplierFill)
+                {
+                    // 未檢查本社/協力廠商欄位 = 本社社員，供應商名稱欄位值=該筆資料供應商名稱
+                    // 檢查本社/協力廠商欄位 = 協力廠商，供應商名稱欄位值!=該筆資料供應商名稱
 
-                if (!string.IsNullOrWhiteSpace(item.IsIndependent) && !isIndependent.Contains(item.IsIndependent))
-                    msgList.Add($"第{rowNo}筆資料 欄位 能否獨立作業 欄位值錯誤");
+                    bool isSelfCompany = (string.Compare("本社社員", item.Type, true) == 0);
+                    bool isSameSupplier = (string.Compare(mainModel.BelongTo, item.Supplier, true) == 0);
 
-                if (!string.IsNullOrWhiteSpace(item.EmpStatus) && !empStatus.Contains(item.EmpStatus))
-                    msgList.Add($"第{rowNo}筆資料 欄位 員工狀態 欄位值錯誤");
+                    if (isSelfCompany && !isSameSupplier)
+                        msgList.Add($"第{rowNo}筆資料 欄位 供應商名稱 欄位值錯誤");
+                    else if (!isSelfCompany && isSameSupplier)
+                        msgList.Add($"第{rowNo}筆資料 欄位 供應商名稱 欄位值錯誤");
+                }
 
-                if (item.Source == "本期新增" && item.EmpStatus != "新進" && item.EmpStatus != "其他")
-                    msgList.Add($"第{rowNo}筆資料 欄位 員工狀態 欄位值錯誤");
+                if (sheetSetting.IsSheet1EmpNameFill)
+                    this.ValidImportText(item.EmpName, "員工姓名", rowNo, msgList);
 
-                if (item.MajorJob == "間接" && (item.IsIndependent != "NA" || item.SkillLevel != "NA"))
-                    msgList.Add($"第{rowNo}筆資料 欄位 能否獨立作業、Skill Level 欄位值錯誤");
+                if (sheetSetting.IsSheet1MajorJobFill)
+                    this.ValidImportText(item.MajorJob, "主要負責作業", rowNo, msgList, majorJobs);
+
+                if (sheetSetting.IsSheet1IsIndependentFill)
+                    this.ValidImportText(item.IsIndependent, "能否獨立作業", rowNo, msgList, isIndependent);
+
+                if (sheetSetting.IsSheet1SkillLevelFill)
+                    this.ValidImportText(item.SkillLevel, "Skill Level", rowNo, msgList);
+
+                if (sheetSetting.IsSheet1EmpStatusFill)
+                    this.ValidImportText(item.EmpStatus, "員工狀態", rowNo, msgList, empStatus);
+
+                if (sheetSetting.IsSheet1TELSeniorityYFill)
+                    this.ValidImportInt(item.TELSeniorityY, "派工至TEL的年資(年)", rowNo, msgList, 0, maxTELSeniorityY);
+
+                if (sheetSetting.IsSheet1TELSeniorityMFill)
+                    this.ValidImportInt(item.TELSeniorityM, "派工至TEL的年資(月)", rowNo, msgList, 0, maxTELSeniorityM);
+
+                if (sheetSetting.IsSheet1RemarkFill)
+                    this.ValidImportText(item.Remark, "備註", rowNo, msgList);
             }
         }
 
-        private void ValidImportValues_Tab2(List<SPA_ScoringInfoModule2Model> list, List<string> msgList)
+        private void ValidImportValues_Tab2(List<SPA_ScoringInfoModule2Model> list, SPA_ScoringInfoSheetModel sheetSetting, List<string> msgList)
         {
             var ServiceFor_Parameters = TET_ParameterService.GetTET_ParametersList1("SPA服務對象");
             var WorkItem_Parameters = TET_ParameterService.GetTET_ParametersList1("SPA作業項目");
@@ -1243,7 +1287,7 @@ namespace Platform.WebSite.Controllers
             string[] serviceFor = ServiceFor_Parameters.Select(obj => obj.Text).ToArray();
             string[] workItem = WorkItem_Parameters.Select(obj => obj.Text).ToArray();
 
-            int rowNo = 0; 
+            int rowNo = 0;
             foreach (var item in list)
             {
                 rowNo += 1;
@@ -1251,11 +1295,77 @@ namespace Platform.WebSite.Controllers
                 if (!string.IsNullOrWhiteSpace(item.ServiceFor) && !serviceFor.Contains(item.ServiceFor))
                     msgList.Add($"第{rowNo}筆資料 欄位 服務對象 欄位值錯誤");
 
-                if (!string.IsNullOrWhiteSpace(item.WorkItem) && !workItem.Contains(item.WorkItem))
-                    msgList.Add($"第{rowNo}筆資料 欄位 作業項目 欄位值錯誤");
+                if (sheetSetting.IsSheet2ServiceForFill)
+                    this.ValidImportText(item.ServiceFor, "服務對象", rowNo, msgList, serviceFor);
+
+                if (sheetSetting.IsSheet2WorkItemFill)
+                    this.ValidImportText(item.WorkItem, "作業項目", rowNo, msgList, workItem);
+
+                if (sheetSetting.IsSheet2MachineNameFill)
+                    this.ValidImportText(item.MachineName, "承攬機台名稱", rowNo, msgList);
+
+                if (sheetSetting.IsSheet2MachineNoFill)
+                    this.ValidImportText(item.MachineNo, "機台Serial No.", rowNo, msgList);
+
+                if (sheetSetting.IsSheet2OnTimeFill)
+                    this.ValidImportYesNo(item.OnTime, "是否準時交付", rowNo, msgList);
+
+                if (sheetSetting.IsSheet2RemarkFill)
+                    this.ValidImportText(item.Remark, "備註", rowNo, msgList);
             }
         }
 
+        #endregion
+
+        #region Valid Types
+        private void ValidImportInt(string value, string title, int rowNo, List<string> msgList, int? min = null, int? max = null)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                msgList.Add($"第{rowNo}筆資料 欄位 {title} 欄位值為空");
+                return;
+            }
+
+            if (!int.TryParse(value, out int _parsedInt))
+            {
+                msgList.Add($"第{rowNo}筆資料 欄位 {title} 欄位值錯誤");
+                return;
+            }
+
+            if (min.HasValue && _parsedInt < min.Value)
+                msgList.Add($"第{rowNo}筆資料 欄位 {title} 欄位值錯誤");
+
+            if (max.HasValue && _parsedInt > max.Value)
+                msgList.Add($"第{rowNo}筆資料 欄位 {title} 欄位值錯誤");
+        }
+
+        private void ValidImportText(string value, string title, int rowNo, List<string> msgList, params string[] itemArray)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                msgList.Add($"第{rowNo}筆資料 欄位 {title} 欄位值為空");
+                return;
+            }
+
+            if (itemArray?.Length > 0 && !itemArray.Contains(value))
+            {
+                msgList.Add($"第{rowNo}筆資料 欄位 {title} 欄位值錯誤");
+                return;
+            }
+        }
+
+        private void ValidImportYesNo(string value, string title, int rowNo, List<string> msgList)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+                return;
+
+
+            var isYes = (string.Compare("YES", value, true) == 0);
+            var isNo = (string.Compare("NO", value, true) == 0);
+
+            if (!isYes && !isNo)
+                msgList.Add($"第{rowNo}筆資料 欄位 {title} 欄位值錯誤");
+        }
         #endregion
     }
 }

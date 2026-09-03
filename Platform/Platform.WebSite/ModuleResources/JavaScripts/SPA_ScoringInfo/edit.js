@@ -342,7 +342,51 @@ $(function () {
         }
     }
 
-    function bindImportButton(buttonName, fileName, apiUrl, appendFormData) {
+    function getNameDuplicateMessages(data) {
+        if (data.responseJSON == undefined)
+            return null;
+
+        if (data.responseJSON.Code === "NameDuplicate" && $.isArray(data.responseJSON.Messages))
+            return data.responseJSON.Messages;
+
+        if (data.responseJSON.Message == null)
+            return null;
+
+        try {
+            var response = JSON.parse(data.responseJSON.Message);
+            if (response.Code === "NameDuplicate" && $.isArray(response.Messages))
+                return response.Messages;
+        } catch (ex) {
+            console.log(ex);
+        }
+
+        return null;
+    }
+
+    function buildImportFormData(file) {
+        var formData = new FormData();
+        formData.append("file", file);
+        return formData;
+    }
+
+    function submitImportFile(apiUrl, file, successCallback, errorCallback) {
+        $.ajax({
+            url: apiUrl,
+            method: "POST",
+            data: buildImportFormData(file),
+            processData: false,
+            contentType: false,
+            success: successCallback,
+            error: errorCallback
+        });
+    }
+
+    function importSuccess() {
+        alert("匯入成功");
+        location.href = location.href;
+    }
+
+    function bindImportButton(buttonName, fileName, apiUrl) {
         $("[name=" + buttonName + "]").click(function () {
             var fileInput = $("[name=" + fileName + "]");
             var files = fileInput.get(0).files;
@@ -351,27 +395,40 @@ $(function () {
                 return;
             }
 
-            var formData = new FormData();
-            formData.append("file", files[0]);
-
-            $.ajax({
-                url: apiUrl,
-                method: "POST",
-                data: formData,
-                processData: false,
-                contentType: false,
-                success: function () {
-                    alert("匯入成功");
-                    location.href = location.href;
-                },
-                error: function (data) {
-                    alert(getApiErrorMessage(data, "匯入失敗，請聯絡管理員。"));
-                }
+            submitImportFile(apiUrl, files[0], importSuccess, function (data) {
+                alert(getApiErrorMessage(data, "匯入失敗，請聯絡管理員。"));
             });
         });
     }
 
-    bindImportButton("btnImportTab1", "ImportFile_Tab1", import_tab1_ApiUrl);
+    function bindImportTab1Button() {
+        $("[name=btnImportTab1]").click(function () {
+            var fileInput = $("[name=ImportFile_Tab1]");
+            var files = fileInput.get(0).files;
+            if (files == undefined || files == null || files.length == 0) {
+                alert("請選擇匯入檔案");
+                return;
+            }
+
+            var file = files[0];
+            submitImportFile(import_tab1_ApiUrl, file, importSuccess, function (data) {
+                var duplicateMessages = getNameDuplicateMessages(data);
+                if (duplicateMessages != null) {
+                    var message = "匯入資料有姓名重覆的情況：\n" + duplicateMessages.join('\n') + "\n\n是否仍要匯入？";
+                    if (confirm(message)) {
+                        submitImportFile(import_tab1_force_ApiUrl, file, importSuccess, function (forceData) {
+                            alert(getApiErrorMessage(forceData, "匯入失敗，請聯絡管理員。"));
+                        });
+                    }
+                    return;
+                }
+
+                alert(getApiErrorMessage(data, "匯入失敗，請聯絡管理員。"));
+            });
+        });
+    }
+
+    bindImportTab1Button();
     bindImportButton("btnImportTab2", "ImportFile_Tab2", import_tab2_ApiUrl);
     bindImportButton("btnImportTab3", "ImportFile_Tab3", import_tab3_ApiUrl);
 
