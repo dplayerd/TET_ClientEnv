@@ -25,6 +25,7 @@
     Uri submitApiUrl = new Uri("api/SPA_ViolationApi/Submit/", UriKind.Relative);
     Uri modifyApiUrl = new Uri("api/SPA_ViolationApi/Modify/" + id, UriKind.Relative);
     Uri abordApiUrl = new Uri("api/SPA_ViolationApi/Abord/" + id, UriKind.Relative);
+    Uri validateCostServiceDetailApiUrl = new Uri("api/SPA_ViolationApi/ValidateCostServiceDetail/", UriKind.Relative);
 
     Uri listPageUrl = new Uri("SPA_Violation/Index/" + masterInfo.CurrentPage.ID, UriKind.Relative);
     Uri downloadFileUrl = new Uri("SPA_Violation/Attachment/", UriKind.Relative);
@@ -329,9 +330,11 @@
             var modifyApiUrl = platformEnvironment.hostUrl + '@modifyApiUrl';
             var abordApiUrl = platformEnvironment.hostUrl + '@abordApiUrl';
             var readDetailApiUrl = platformEnvironment.hostUrl + '@readDetailApiUrl';
+            var validateCostServiceDetailApiUrl = platformEnvironment.hostUrl + '@validateCostServiceDetailApiUrl';
 
             var listPageUrl = platformEnvironment.hostUrl + '@listPageUrl';
             var downloadFileUrl = platformEnvironment.hostUrl + '@downloadFileUrl';
+            var periodText = '@defaultPeriodText';
 
             var validConfig = @Html.Raw(validConfig);
         </script>

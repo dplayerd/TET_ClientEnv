@@ -103,6 +103,10 @@
       <Project>{b245ab9d-0fb1-4ebc-b668-240e5b2f95ea}</Project>
       <Name>BI.SPA_ApproverSetup</Name>
     </ProjectReference>
+    <ProjectReference Include="..\BI.SPA_CostService\BI.SPA_CostService.csproj">
+      <Project>{c470aa82-8860-4b31-bb93-344db77e907f}</Project>
+      <Name>BI.SPA_CostService</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Platform.AbstractionClass\Platform.AbstractionClass.csproj">
       <Project>{6330b1ba-7111-4467-8446-4a38c5e3d1ee}</Project>
       <Name>Platform.AbstractionClass</Name>

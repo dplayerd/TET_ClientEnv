@@ -1,6 +1,7 @@
-﻿using BI.Shared;
+﻿using BI.Shared.Utils;
+using BI.Shared;
 using BI.Shared.Extensions;
-using BI.Shared.Utils;
+using BI.SPA_CostService;
 using BI.SPA_Violation.Enums;
 using BI.SPA_Violation.Flows;
 using BI.SPA_Violation.Models;
@@ -30,6 +31,7 @@ namespace BI.SPA_Violation
         private UserManager _userMgr = new UserManager();
         private UserRoleManager _roleMgr = new UserRoleManager();
         private SPA_ViolationApprovalManager _approvalMgr = new SPA_ViolationApprovalManager();
+        private SPA_CostServiceManager _costServiceMgr = new SPA_CostServiceManager();
 
         #region Read
 
@@ -410,6 +412,15 @@ namespace BI.SPA_Violation
             }
         }
 
+        /// <summary> 檢查是否存在已完成審核且需評鑑的 Cost&Service 明細 </summary>
+        /// <param name="period">評鑑期間</param>
+        /// <param name="belongTo">受評供應商</param>
+        /// <param name="bu">評鑑單位</param>
+        /// <param name="assessmentItem">評鑑項目</param>
+        public bool HasApprovedEvaluateCostServiceDetail(string period, string belongTo, string bu, string assessmentItem)
+        {
+            return this._costServiceMgr.HasApprovedEvaluateDetail(period, belongTo, bu, assessmentItem);
+        }
         #endregion
 
         #region CUD

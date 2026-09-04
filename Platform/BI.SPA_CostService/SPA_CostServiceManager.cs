@@ -546,6 +546,41 @@ namespace BI.SPA_CostService
             }
         }
 
+        /// <summary> 檢查是否存在已完成審核且需評鑑的 Cost&Service 明細 </summary>
+        /// <param name="period">評鑑期間</param>
+        /// <param name="belongTo">受評供應商</param>
+        /// <param name="bu">評鑑單位</param>
+        /// <param name="assessmentItem">評鑑項目</param>
+        public bool HasApprovedEvaluateDetail(string period, string belongTo, string bu, string assessmentItem)
+        {
+            try
+            {
+                using (PlatformContextModel context = new PlatformContextModel())
+                {
+                    string approvalStatusText = ApprovalStatus.Completed.ToText();
+
+                    var query =
+                        from main in context.TET_SPA_CostService
+                        join detail in context.TET_SPA_CostServiceDetail on main.ID equals detail.CSID
+                        where main.Period == period
+                            && main.ApproveStatus == approvalStatusText
+                            && detail.IsEvaluate == _isEvaluateText
+                            && detail.BelongTo == belongTo
+                            && detail.BU == bu
+                            && detail.AssessmentItem == assessmentItem
+                        select detail.ID;
+
+                    var result = query.Any();
+                    return result;
+                }
+            }
+            catch (Exception ex)
+            {
+                this._logger.WriteError(ex);
+                throw;
+            }
+        }
+
         /// <summary> 檢查匯入的CostService資料的評鑑項目是否為啟用 </summary>
         /// <param name="AssessmentItem"> 評鑑項目 </param>
         public bool IsServiceItemEnable(string assessmentitem)

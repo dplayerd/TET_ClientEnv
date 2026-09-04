@@ -38,6 +38,14 @@ namespace Platform.WebSite.Controllers
             public string period { get; set; }
             public string[] approveStatus { get; set; }
         }
+
+        public class ValidateCostServiceDetailInput
+        {
+            public string Period { get; set; }
+            public string BelongTo { get; set; }
+            public string BU { get; set; }
+            public string AssessmentItem { get; set; }
+        }
         #endregion
 
         #region Query
@@ -126,6 +134,22 @@ namespace Platform.WebSite.Controllers
                 return false;
             
             return true;
+        }
+
+        /// <summary> 檢查明細是否存在於已完成審核且需評鑑的 Cost&Service 清單 </summary>
+        [Route("~/api/SPA_ViolationApi/ValidateCostServiceDetail")]
+        [HttpPost]
+        public bool ValidateCostServiceDetail([FromBody] ValidateCostServiceDetailInput input)
+        {
+            var cUser = UserProfileService.GetCurrentUser();
+            if (string.IsNullOrWhiteSpace(cUser.ID))
+                throw new UnauthorizedAccessException();
+
+            if (input == null)
+                return false;
+
+            var result = this._mgr.HasApprovedEvaluateCostServiceDetail(input.Period, input.BelongTo, input.BU, input.AssessmentItem);
+            return result;
         }
         #endregion
 

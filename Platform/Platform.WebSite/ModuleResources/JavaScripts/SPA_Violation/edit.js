@@ -288,19 +288,7 @@ $(function () {
         //--- 檢查輸入值 ---
     }
 
-    // 按下儲存評鑑項目鈕
-    $(btnSaveDetailSelector).click(function () {
-        var model = getDetailFromEditor();
-
-        //--- 檢查輸入值 ---
-        var msgList = validDetailEditor(model);
-
-        if (msgList.length > 0) {
-            alert(msgList.join("\n"));
-            return;
-        }
-        //--- 檢查輸入值 ---
-
+    function saveDetailToTable(model) {
         // 如果是編輯
         if (model.Mode == "Edit") {
             var detailList = getDetailList();
@@ -327,6 +315,52 @@ $(function () {
             addDetailToTable(model);
             resetDetailEditor();
         }
+    }
+
+    function validateCostServiceDetail(model, successCallback) {
+        var currentPeriod = $(formMain).find("[name=Period]").val() || periodText;
+
+        $.ajax({
+            url: validateCostServiceDetailApiUrl,
+            method: "POST",
+            dataType: "json",
+            contentType: "application/json",
+            data: JSON.stringify({
+                Period: currentPeriod,
+                BelongTo: model.BelongTo,
+                BU: model.BU,
+                AssessmentItem: model.AssessmentItem
+            }),
+            success: function (data) {
+                successCallback(data === true);
+            },
+            error: function () {
+                alert("檢查 Cost&Service 資料失敗，請聯絡管理員。");
+            }
+        });
+    }
+
+    // 按下儲存評鑑項目鈕
+    $(btnSaveDetailSelector).click(function () {
+        var model = getDetailFromEditor();
+
+        //--- 檢查輸入值 ---
+        var msgList = validDetailEditor(model);
+
+        if (msgList.length > 0) {
+            alert(msgList.join("\n"));
+            return;
+        }
+        //--- 檢查輸入值 ---
+
+        validateCostServiceDetail(model, function (isValid) {
+            if (!isValid) {
+                alert("受評供應商、評鑑單位、評鑑項目不正確");
+                return;
+            }
+
+            saveDetailToTable(model);
+        });
     });
     // --- 明細表區域 ---
 
