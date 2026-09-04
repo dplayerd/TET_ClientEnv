@@ -48,82 +48,117 @@ namespace Platform.WebSite.Services.ScheduledMail
         public ReminderMailGenerateResult Generate(string userID, DateTime cDate)
         {
             var result = new ReminderMailGenerateResult() { ReminderType = ReminderType };
-            var remindDays = ScheduledMailConfig.ReadPositiveInt("ApprovalRemindDays");
-            var cutoffDate = cDate.AddDays(-1 * remindDays);
+            Guid? executionLogID = null;
 
             using (PlatformContextModel context = new PlatformContextModel())
             {
-                using (var transaction = context.Database.BeginTransaction())
+                // 防止 Edge 或 Windows 排程重複呼叫時，於同一天重複建立同一批提醒信。
+                if (ReminderMailExecutionHelper.IsCompleted(context, ReminderType, cDate))
                 {
-                    // 防止 Edge 或 Windows 排程重複呼叫時，於同一天重複建立同一批提醒信。
-                    if (ReminderMailExecutionHelper.IsCompleted(context, ReminderType, cDate))
+                    result.IsSkipped = true;
+                    result.Messages.Add("Today has already completed.");
+                    return result;
+                }
+
+                var executionLog = ReminderMailExecutionHelper.AddRunningLog(context, ReminderType, cDate, userID);
+                executionLogID = executionLog.ID;
+                context.SaveChanges();
+
+                try
+                {
+                    var remindDays = ScheduledMailConfig.ReadPositiveInt("ApprovalRemindDays");
+                    var cutoffDate = cDate.AddDays(-1 * remindDays);
+
+                    using (var transaction = context.Database.BeginTransaction())
                     {
-                        result.IsSkipped = true;
-                        result.Messages.Add("Today has already completed.");
-                        return result;
-                    }
+                        // 只提醒尚未審核且審核開始時間已超過設定天數的待審資料。
+                        var approvalList =
+                            (from item in context.vwApprovalList
+                             where
+                                item.Result == null &&
+                                item.CreateDate <= cutoffDate
+                             orderby item.Approver, item.CreateDate
+                             select item).ToList();
 
-                    // 只提醒尚未審核且審核開始時間已超過設定天數的待審資料。
-                    var approvalList =
-                        (from item in context.vwApprovalList
-                         where
-                            item.Result == null &&
-                            item.CreateDate <= cutoffDate
-                         orderby item.Approver, item.CreateDate
-                         select item).ToList();
+                        result.SourceCount = approvalList.Count;
 
-                    result.SourceCount = approvalList.Count;
+                        var approverList = approvalList.Select(obj => obj.Approver).Distinct().ToList();
+                        var userList =
+                            (from item in context.Users
+                             where approverList.Contains(item.UserID) && item.IsEnabled == "Y"
+                             select item).ToList();
 
-                    var approverList = approvalList.Select(obj => obj.Approver).Distinct().ToList();
-                    var userList =
-                        (from item in context.Users
-                         where approverList.Contains(item.UserID) && item.IsEnabled == "Y"
-                         select item).ToList();
+                        var userMap = userList.ToDictionary(obj => obj.UserID, obj => obj.EMail);
+                        var mails = new List<MailPoolWithCCModel>();
 
-                    var userMap = userList.ToDictionary(obj => obj.UserID, obj => obj.EMail);
-                    var mails = new List<MailPoolWithCCModel>();
-
-                    foreach (var group in approvalList.GroupBy(obj => obj.Approver))
-                    {
-                        if (!userMap.TryGetValue(group.Key, out string email) || string.IsNullOrWhiteSpace(email))
+                        foreach (var group in approvalList.GroupBy(obj => obj.Approver))
                         {
-                            result.Messages.Add($"Approver {group.Key} has no email.");
-                            continue;
+                            if (!userMap.TryGetValue(group.Key, out string email) || string.IsNullOrWhiteSpace(email))
+                            {
+                                result.Messages.Add($"Approver {group.Key} has no email.");
+                                continue;
+                            }
+
+                            mails.Add(new MailPoolWithCCModel()
+                            {
+                                Receivers = new List<string>() { email },
+                                CCs = new List<string>(),
+                                Subject = $"您尚有超過{remindDays}天的簽核尚未完成，請撥空進行簽核，謝謝。",
+                                Body = BuildBody(group.ToList(), remindDays),
+                                Priority = MailPriorityEnum.Default,
+                            });
                         }
 
-                        mails.Add(new MailPoolWithCCModel()
-                        {
-                            Receivers = new List<string>() { email },
-                            CCs = new List<string>(),
-                            Subject = $"您尚有超過{remindDays}天的簽核尚未完成，請撥空進行簽核，謝謝。",
-                            Body = BuildBody(group.ToList(), remindDays),
-                            Priority = MailPriorityEnum.Default,
-                        });
+                        // 收件人資料不完整時整批失敗，避免產生部分提醒信造成資料與執行紀錄不一致。
+                        if (result.Messages.Any())
+                            throw new InvalidOperationException(string.Join(Environment.NewLine, result.Messages));
+
+                        result.MailCount = mails.Count;
+                        this._mailQueueService.EnqueueBatch(context, mails, userID, cDate);
+
+                        // 待發信清單與完成紀錄共用同一個交易；任一段失敗都會整批 Rollback。
+                        ReminderMailExecutionHelper.MarkCompleted(
+                            executionLog,
+                            DateTime.Now,
+                            result.MailCount,
+                            $"SourceCount={result.SourceCount}");
+
+                        context.SaveChanges();
+                        transaction.Commit();
                     }
-
-                    // 收件人資料不完整時整批失敗，避免產生部分提醒信造成資料與執行紀錄不一致。
-                    if (result.Messages.Any())
-                        throw new InvalidOperationException(string.Join(Environment.NewLine, result.Messages));
-
-                    this._mailQueueService.EnqueueBatch(context, mails, userID, cDate);
-
-                    result.MailCount = mails.Count;
-                    // 待發信清單與完成紀錄共用同一個交易；任一段失敗都會整批 Rollback。
-                    ReminderMailExecutionHelper.AddCompletedLog(
-                        context,
-                        ReminderType,
-                        cDate,
-                        DateTime.Now,
-                        result.MailCount,
-                        $"SourceCount={result.SourceCount}",
-                        userID);
-
-                    context.SaveChanges();
-                    transaction.Commit();
+                }
+                catch (Exception ex)
+                {
+                    WriteFailedLog(executionLogID, result, ex);
+                    throw;
                 }
             }
 
             return result;
+        }
+
+        /// <summary>
+        /// 回寫失敗紀錄。使用獨立 Context，避免主交易 Rollback 時一併清除錯誤原因。
+        /// </summary>
+        /// <param name="executionLogID">執行紀錄識別碼。</param>
+        /// <param name="result">本次產生結果。</param>
+        /// <param name="ex">失敗例外。</param>
+        private static void WriteFailedLog(Guid? executionLogID, ReminderMailGenerateResult result, Exception ex)
+        {
+            if (!executionLogID.HasValue)
+                return;
+
+            using (PlatformContextModel failContext = new PlatformContextModel())
+            {
+                ReminderMailExecutionHelper.MarkFailed(
+                    failContext,
+                    executionLogID.Value,
+                    DateTime.Now,
+                    result.MailCount,
+                    ex.ToString());
+
+                failContext.SaveChanges();
+            }
         }
 
         /// <summary>

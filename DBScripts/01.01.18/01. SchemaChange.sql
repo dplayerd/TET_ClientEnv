@@ -1,4 +1,4 @@
-ALTER TABLE [dbo].[TET_SPA_ScoringInfoModule1] ALTER COLUMN [Type] [nvarchar](16) NULL
+ÔªøALTER TABLE [dbo].[TET_SPA_ScoringInfoModule1] ALTER COLUMN [Type] [nvarchar](16) NULL
 ALTER TABLE [dbo].[TET_SPA_ScoringInfoModule1] ALTER COLUMN [Supplier] [nvarchar](128) NULL
 ALTER TABLE [dbo].[TET_SPA_ScoringInfoModule1] ALTER COLUMN [EmpName] [nvarchar](64) NULL
 
@@ -26,7 +26,7 @@ CREATE TABLE [dbo].[MailReminderExecutionLog](
 	[ReminderType] [nvarchar](64) NOT NULL,
 	[ExecuteDate] [date] NOT NULL,
 	[StartedAt] [datetime] NOT NULL,
-	[FinishedAt] [datetime] NOT NULL,
+	[FinishedAt] [datetime] NULL,
 	[Status] [nvarchar](16) NOT NULL,
 	[MailCount] [int] NOT NULL,
 	[Message] [nvarchar](max) NULL,
@@ -39,34 +39,42 @@ CREATE TABLE [dbo].[MailReminderExecutionLog](
 ) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
 GO
 
-EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'®t≤ŒøÎ√—ΩX' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'MailReminderExecutionLog', @level2type=N'COLUMN',@level2name=N'ID'
+CREATE UNIQUE NONCLUSTERED INDEX [UX_MailReminderExecutionLog_Completed]
+ON [dbo].[MailReminderExecutionLog] ([ReminderType], [ExecuteDate])
+WHERE [Status] = N'Completed'
 GO
 
-EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'¥£øÙ´H√˛´¨' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'MailReminderExecutionLog', @level2type=N'COLUMN',@level2name=N'ReminderType'
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'ÊèêÈÜí‰ø°ÊéíÁ®ãÂü∑Ë°åÁ¥ÄÈåÑ' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'MailReminderExecutionLog'
 GO
 
-EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'∞ı¶Ê§È¥¡' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'MailReminderExecutionLog', @level2type=N'COLUMN',@level2name=N'ExecuteDate'
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'Á≥ªÁµ±Ëæ®Ë≠òÁ¢º' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'MailReminderExecutionLog', @level2type=N'COLUMN',@level2name=N'ID'
 GO
 
-EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'∞ı¶Ê∂}©lÆ…∂°' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'MailReminderExecutionLog', @level2type=N'COLUMN',@level2name=N'StartedAt'
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'ÊèêÈÜí‰ø°È°ûÂûã' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'MailReminderExecutionLog', @level2type=N'COLUMN',@level2name=N'ReminderType'
 GO
 
-EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'∞ı¶Êßπ¶®Æ…∂°' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'MailReminderExecutionLog', @level2type=N'COLUMN',@level2name=N'FinishedAt'
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'Âü∑Ë°åÊó•Êúü' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'MailReminderExecutionLog', @level2type=N'COLUMN',@level2name=N'ExecuteDate'
 GO
 
-EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'∞ı¶Ê™¨∫A' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'MailReminderExecutionLog', @level2type=N'COLUMN',@level2name=N'Status'
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'Âü∑Ë°åÈñãÂßãÊôÇÈñì' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'MailReminderExecutionLog', @level2type=N'COLUMN',@level2name=N'StartedAt'
 GO
 
-EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'≤£•Õ´H•Ûº∆' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'MailReminderExecutionLog', @level2type=N'COLUMN',@level2name=N'MailCount'
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'Âü∑Ë°åÂÆåÊàêÊôÇÈñìÔºåÂü∑Ë°å‰∏≠Â∞öÊú™ÂÆåÊàêÊôÇÁÇ∫ Null' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'MailReminderExecutionLog', @level2type=N'COLUMN',@level2name=N'FinishedAt'
 GO
 
-EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'∞ı¶Ê∞TÆß' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'MailReminderExecutionLog', @level2type=N'COLUMN',@level2name=N'Message'
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'Âü∑Ë°åÁãÄÊÖãÔºöRunning=Âü∑Ë°å‰∏≠„ÄÅCompleted=Âü∑Ë°åÂÆåÊàê„ÄÅFailed=Âü∑Ë°åÂ§±Êïó' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'MailReminderExecutionLog', @level2type=N'COLUMN',@level2name=N'Status'
 GO
 
-EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'´ÿ•ﬂ§H≠˚' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'MailReminderExecutionLog', @level2type=N'COLUMN',@level2name=N'CreateUser'
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'Áî¢Áîü‰ø°‰ª∂Êï∏' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'MailReminderExecutionLog', @level2type=N'COLUMN',@level2name=N'MailCount'
 GO
 
-EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'´ÿ•ﬂÆ…∂°' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'MailReminderExecutionLog', @level2type=N'COLUMN',@level2name=N'CreateDate'
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'Âü∑Ë°åË®äÊÅØÊàñÂ§±ÊïóÂéüÂõ†' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'MailReminderExecutionLog', @level2type=N'COLUMN',@level2name=N'Message'
+GO
+
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'Âª∫Á´ã‰∫∫Âì°' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'MailReminderExecutionLog', @level2type=N'COLUMN',@level2name=N'CreateUser'
+GO
+
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'Âª∫Á´ãÊôÇÈñì' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'MailReminderExecutionLog', @level2type=N'COLUMN',@level2name=N'CreateDate'
 GO
 
 

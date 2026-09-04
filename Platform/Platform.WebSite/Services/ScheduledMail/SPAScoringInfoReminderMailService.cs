@@ -58,134 +58,169 @@ namespace Platform.WebSite.Services.ScheduledMail
         public ReminderMailGenerateResult Generate(string userID, DateTime cDate)
         {
             var result = new ReminderMailGenerateResult() { ReminderType = ReminderType };
-            var remindDays = ScheduledMailConfig.ReadPositiveInt("CalInfoRemindDay");
-            var cutoffDate = cDate.AddDays(-1 * remindDays);
+            Guid? executionLogID = null;
 
             using (PlatformContextModel context = new PlatformContextModel())
             {
-                using (var transaction = context.Database.BeginTransaction())
+                // 防止 Edge 或 Windows 排程重複呼叫時，於同一天重複建立同一批提醒信。
+                if (ReminderMailExecutionHelper.IsCompleted(context, ReminderType, cDate))
                 {
-                    // 防止 Edge 或 Windows 排程重複呼叫時，於同一天重複建立同一批提醒信。
-                    if (ReminderMailExecutionHelper.IsCompleted(context, ReminderType, cDate))
+                    result.IsSkipped = true;
+                    result.Messages.Add("Today has already completed.");
+                    return result;
+                }
+
+                var executionLog = ReminderMailExecutionHelper.AddRunningLog(context, ReminderType, cDate, userID);
+                executionLogID = executionLog.ID;
+                context.SaveChanges();
+
+                try
+                {
+                    var remindDays = ScheduledMailConfig.ReadPositiveInt("CalInfoRemindDay");
+                    var cutoffDate = cDate.AddDays(-1 * remindDays);
+
+                    using (var transaction = context.Database.BeginTransaction())
                     {
-                        result.IsSkipped = true;
-                        result.Messages.Add("Today has already completed.");
-                        return result;
-                    }
+                        // 依需求十四：只提醒主檔已建立、尚未送審且已超過設定天數的 SPA 計分資料。
+                        var scoringInfoList =
+                            (from item in context.TET_SPA_ScoringInfo
+                             where
+                                item.ApproveStatus == null &&
+                                item.CreateDate <= cutoffDate
+                             orderby item.CreateDate
+                             select item).ToList();
 
-                    // 依只提醒主檔已建立、尚未送審且已超過設定天數的 SPA 計分資料。
-                    var scoringInfoList =
-                        (from item in context.TET_SPA_ScoringInfo
-                         where
-                            item.ApproveStatus == null &&
-                            item.CreateDate <= cutoffDate
-                         orderby item.CreateDate
-                         select item).ToList();
+                        result.SourceCount = scoringInfoList.Count;
 
-                    result.SourceCount = scoringInfoList.Count;
+                        // ApproverSetup 存放的是參數 ID，需先轉回 BU/評鑑項目文字後才能與計分資料主檔比對。
+                        var buMap = context.TET_Parameters
+                            .Where(obj => obj.Type == ParameterTypeBU)
+                            .ToDictionary(obj => obj.ID, obj => obj.Item);
 
-                    // ApproverSetup 存放的是參數 ID，需先轉回 BU/評鑑項目文字後才能與計分資料主檔比對。
-                    var buMap = context.TET_Parameters
-                        .Where(obj => obj.Type == ParameterTypeBU)
-                        .ToDictionary(obj => obj.ID, obj => obj.Item);
+                        var serviceItemMap = context.TET_Parameters
+                            .Where(obj => obj.Type == ParameterTypeServiceItem)
+                            .ToDictionary(obj => obj.ID, obj => obj.Item);
 
-                    var serviceItemMap = context.TET_Parameters
-                        .Where(obj => obj.Type == ParameterTypeServiceItem)
-                        .ToDictionary(obj => obj.ID, obj => obj.Item);
+                        var setupList = context.TET_SPA_ApproverSetup.ToList();
+                        var setupMap = setupList
+                            .Select(obj => new
+                            {
+                                Setup = obj,
+                                BUText = buMap.ContainsKey(obj.BUID) ? buMap[obj.BUID] : null,
+                                ServiceItemText = serviceItemMap.ContainsKey(obj.ServiceItemID) ? serviceItemMap[obj.ServiceItemID] : null,
+                            })
+                            .Where(obj => obj.BUText != null && obj.ServiceItemText != null)
+                            .GroupBy(obj => $"{obj.BUText}___{obj.ServiceItemText}")
+                            .ToDictionary(obj => obj.Key, obj => obj.First().Setup);
 
-                    var setupList = context.TET_SPA_ApproverSetup.ToList();
-                    var setupMap = setupList
-                        .Select(obj => new
+                        // 先彙整所有可能的填寫人與確認人，再一次查詢使用者信箱，降低資料庫往返次數。
+                        var userIDs = new HashSet<string>();
+                        foreach (var setup in setupList)
                         {
-                            Setup = obj,
-                            BUText = buMap.ContainsKey(obj.BUID) ? buMap[obj.BUID] : null,
-                            ServiceItemText = serviceItemMap.ContainsKey(obj.ServiceItemID) ? serviceItemMap[obj.ServiceItemID] : null,
-                        })
-                        .Where(obj => obj.BUText != null && obj.ServiceItemText != null)
-                        .GroupBy(obj => $"{obj.BUText}___{obj.ServiceItemText}")
-                        .ToDictionary(obj => obj.Key, obj => obj.First().Setup);
+                            foreach (var item in ParseUserIDList(setup.InfoFill))
+                                userIDs.Add(item);
 
-                    // 先彙整所有可能的填寫人與確認人，再一次查詢使用者信箱，降低資料庫往返次數。
-                    var userIDs = new HashSet<string>();
-                    foreach (var setup in setupList)
-                    {
-                        foreach (var item in ParseUserIDList(setup.InfoFill))
-                            userIDs.Add(item);
-
-                        if (!string.IsNullOrWhiteSpace(setup.InfoConfirm))
-                            userIDs.Add(setup.InfoConfirm);
-                    }
-
-                    var userMap =
-                        (from item in context.Users
-                         where userIDs.Contains(item.UserID) && item.IsEnabled == "Y"
-                         select item).ToDictionary(obj => obj.UserID, obj => obj.EMail);
-
-                    var mails = new List<MailPoolWithCCModel>();
-
-                    foreach (var scoringInfo in scoringInfoList)
-                    {
-                        var setupKey = $"{scoringInfo.BU}___{scoringInfo.ServiceItem}";
-                        if (!setupMap.TryGetValue(setupKey, out TET_SPA_ApproverSetup setup))
-                        {
-                            result.Messages.Add($"No approver setup for {scoringInfo.BU}/{scoringInfo.ServiceItem}.");
-                            continue;
+                            if (!string.IsNullOrWhiteSpace(setup.InfoConfirm))
+                                userIDs.Add(setup.InfoConfirm);
                         }
 
-                        var receivers = ParseUserIDList(setup.InfoFill)
-                            .Where(userMap.ContainsKey)
-                            .Select(obj => userMap[obj])
-                            .Where(obj => !string.IsNullOrWhiteSpace(obj))
-                            .Distinct()
-                            .ToList();
+                        var userMap =
+                            (from item in context.Users
+                             where userIDs.Contains(item.UserID) && item.IsEnabled == "Y"
+                             select item).ToDictionary(obj => obj.UserID, obj => obj.EMail);
 
-                        var ccs = new List<string>();
-                        if (!string.IsNullOrWhiteSpace(setup.InfoConfirm) &&
-                            userMap.TryGetValue(setup.InfoConfirm, out string ccEmail) &&
-                            !string.IsNullOrWhiteSpace(ccEmail))
+                        var mails = new List<MailPoolWithCCModel>();
+
+                        foreach (var scoringInfo in scoringInfoList)
                         {
-                            ccs.Add(ccEmail);
+                            var setupKey = $"{scoringInfo.BU}___{scoringInfo.ServiceItem}";
+                            if (!setupMap.TryGetValue(setupKey, out TET_SPA_ApproverSetup setup))
+                            {
+                                result.Messages.Add($"No approver setup for {scoringInfo.BU}/{scoringInfo.ServiceItem}.");
+                                continue;
+                            }
+
+                            var receivers = ParseUserIDList(setup.InfoFill)
+                                .Where(userMap.ContainsKey)
+                                .Select(obj => userMap[obj])
+                                .Where(obj => !string.IsNullOrWhiteSpace(obj))
+                                .Distinct()
+                                .ToList();
+
+                            var ccs = new List<string>();
+                            if (!string.IsNullOrWhiteSpace(setup.InfoConfirm) &&
+                                userMap.TryGetValue(setup.InfoConfirm, out string ccEmail) &&
+                                !string.IsNullOrWhiteSpace(ccEmail))
+                            {
+                                ccs.Add(ccEmail);
+                            }
+
+                            if (!receivers.Any())
+                            {
+                                result.Messages.Add($"No receiver email for scoring info {scoringInfo.ID}.");
+                                continue;
+                            }
+
+                            mails.Add(new MailPoolWithCCModel()
+                            {
+                                Receivers = receivers,
+                                CCs = ccs,
+                                Subject = "您所負責的供應商SPA評鑑計分資料尚未完成送審作業，請撥空進行處理，謝謝。",
+                                Body = BuildBody(),
+                                Priority = MailPriorityEnum.Default,
+                            });
                         }
 
-                        if (!receivers.Any())
-                        {
-                            result.Messages.Add($"No receiver email for scoring info {scoringInfo.ID}.");
-                            continue;
-                        }
+                        // 收件人或設定資料不完整時整批失敗，避免產生部分提醒信造成資料與執行紀錄不一致。
+                        if (result.Messages.Any())
+                            throw new InvalidOperationException(string.Join(Environment.NewLine, result.Messages));
 
-                        mails.Add(new MailPoolWithCCModel()
-                        {
-                            Receivers = receivers,
-                            CCs = ccs,
-                            Subject = "您所負責的供應商SPA評鑑計分資料尚未完成送審作業，請撥空進行處理，謝謝。",
-                            Body = BuildBody(),
-                            Priority = MailPriorityEnum.Default,
-                        });
+                        result.MailCount = mails.Count;
+                        this._mailQueueService.EnqueueBatch(context, mails, userID, cDate);
+
+                        // 待發信清單與完成紀錄共用同一個交易；任一段失敗都會整批 Rollback。
+                        ReminderMailExecutionHelper.MarkCompleted(
+                            executionLog,
+                            DateTime.Now,
+                            result.MailCount,
+                            $"SourceCount={result.SourceCount}");
+
+                        context.SaveChanges();
+                        transaction.Commit();
                     }
-
-                    // 收件人或設定資料不完整時整批失敗，避免產生部分提醒信造成資料與執行紀錄不一致。
-                    if (result.Messages.Any())
-                        throw new InvalidOperationException(string.Join(Environment.NewLine, result.Messages));
-
-                    this._mailQueueService.EnqueueBatch(context, mails, userID, cDate);
-
-                    result.MailCount = mails.Count;
-                    // 待發信清單與完成紀錄共用同一個交易；任一段失敗都會整批 Rollback。
-                    ReminderMailExecutionHelper.AddCompletedLog(
-                        context,
-                        ReminderType,
-                        cDate,
-                        DateTime.Now,
-                        result.MailCount,
-                        $"SourceCount={result.SourceCount}",
-                        userID);
-
-                    context.SaveChanges();
-                    transaction.Commit();
+                }
+                catch (Exception ex)
+                {
+                    WriteFailedLog(executionLogID, result, ex);
+                    throw;
                 }
             }
 
             return result;
+        }
+
+        /// <summary>
+        /// 回寫失敗紀錄。使用獨立 Context，避免主交易 Rollback 時一併清除錯誤原因。
+        /// </summary>
+        /// <param name="executionLogID">執行紀錄識別碼。</param>
+        /// <param name="result">本次產生結果。</param>
+        /// <param name="ex">失敗例外。</param>
+        private static void WriteFailedLog(Guid? executionLogID, ReminderMailGenerateResult result, Exception ex)
+        {
+            if (!executionLogID.HasValue)
+                return;
+
+            using (PlatformContextModel failContext = new PlatformContextModel())
+            {
+                ReminderMailExecutionHelper.MarkFailed(
+                    failContext,
+                    executionLogID.Value,
+                    DateTime.Now,
+                    result.MailCount,
+                    ex.ToString());
+
+                failContext.SaveChanges();
+            }
         }
 
         /// <summary>

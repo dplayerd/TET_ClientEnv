@@ -24,8 +24,8 @@ namespace Platform.ORM
         /// <summary> 開始時間 </summary>
         public DateTime StartedAt { get; set; }
 
-        /// <summary> 完成時間 </summary>
-        public DateTime FinishedAt { get; set; }
+        /// <summary> 完成時間；執行中尚未完成時為 Null </summary>
+        public DateTime? FinishedAt { get; set; }
 
         /// <summary> 執行狀態 </summary>
         [Required]
