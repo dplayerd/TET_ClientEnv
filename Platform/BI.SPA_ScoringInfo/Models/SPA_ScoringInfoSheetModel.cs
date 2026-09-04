@@ -37,6 +37,9 @@ namespace BI.SPA_ScoringInfo.Models
         /// <summary> 人工盤點頁籤供應商名稱欄位是否必填 </summary>
         public bool IsSheet1SupplierFill { get; set; }
 
+        /// <summary> 人工盤點頁籤資料來源欄位是否必填 </summary>
+        public bool IsSheet1SourceFill { get; set; }
+
         /// <summary> 人工盤點頁籤員工姓名欄位是否必填 </summary>
         public bool IsSheet1EmpNameFill { get; set; }
 

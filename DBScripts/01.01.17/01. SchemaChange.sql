@@ -11,6 +11,7 @@ CREATE TABLE [dbo].[TET_SPA_ScoringInfoSheets](
 	[IsSheet1Show] [bit] NOT NULL,
 	[IsSheet1TypeFill] [bit] NOT NULL,
 	[IsSheet1SupplierFill] [bit] NOT NULL,
+	[IsSheet1SourceFill] [bit] NOT NULL,
 	[IsSheet1EmpNameFill] [bit] NOT NULL,
 	[IsSheet1MajorJobFill] [bit] NOT NULL,
 	[IsSheet1IsIndependentFill] [bit] NOT NULL,
@@ -75,6 +76,9 @@ EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'人工盤點�
 GO
 
 EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'人工盤點頁籤供應商名稱欄位是否必填' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'TET_SPA_ScoringInfoSheets', @level2type=N'COLUMN',@level2name=N'IsSheet1SupplierFill'
+GO
+
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'人工盤點頁籤資料來源欄位是否必填' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'TET_SPA_ScoringInfoSheets', @level2type=N'COLUMN',@level2name=N'IsSheet1SourceFill'
 GO
 
 EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'人工盤點頁籤員工姓名欄位是否必填' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'TET_SPA_ScoringInfoSheets', @level2type=N'COLUMN',@level2name=N'IsSheet1EmpNameFill'

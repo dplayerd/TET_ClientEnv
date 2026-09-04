@@ -127,6 +127,7 @@ namespace BI.SPA_ScoringInfo
                     IsSheet1Show = item.IsSheet1Show,
                     IsSheet1TypeFill = item.IsSheet1TypeFill,
                     IsSheet1SupplierFill = item.IsSheet1SupplierFill,
+                    IsSheet1SourceFill = item.IsSheet1SourceFill,
                     IsSheet1EmpNameFill = item.IsSheet1EmpNameFill,
                     IsSheet1MajorJobFill = item.IsSheet1MajorJobFill,
                     IsSheet1IsIndependentFill = item.IsSheet1IsIndependentFill,
@@ -250,6 +251,7 @@ namespace BI.SPA_ScoringInfo
             dbEntity.IsSheet1Show = item.IsSheet1Show;
             dbEntity.IsSheet1TypeFill = item.IsSheet1TypeFill;
             dbEntity.IsSheet1SupplierFill = item.IsSheet1SupplierFill;
+            dbEntity.IsSheet1SourceFill = item.IsSheet1SourceFill;
             dbEntity.IsSheet1EmpNameFill = item.IsSheet1EmpNameFill;
             dbEntity.IsSheet1MajorJobFill = item.IsSheet1MajorJobFill;
             dbEntity.IsSheet1IsIndependentFill = item.IsSheet1IsIndependentFill;

@@ -21,6 +21,8 @@ namespace Platform.ORM
 
         public bool IsSheet1SupplierFill { get; set; }
 
+        public bool IsSheet1SourceFill { get; set; }
+
         public bool IsSheet1EmpNameFill { get; set; }
 
         public bool IsSheet1MajorJobFill { get; set; }

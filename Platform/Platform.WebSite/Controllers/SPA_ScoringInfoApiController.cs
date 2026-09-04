@@ -989,7 +989,7 @@ namespace Platform.WebSite.Controllers
                 if (this.IsEmptyRow(row))
                     continue;
 
-                int rowNo = i + 1;
+                int rowNo = i;
                 this.ValidMainColumns(mainModel, row, rowNo, msgList);
 
                 result.Add(new SPA_ScoringInfoModule1Model()
@@ -1026,7 +1026,7 @@ namespace Platform.WebSite.Controllers
                 if (this.IsEmptyRow(row))
                     continue;
 
-                int rowNo = i + 1;
+                int rowNo = i;
                 this.ValidMainColumns(mainModel, row, rowNo, msgList);
 
                 var imported = new SPA_ScoringInfoModule2Model()
@@ -1216,6 +1216,7 @@ namespace Platform.WebSite.Controllers
             string[] majorJobs = majorJobs_Parameters.Select(obj => obj.Text).ToArray();
             string[] isIndependent = new[] { "O", "X", "NA" };
             string[] empStatus = new[] { "新進", "在職", "離職", "其他" };
+            string[] newEmpStatus = new[] { "新進", "其他" };
 
             int rowNo = 0;
             foreach (var item in list)
@@ -1228,19 +1229,11 @@ namespace Platform.WebSite.Controllers
                 if (sheetSetting.IsSheet1SupplierFill)
                     this.ValidImportText(item.Supplier, "供應商名稱", rowNo, msgList);
 
-                if (sheetSetting.IsSheet1TypeFill && sheetSetting.IsSheet1SupplierFill)
-                {
-                    // 未檢查本社/協力廠商欄位 = 本社社員，供應商名稱欄位值=該筆資料供應商名稱
-                    // 檢查本社/協力廠商欄位 = 協力廠商，供應商名稱欄位值!=該筆資料供應商名稱
+                if (sheetSetting.IsSheet1SourceFill)
+                    this.ValidImportText(item.Source, "資料來源", rowNo, msgList, sources);
 
-                    bool isSelfCompany = (string.Compare("本社社員", item.Type, true) == 0);
-                    bool isSameSupplier = (string.Compare(mainModel.BelongTo, item.Supplier, true) == 0);
-
-                    if (isSelfCompany && !isSameSupplier)
-                        msgList.Add($"第{rowNo}筆資料 欄位 供應商名稱 欄位值錯誤");
-                    else if (!isSelfCompany && isSameSupplier)
-                        msgList.Add($"第{rowNo}筆資料 欄位 供應商名稱 欄位值錯誤");
-                }
+                if (sheetSetting.IsSheet1EmpStatusFill)
+                    this.ValidImportText(item.EmpStatus, "員工狀態", rowNo, msgList, empStatus);
 
                 if (sheetSetting.IsSheet1EmpNameFill)
                     this.ValidImportText(item.EmpName, "員工姓名", rowNo, msgList);
@@ -1254,9 +1247,6 @@ namespace Platform.WebSite.Controllers
                 if (sheetSetting.IsSheet1SkillLevelFill)
                     this.ValidImportText(item.SkillLevel, "Skill Level", rowNo, msgList);
 
-                if (sheetSetting.IsSheet1EmpStatusFill)
-                    this.ValidImportText(item.EmpStatus, "員工狀態", rowNo, msgList, empStatus);
-
                 if (sheetSetting.IsSheet1TELSeniorityYFill)
                     this.ValidImportInt(item.TELSeniorityY, "派工至TEL的年資(年)", rowNo, msgList, 0, maxTELSeniorityY);
 
@@ -1265,6 +1255,34 @@ namespace Platform.WebSite.Controllers
 
                 if (sheetSetting.IsSheet1RemarkFill)
                     this.ValidImportText(item.Remark, "備註", rowNo, msgList);
+
+
+                //--- 商業邏輯檢查 ---
+                // 檢查本社/協力廠商欄位 = 本社社員，供應商名稱欄位值=該筆資料供應商名稱
+                // 檢查本社/協力廠商欄位 = 協力廠商，供應商名稱欄位值!=該筆資料供應商名稱
+                if (sheetSetting.IsSheet1TypeFill && sheetSetting.IsSheet1SupplierFill)
+                {
+                    bool isSelfCompany = (string.Compare("本社社員", item.Type, true) == 0);
+                    bool isSameSupplier = (string.Compare(mainModel.BelongTo, item.Supplier, true) == 0);
+
+                    if (isSelfCompany && !isSameSupplier)
+                        msgList.Add($"第{rowNo}筆資料 欄位 供應商名稱 欄位值錯誤");
+                    else if (!isSelfCompany && isSameSupplier)
+                        msgList.Add($"第{rowNo}筆資料 欄位 供應商名稱 欄位值錯誤");
+                }
+
+                // 檢查資料來源欄位 = 本期新增，員工狀態只能填「新進、其他」
+                if (sheetSetting.IsSheet1SourceFill && sheetSetting.IsSheet1EmpStatusFill)
+                {
+                    this.ValidImportText(item.Source, "資料來源", rowNo, msgList, sources);
+
+                    bool isThisPeriod = (string.Compare("本期新增", item.Type, true) == 0);
+                    bool isNewEmpStatus = newEmpStatus.Contains(item.EmpStatus);
+
+                    if (isThisPeriod && !isNewEmpStatus)
+                        msgList.Add($"第{rowNo}筆資料 欄位 員工狀態 欄位值錯誤");
+                }
+                //--- 商業邏輯檢查 ---
             }
         }
 
