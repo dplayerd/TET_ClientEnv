@@ -10,9 +10,7 @@ using System.Linq;
 
 namespace Platform.WebSite.Services.ScheduledMail
 {
-    /// <summary>
-    /// 需求十四：SPA評鑑計分資料填寫提醒信件寄送排程。
-    /// </summary>
+    /// <summary> SPA評鑑計分資料填寫提醒信件寄送排程 </summary>
     public class SPAScoringInfoReminderMailService : IReminderMailService
     {
         /// <summary>
@@ -81,7 +79,7 @@ namespace Platform.WebSite.Services.ScheduledMail
 
                     using (var transaction = context.Database.BeginTransaction())
                     {
-                        // 依需求十四：只提醒主檔已建立、尚未送審且已超過設定天數的 SPA 計分資料。
+                        // 只提醒主檔已建立、尚未送審且已超過設定天數的 SPA 計分資料。
                         var scoringInfoList =
                             (from item in context.TET_SPA_ScoringInfo
                              where
@@ -251,9 +249,10 @@ namespace Platform.WebSite.Services.ScheduledMail
         {
             var pageUrl = $"{GetEmailRootUrl()}/SPA_ScoringInfo/Index";
 
-            return
+            var mailContent =
 $@"您好,<br/>
 請點選「<a href=""{pageUrl}"" target=""_blank"">供應商SPA評鑑計分資料維護</a>」進行處理，謝謝";
+            return mailContent;
         }
 
         /// <summary>

@@ -10,9 +10,7 @@ using System.Web;
 
 namespace Platform.WebSite.Services.ScheduledMail
 {
-    /// <summary>
-    /// 需求十二：審核提醒信件寄送排程。
-    /// </summary>
+    /// <summary> 審核提醒信件寄送排程 </summary>
     public class ApprovalReminderMailService : IReminderMailService
     {
         /// <summary>
@@ -99,14 +97,18 @@ namespace Platform.WebSite.Services.ScheduledMail
                                 continue;
                             }
 
-                            mails.Add(new MailPoolWithCCModel()
+
+                            var mailBody = BuildBody(group.ToList(), remindDays);
+                            var mailModel = new MailPoolWithCCModel()
                             {
                                 Receivers = new List<string>() { email },
                                 CCs = new List<string>(),
                                 Subject = $"您尚有超過{remindDays}天的簽核尚未完成，請撥空進行簽核，謝謝。",
-                                Body = BuildBody(group.ToList(), remindDays),
+                                Body = mailBody,
                                 Priority = MailPriorityEnum.Default,
-                            });
+                            };
+
+                            mails.Add(mailModel);
                         }
 
                         // 收件人資料不完整時整批失敗，避免產生部分提醒信造成資料與執行紀錄不一致。
@@ -117,11 +119,7 @@ namespace Platform.WebSite.Services.ScheduledMail
                         this._mailQueueService.EnqueueBatch(context, mails, userID, cDate);
 
                         // 待發信清單與完成紀錄共用同一個交易；任一段失敗都會整批 Rollback。
-                        ReminderMailExecutionHelper.MarkCompleted(
-                            executionLog,
-                            DateTime.Now,
-                            result.MailCount,
-                            $"SourceCount={result.SourceCount}");
+                        ReminderMailExecutionHelper.MarkCompleted(executionLog, DateTime.Now, result.MailCount, $"SourceCount={result.SourceCount}");
 
                         context.SaveChanges();
                         transaction.Commit();
@@ -169,34 +167,37 @@ namespace Platform.WebSite.Services.ScheduledMail
         /// <returns>HTML 信件本文。</returns>
         private static string BuildBody(List<vwApprovalList> approvalList, int remindDays)
         {
+            var dicTypeAndCount =
+                approvalList.GroupBy(obj => obj.Type).ToDictionary(obj => obj.Key, obj => obj.Count());
+
             var pageUrl = $"{GetEmailRootUrl()}/SupplierApproval/Index";
             var rows = string.Join(
                 string.Empty,
-                approvalList.Select(obj =>
+                dicTypeAndCount.Select(obj =>
                     $@"<tr>
-                        <td>{HttpUtility.HtmlEncode(obj.Description)}</td>
-                        <td>{HttpUtility.HtmlEncode(obj.ParentType)}</td>
-                        <td>{HttpUtility.HtmlEncode(obj.Level)}</td>
-                        <td>{obj.CreateDate:yyyy-MM-dd HH:mm:ss}</td>
+                        <td>{HttpUtility.HtmlEncode(obj.Key)}</td>
+                        <td>{HttpUtility.HtmlEncode(obj.Value)}</td>
                     </tr>"));
 
             return
-$@"您好,<br/>
+$@"您好,<br/><br/>
 您尚有超過{remindDays}天的簽核尚未完成，請點選「<a href=""{pageUrl}"" target=""_blank"">待審清單</a>」進行簽核，謝謝<br/>
 <br/>
 <table border=""1"" cellpadding=""6"" cellspacing=""0"">
     <thead>
         <tr>
-            <th>流程名稱</th>
-            <th>類型</th>
-            <th>審核關卡</th>
-            <th>審核開始時間</th>
+            <th>未簽核單據</th>
+            <th>未簽核筆數</th>
         </tr>
     </thead>
     <tbody>
         {rows}
     </tbody>
-</table>";
+</table>
+<br/>
+<br/>
+上述清單表格只會列出超過 {remindDays} 天，尚未簽核的資料
+";
         }
 
         /// <summary>
