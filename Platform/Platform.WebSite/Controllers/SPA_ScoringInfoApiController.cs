@@ -1011,8 +1011,6 @@ namespace Platform.WebSite.Controllers
 
             this.ValidImportValues_Tab1(result, mainModel, sheetSetting, msgList);
 
-            List<string> detailMsgList;
-            this.AddDetailValidationMessage(SPA_ScoringInfoModule1Validator.Valid(result, sheetSetting, out detailMsgList), detailMsgList, msgList);
             return result;
         }
 
@@ -1046,7 +1044,6 @@ namespace Platform.WebSite.Controllers
             }
 
             this.ValidImportValues_Tab2(result, sheetSetting, msgList);
-
             return result;
         }
 
@@ -1185,12 +1182,6 @@ namespace Platform.WebSite.Controllers
             return true;
         }
 
-        private void AddDetailValidationMessage(bool validResult, List<string> detailMsgList, List<string> msgList)
-        {
-            if (!validResult)
-                msgList.AddRange(detailMsgList);
-        }
-
         /// <summary> 檢查是否重覆 </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="groups"></param>
@@ -1319,7 +1310,7 @@ namespace Platform.WebSite.Controllers
         {
             if (string.IsNullOrWhiteSpace(value))
             {
-                msgList.Add($"第{rowNo}筆資料 欄位 {title} 欄位值為必填欄位");
+                msgList.Add($"第{rowNo}筆資料 欄位 {title} 為必填欄位");
                 return;
             }
 
@@ -1340,7 +1331,7 @@ namespace Platform.WebSite.Controllers
         {
             if (string.IsNullOrWhiteSpace(value))
             {
-                msgList.Add($"第{rowNo}筆資料 欄位 {title} 欄位值為必填欄位");
+                msgList.Add($"第{rowNo}筆資料 欄位 {title} 為必填欄位");
                 return;
             }
 
