@@ -1274,9 +1274,7 @@ namespace Platform.WebSite.Controllers
                 // 檢查資料來源欄位 = 本期新增，員工狀態只能填「新進、其他」
                 if (sheetSetting.IsSheet1SourceFill && sheetSetting.IsSheet1EmpStatusFill)
                 {
-                    this.ValidImportText(item.Source, "資料來源", rowNo, msgList, sources);
-
-                    bool isThisPeriod = (string.Compare("本期新增", item.Type, true) == 0);
+                    bool isThisPeriod = (string.Compare("本期新增", item.Source, true) == 0);
                     bool isNewEmpStatus = newEmpStatus.Contains(item.EmpStatus);
 
                     if (isThisPeriod && !isNewEmpStatus)
