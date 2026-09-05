@@ -1,5 +1,7 @@
+using BI.AllApproval;
+using BI.SPA_ScoringInfo;
 using Newtonsoft.Json;
-using Platform.WebSite.Services.ScheduledMail;
+using Platform.Messages;
 using System;
 using System.Net;
 using System.Web.Http;
@@ -16,8 +18,8 @@ namespace Platform.WebSite.Controllers
         /// </summary>
         private const string SystemUser = "System";
 
-        private readonly IReminderMailService _approvalReminderMailService = new ApprovalReminderMailService();
-        private readonly IReminderMailService _spaScoringInfoReminderMailService = new SPAScoringInfoReminderMailService();
+        private readonly IReminderMailManager _approvalReminderMailManager = new ApprovalReminderMailManager();
+        private readonly IReminderMailManager _spaScoringInfoReminderMailManager = new SPAScoringInfoReminderMailManager();
 
         /// <summary>
         /// 產生審核提醒信。
@@ -28,7 +30,7 @@ namespace Platform.WebSite.Controllers
         [AcceptVerbs("GET", "POST")]
         public IHttpActionResult GenerateApprovalReminder(string token = null)
         {
-            return this.Generate(token, this._approvalReminderMailService);
+            return this.Generate(token, this._approvalReminderMailManager);
         }
 
         /// <summary>
@@ -40,22 +42,22 @@ namespace Platform.WebSite.Controllers
         [AcceptVerbs("GET", "POST")]
         public IHttpActionResult GenerateSPAScoringInfoReminder(string token = null)
         {
-            return this.Generate(token, this._spaScoringInfoReminderMailService);
+            return this.Generate(token, this._spaScoringInfoReminderMailManager);
         }
 
         /// <summary>
         /// 共用提醒信產生流程，集中處理 Token 驗證及錯誤回應格式。
         /// </summary>
         /// <param name="token">排程呼叫 Token。</param>
-        /// <param name="service">提醒信服務。</param>
+        /// <param name="manager">提醒信 Manager。</param>
         /// <returns>提醒信產生結果或錯誤訊息。</returns>
-        private IHttpActionResult Generate(string token, IReminderMailService service)
+        private IHttpActionResult Generate(string token, IReminderMailManager manager)
         {
             try
             {
                 ScheduledMailConfig.ValidateToken(token);
 
-                var result = service.Generate(SystemUser, DateTime.Now);
+                var result = manager.Generate(SystemUser, DateTime.Now);
                 return Ok(result);
             }
             catch (UnauthorizedAccessException ex)

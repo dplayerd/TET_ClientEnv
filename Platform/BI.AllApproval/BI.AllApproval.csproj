@@ -51,6 +51,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ApprovalReminderMailManager.cs" />
     <Compile Include="ApproverChangeManager.cs" />
     <Compile Include="Models\ApprovalModel.cs" />
     <Compile Include="ModuleConfig.cs" />
@@ -82,6 +83,10 @@
     <ProjectReference Include="..\Platform.LogService\Platform.LogService.csproj">
       <Project>{1d495112-15c2-467a-8d1f-30a799977f99}</Project>
       <Name>Platform.LogService</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Platform.Messages\Platform.Messages.csproj">
+      <Project>{6119cd6a-395e-4418-b54d-3484b7fde53e}</Project>
+      <Name>Platform.Messages</Name>
     </ProjectReference>
     <ProjectReference Include="..\Platform.ORM\Platform.ORM.csproj">
       <Project>{91e6d1c4-b7ec-4e9c-a0a3-ecd4a8f2d565}</Project>

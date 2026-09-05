@@ -1,3 +1,4 @@
+using Platform.Auth;
 using Platform.Infra;
 using Platform.Messages;
 using Platform.Messages.Enums;
@@ -6,40 +7,39 @@ using Platform.ORM;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Web;
+using System.Net;
 
-namespace Platform.WebSite.Services.ScheduledMail
+namespace BI.AllApproval
 {
-    /// <summary> 審核提醒信件寄送排程 </summary>
-    public class ApprovalReminderMailService : IReminderMailService
+    /// <summary> 審核提醒信件寄送排程 Manager </summary>
+    public class ApprovalReminderMailManager : IReminderMailManager
     {
-        /// <summary>
-        /// 執行紀錄使用的提醒信類型。
-        /// </summary>
+        #region 欄位與常數
+        private UserManager _userMgr = new UserManager();
+
+        /// <summary> 執行紀錄使用的提醒信類型 </summary>
         private const string ReminderType = "ApprovalReminder";
 
         private readonly IMailQueueService _mailQueueService;
+        #endregion
 
-        /// <summary>
-        /// 建立審核提醒信服務。
-        /// </summary>
-        public ApprovalReminderMailService()
+        #region 建構子
+        /// <summary> 建立審核提醒信 Manager </summary>
+        public ApprovalReminderMailManager()
             : this(new MailQueueService())
         {
         }
 
-        /// <summary>
-        /// 建立審核提醒信服務，允許測試或其他模組替換信件佇列服務。
-        /// </summary>
+        /// <summary> 建立審核提醒信 Manager，允許測試或其他模組替換信件佇列服務 </summary>
         /// <param name="mailQueueService">信件佇列服務。</param>
-        public ApprovalReminderMailService(IMailQueueService mailQueueService)
+        public ApprovalReminderMailManager(IMailQueueService mailQueueService)
         {
             this._mailQueueService = mailQueueService;
         }
+        #endregion
 
-        /// <summary>
-        /// 產生超過 ApprovalRemindDays 仍未審核的提醒信。
-        /// </summary>
+        #region 公開方法
+        /// <summary> 產生超過 ApprovalRemindDays 仍未審核的提醒信。 </summary>
         /// <param name="userID">建立人員代號。</param>
         /// <param name="cDate">排程執行時間。</param>
         /// <returns>提醒信產生結果。</returns>
@@ -81,12 +81,9 @@ namespace Platform.WebSite.Services.ScheduledMail
                         result.SourceCount = approvalList.Count;
 
                         var approverList = approvalList.Select(obj => obj.Approver).Distinct().ToList();
-                        var userList =
-                            (from item in context.Users
-                             where approverList.Contains(item.UserID) && item.IsEnabled == "Y"
-                             select item).ToList();
 
-                        var userMap = userList.ToDictionary(obj => obj.UserID, obj => obj.EMail);
+                        var users = this._userMgr.GetUserList(approverList);
+                        var userMap = users.ToDictionary(obj => obj.UserID, obj => obj.EMail);
                         var mails = new List<MailPoolWithCCModel>();
 
                         foreach (var group in approvalList.GroupBy(obj => obj.Approver))
@@ -96,7 +93,6 @@ namespace Platform.WebSite.Services.ScheduledMail
                                 result.Messages.Add($"Approver {group.Key} has no email.");
                                 continue;
                             }
-
 
                             var mailBody = BuildBody(group.ToList(), remindDays);
                             var mailModel = new MailPoolWithCCModel()
@@ -134,10 +130,10 @@ namespace Platform.WebSite.Services.ScheduledMail
 
             return result;
         }
+        #endregion
 
-        /// <summary>
-        /// 回寫失敗紀錄。使用獨立 Context，避免主交易 Rollback 時一併清除錯誤原因。
-        /// </summary>
+        #region 私有方法
+        /// <summary> 回寫失敗紀錄。使用獨立 Context，避免主交易 Rollback 時一併清除錯誤原因。 </summary>
         /// <param name="executionLogID">執行紀錄識別碼。</param>
         /// <param name="result">本次產生結果。</param>
         /// <param name="ex">失敗例外。</param>
@@ -159,24 +155,21 @@ namespace Platform.WebSite.Services.ScheduledMail
             }
         }
 
-        /// <summary>
-        /// 建立審核提醒信本文。
-        /// </summary>
+        /// <summary> 建立審核提醒信本文。 </summary>
         /// <param name="approvalList">同一位審核人的逾期待審清單。</param>
         /// <param name="remindDays">提醒天數。</param>
         /// <returns>HTML 信件本文。</returns>
         private static string BuildBody(List<vwApprovalList> approvalList, int remindDays)
         {
-            var dicTypeAndCount =
-                approvalList.GroupBy(obj => obj.Type).ToDictionary(obj => obj.Key, obj => obj.Count());
+            var dicTypeAndCount = approvalList.GroupBy(obj => obj.Type).ToDictionary(obj => obj.Key, obj => obj.Count());
 
             var pageUrl = $"{GetEmailRootUrl()}/SupplierApproval/Index";
             var rows = string.Join(
                 string.Empty,
                 dicTypeAndCount.Select(obj =>
                     $@"<tr>
-                        <td>{HttpUtility.HtmlEncode(obj.Key)}</td>
-                        <td>{HttpUtility.HtmlEncode(obj.Value)}</td>
+                        <td>{WebUtility.HtmlEncode(obj.Key)}</td>
+                        <td>{WebUtility.HtmlEncode(obj.Value.ToString())}</td>
                     </tr>"));
 
             return
@@ -200,9 +193,7 @@ $@"您好,<br/><br/>
 ";
         }
 
-        /// <summary>
-        /// 取得系統網址根路徑，用於產生信件中的功能連結。
-        /// </summary>
+        /// <summary> 取得系統網址根路徑，用於產生信件中的功能連結。 </summary>
         /// <returns>系統網址根路徑。</returns>
         private static string GetEmailRootUrl()
         {
@@ -212,5 +203,6 @@ $@"您好,<br/><br/>
 
             return ScheduledMailConfig.ReadString("EmailRootUrl").TrimEnd('/');
         }
+        #endregion
     }
 }

@@ -386,12 +386,6 @@
     <Compile Include="Services\PageRoleService.cs" />
     <Compile Include="Services\PageService.cs" />
     <Compile Include="Services\RoleService.cs" />
-    <Compile Include="Services\ScheduledMail\ApprovalReminderMailService.cs" />
-    <Compile Include="Services\ScheduledMail\IReminderMailService.cs" />
-    <Compile Include="Services\ScheduledMail\ReminderMailExecutionHelper.cs" />
-    <Compile Include="Services\ScheduledMail\ReminderMailGenerateResult.cs" />
-    <Compile Include="Services\ScheduledMail\ScheduledMailConfig.cs" />
-    <Compile Include="Services\ScheduledMail\SPAScoringInfoReminderMailService.cs" />
     <Compile Include="Services\SiteService.cs" />
     <Compile Include="Services\TET_ParameterService.cs" />
     <Compile Include="Services\TET_UserService.cs" />

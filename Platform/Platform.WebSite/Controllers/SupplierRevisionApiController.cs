@@ -211,54 +211,16 @@ namespace Platform.WebSite.Controllers
             if (!model.ID.HasValue)
                 return BadRequest("Supplier is required.");
 
-            var dbModel = this._supplierMgr.GetTET_Supplier(model.ID.Value);
-            this.MappingSupplier(model, dbModel);
-
             // 修改
             try
             {
-                // 先儲存
-                this._supplierMgr.ModifyTET_Supplier(dbModel, cUser.ID, cTime);
-
-                // 送出
-                this._mgr.SubmitTET_SupplierRevision(dbModel, cUser.ID, cTime);
-                return Ok(dbModel.ID);
+                var id = this._mgr.SaveAndSubmitTET_SupplierRevision(model, cUser.ID, cTime);
+                return Ok(id);
             }
             catch (Exception ex)
             {
                 return BadRequest(JsonConvert.SerializeObject(new string[] { ex.Message }));
             }
-        }
-
-
-        private void MappingSupplier(TET_SupplierModel source, TET_SupplierModel dbModel)
-        {
-            dbModel.ApplyReason = source.ApplyReason;
-            dbModel.SupplierCategory = source.SupplierCategory;
-            dbModel.BusinessCategory = source.BusinessCategory;
-            dbModel.BusinessAttribute = source.BusinessAttribute;
-            dbModel.CName = source.CName;
-            dbModel.EName = source.EName;
-            dbModel.TaxNo = source.TaxNo;
-            dbModel.Charge = source.Charge;
-            dbModel.PaymentTerm = source.PaymentTerm;
-            dbModel.BankName = source.BankName;
-            dbModel.BankCode = source.BankCode;
-            dbModel.BankBranchName = source.BankBranchName;
-            dbModel.BankBranchCode = source.BankBranchCode;
-            dbModel.BankAccountNo = source.BankAccountNo;
-            dbModel.BankAccountName = source.BankAccountName;
-            dbModel.Currency = source.Currency;
-            dbModel.BankCountry = source.BankCountry;
-            dbModel.BankAddress = source.BankAddress;
-            dbModel.SwiftCode = source.SwiftCode;
-            dbModel.CompanyCity = source.CompanyCity;
-            dbModel.NDANo = source.NDANo;
-            dbModel.Contract = source.Contract;
-
-            dbModel.ContactList = source.ContactList;
-            dbModel.AttachmentList = source.AttachmentList;
-            dbModel.UploadFiles = source.UploadFiles;
         }
     }
 }

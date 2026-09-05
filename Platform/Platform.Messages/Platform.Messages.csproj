@@ -58,11 +58,15 @@
     <Compile Include="Enums\MailPriorityEnum.cs" />
     <Compile Include="Enums\MailStatusEnum.cs" />
     <Compile Include="IMailQueueService.cs" />
+    <Compile Include="IReminderMailManager.cs" />
     <Compile Include="MailPoolManager.cs" />
     <Compile Include="MailQueueService.cs" />
     <Compile Include="Models\MailPoolModel.cs" />
     <Compile Include="Models\MailPoolWithCCModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ReminderMailExecutionHelper.cs" />
+    <Compile Include="ReminderMailGenerateResult.cs" />
+    <Compile Include="ScheduledMailConfig.cs" />
     <Compile Include="Validators\MailPoolValidator.cs" />
   </ItemGroup>
   <ItemGroup>

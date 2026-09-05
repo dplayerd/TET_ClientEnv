@@ -1,19 +1,16 @@
 using System;
 using System.Configuration;
 
-namespace Platform.WebSite.Services.ScheduledMail
+namespace Platform.Messages
 {
-    /// <summary>
-    /// 排程信件相關設定讀取與驗證。
-    /// </summary>
-    internal static class ScheduledMailConfig
+    /// <summary> 排程信件相關設定讀取與驗證 </summary>
+    public static class ScheduledMailConfig
     {
-        /// <summary>
-        /// 讀取必須大於零的整數設定，例如提醒天數。
-        /// </summary>
+        #region 公開方法
+        /// <summary> 讀取必須大於零的整數設定，例如提醒天數 </summary>
         /// <param name="key">AppSettings 設定鍵。</param>
         /// <returns>大於零的整數設定值。</returns>
-        internal static int ReadPositiveInt(string key)
+        public static int ReadPositiveInt(string key)
         {
             var value = ConfigurationManager.AppSettings[key];
 
@@ -23,21 +20,17 @@ namespace Platform.WebSite.Services.ScheduledMail
             return result;
         }
 
-        /// <summary>
-        /// 讀取字串設定，未設定時回傳空字串。
-        /// </summary>
+        /// <summary> 讀取字串設定，未設定時回傳空字串 </summary>
         /// <param name="key">AppSettings 設定鍵。</param>
         /// <returns>設定值或空字串。</returns>
-        internal static string ReadString(string key)
+        public static string ReadString(string key)
         {
             return ConfigurationManager.AppSettings[key] ?? string.Empty;
         }
 
-        /// <summary>
-        /// 驗證排程 WebAPI 呼叫 Token，避免外部未授權呼叫直接產生信件。
-        /// </summary>
+        /// <summary> 驗證排程 WebAPI 呼叫 Token，避免外部未授權呼叫直接產生信件 </summary>
         /// <param name="token">呼叫端傳入的 Token。</param>
-        internal static void ValidateToken(string token)
+        public static void ValidateToken(string token)
         {
             var expectedToken = ReadString("ScheduledMailApiToken");
 
@@ -47,5 +40,6 @@ namespace Platform.WebSite.Services.ScheduledMail
             if (!string.Equals(expectedToken, token, StringComparison.Ordinal))
                 throw new UnauthorizedAccessException("Invalid scheduled mail token.");
         }
+        #endregion
     }
 }

@@ -18,14 +18,17 @@ using BI.Suppliers.Flows;
 
 namespace BI.Suppliers
 {
+    /// <summary> 供應商異動資料 Manager </summary>
     public class TET_SupplierRevisionManager
     {
+        #region 欄位
         private Logger _logger = new Logger();
         private TET_SupplierManager _supplierMgr = new TET_SupplierManager();
         private TET_SupplierContactManager _contactMgr = new TET_SupplierContactManager();
         private TET_SupplierAttachmentManager _attachmentMgr = new TET_SupplierAttachmentManager();
         private UserManager _userMgr = new UserManager();
         private UserRoleManager _userRoleMgr = new UserRoleManager();
+        #endregion
 
         #region Read
         /// <summary> 取得 供應商 清單 </summary>
@@ -266,7 +269,29 @@ namespace BI.Suppliers
                 throw;
             }
         }
-        #endregion
+
+        /// <summary> 儲存供應商異動資料後送出申請 </summary>
+        /// <param name="model">供應商異動資料</param>
+        /// <param name="userID">目前登入者</param>
+        /// <param name="cDate">目前時間</param>
+        /// <returns>供應商識別碼</returns>
+        public Guid SaveAndSubmitTET_SupplierRevision(TET_SupplierModel model, string userID, DateTime cDate)
+        {
+            if (model == null)
+                throw new ArgumentNullException("Model is required.");
+
+            if (!model.ID.HasValue)
+                throw new ArgumentException("Supplier is required.");
+
+            this.ModifyTET_Supplier(model, userID, cDate);
+
+            var dbModel = this._supplierMgr.GetTET_Supplier(model.ID.Value);
+            if (dbModel == null)
+                throw new NullReferenceException($"{model.ID} don't exists.");
+
+            this.SubmitTET_SupplierRevision(dbModel, userID, cDate);
+            return dbModel.ID.Value;
+        }
 
         /// <summary> 送出申請 </summary>
         /// <param name="model"></param>
@@ -401,8 +426,6 @@ namespace BI.Suppliers
                 throw;
             }
         }
-
-
         /// <summary> 複製供應商 </summary>
         /// <param name="id"> 要複製的供應商 ID </param>
         /// <param name="userID">目前登入者</param>
@@ -495,6 +518,7 @@ namespace BI.Suppliers
                 throw;
             }
         }
+        #endregion
 
         #region Private methods
         /// <summary> 轉為預跑用供應商資料 </summary>
