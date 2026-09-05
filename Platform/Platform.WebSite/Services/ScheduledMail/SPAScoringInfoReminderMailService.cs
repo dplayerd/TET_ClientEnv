@@ -7,12 +7,15 @@ using Platform.ORM;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using BI.SPA_ApproverSetup;
 
 namespace Platform.WebSite.Services.ScheduledMail
 {
     /// <summary> SPA評鑑計分資料填寫提醒信件寄送排程 </summary>
     public class SPAScoringInfoReminderMailService : IReminderMailService
     {
+        private SPA_PeriodManager _periodManager = new SPA_PeriodManager();
+
         /// <summary>
         /// 執行紀錄使用的提醒信類型。
         /// </summary>
@@ -79,10 +82,14 @@ namespace Platform.WebSite.Services.ScheduledMail
 
                     using (var transaction = context.Database.BeginTransaction())
                     {
+                        var startingPeriodList = this._periodManager.GetStartingList();
+                        var startingPeriodTextList = startingPeriodList.Select(obj => obj.Period).ToList();
+
                         // 只提醒主檔已建立、尚未送審且已超過設定天數的 SPA 計分資料。
                         var scoringInfoList =
                             (from item in context.TET_SPA_ScoringInfo
                              where
+                                startingPeriodTextList.Contains(item.Period) &&
                                 item.ApproveStatus == null &&
                                 item.CreateDate <= cutoffDate
                              orderby item.CreateDate

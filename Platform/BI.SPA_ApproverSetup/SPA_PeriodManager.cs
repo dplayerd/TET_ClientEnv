@@ -78,6 +78,43 @@ namespace BI.SPA_ApproverSetup
         /// <summary> 查詢 已啟動的供應商SPA評鑑期間設定 資料 </summary>
         /// <param name="periodId"> 評鑑期間 </param>
         /// <returns></returns>
+        public List<TET_SPA_PeriodModel> GetStartingList()
+        {
+            try
+            {
+                using (PlatformContextModel context = new PlatformContextModel())
+                {
+                    string status = SPA_Period_Status.Executing.ToText();
+
+                    var query =
+                        from item in context.TET_SPA_Period
+                        where
+                            item.Status == status
+                        select new TET_SPA_PeriodModel
+                        {
+                            Period = item.Period,
+                            Status = item.Status,
+                            CreateUser = item.CreateUser,
+                            CreateDate = item.CreateDate,
+                            ModifyUser = item.ModifyUser,
+                            ModifyDate = item.ModifyDate,
+                        };
+
+                    var result = query.ToList();
+                    return result;
+                }
+            }
+            catch (Exception ex)
+            {
+                this._logger.WriteError(ex);
+                throw;
+            }
+        }
+
+
+        /// <summary> 查詢 已啟動的供應商SPA評鑑期間設定 資料 </summary>
+        /// <param name="periodId"> 評鑑期間 </param>
+        /// <returns></returns>
         public TET_SPA_PeriodModel GetStartingDetail()
         {
             try
