@@ -491,7 +491,8 @@ namespace BI.PaymentSuppliers
                         PSID = item.PSID,
                         Type = item.Type,
                         Description = item.Description,
-                        Level = this.GetLevelDisplayName(item.Approver, level, mainModel.CoSignApprover_Text),
+                        Level = item.Level,
+                        PreviewLevel = this.GetLevelDisplayName(item.Approver, level, mainModel.CoSignApprover_Text),
                         Approver = this.FormatApproverName(approverInfo, item.Approver),
                         Result = item.Result,
                         Comment = item.Comment,
@@ -568,8 +569,9 @@ namespace BI.PaymentSuppliers
                         Type = type,
                         Description = description,
                         Level = flow.Level.ToText(),
+                        PreviewLevel = this.GetLevelDisplayName(approver?.EmpID, flow.Level, mainModel.CoSignApprover_Text),
                         Approver = this.FormatApproverName(approver, string.Empty),
-                        Result = "未來審核關卡",
+                        PreviewResult = "未來審核關卡",
                         IsSimulated = true,
                     });
                 }

@@ -4,8 +4,10 @@ using System;
 
 namespace BI.Suppliers.Models
 {
+    /// <summary> 供應商簽核資料 Model </summary>
     public class TET_SupplierApprovalModel
     {
+        #region 資料欄位
         /// <summary> ID </summary>
         public Guid ID { get; set; }
 
@@ -44,22 +46,47 @@ namespace BI.Suppliers.Models
 
         /// <summary> 是否為預計後續審核步驟 </summary>
         public bool IsSimulated { get; set; }
+        #endregion
 
-        #region 其它欄位
+        #region 預跑欄位
+        /// <summary> 預跑關卡顯示名稱 </summary>
+        public string PreviewLevel { get; set; }
+
+        /// <summary> 預跑簽核結果顯示文字 </summary>
+        public string PreviewResult { get; set; }
+        #endregion
+
+        #region 顯示欄位
         /// <summary> 顯示用審核關卡名稱 </summary>
         public string Level_Text
         {
             get
             {
+                if (!string.IsNullOrWhiteSpace(this.PreviewLevel))
+                    return this.PreviewLevel;
+
                 var lvl = ApprovalUtils.ParseApprovalLevel(this.Level);
 
-                if (lvl == ApprovalLevel.Empty)
+                if (lvl == Enums.ApprovalLevel.Empty)
                     return this.Level;
                 else
                     return lvl.ToDisplayText();
             }
         }
 
+        /// <summary> 顯示用簽核結果 </summary>
+        public string Result_Text
+        {
+            get
+            {
+                if (this.IsSimulated && !string.IsNullOrWhiteSpace(this.PreviewResult))
+                    return this.PreviewResult;
+
+                return this.Result;
+            }
+        }
+
+        /// <summary> ApprovalID </summary>
         public Guid ApprovalID { get { return this.ID; } set { this.ID = value; } }
 
         /// <summary> CreateDate </summary>

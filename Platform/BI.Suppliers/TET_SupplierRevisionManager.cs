@@ -136,6 +136,7 @@ namespace BI.Suppliers
                             Type = ApprovalType.Modify.ToText(),
                             Description = description,
                             Level = ApprovalLevel.Applicant.ToText(),
+                            PreviewLevel = ApprovalLevel.Applicant.ToDisplayText(),
                             Approver = this.FormatApproverName(user, userID),
                             Result = ApprovalResult.SentToApproval.ToText(),
                             CreateDate = cDate,
@@ -161,9 +162,10 @@ namespace BI.Suppliers
                                 SupplierID = previewEntity.ID,
                                 Type = ApprovalType.Modify.ToText(),
                                 Description = description,
-                                Level = this.GetLevelDisplayName(approver?.EmpID, flow.Level, previewEntity.CoSignApprover),
+                                Level = flow.Level.ToText(),
+                                PreviewLevel = this.GetLevelDisplayName(approver?.EmpID, flow.Level, previewEntity.CoSignApprover),
                                 Approver = this.FormatApproverName(approver, string.Empty),
-                                Result = "未來審核關卡",
+                                PreviewResult = "未來審核關卡",
                                 IsSimulated = true,
                             });
                         }
