@@ -704,7 +704,8 @@ namespace BI.Suppliers
                     };
                 }).ToList();
 
-            this.AppendPendingApprovalSteps(result, sourceList, supplierModel);
+            if (ApprovalUtils.ParseApprovalStatus(supplierModel.ApproveStatus) == ApprovalStatus.Verify)
+                this.AppendPendingApprovalSteps(result, sourceList, supplierModel);
 
             return result;
         }

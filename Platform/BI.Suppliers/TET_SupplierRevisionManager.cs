@@ -192,8 +192,8 @@ namespace BI.Suppliers
             if (result == null)
                 return null;
 
-            if (ApprovalUtils.ParseApprovalStatus(result.ApproveStatus) == ApprovalStatus.Verify)
-                result.ApprovalList = this.GetRevisionApprovalPreviewList(result, userID, cDate);
+            //if (ApprovalUtils.ParseApprovalStatus(result.ApproveStatus) == ApprovalStatus.Verify)
+            //    result.ApprovalList = this.GetRevisionApprovalPreviewList(result, userID, cDate);
 
             return result;
         }
