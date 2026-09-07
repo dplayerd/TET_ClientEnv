@@ -186,14 +186,15 @@ namespace Platform.WebSite.Controllers
                 validResult = SPA_ScoringInfoValidator.Valid_Tab3(model, sheetSetting, out tempMsgList);
             if (!validResult)
                 msgList.AddRange(tempMsgList);
-            var validDetailResult = false;
-            tempMsgList = new List<string>();
-            if (sheetSetting != null)
-                validDetailResult = SPA_ScoringInfoModule3Validator.Valid(model.Module3List, sheetSetting, out tempMsgList);
-            if (!validDetailResult)
-                msgList.AddRange(tempMsgList);
+            //var validDetailResult = false;
+            //tempMsgList = new List<string>();
+            //if (sheetSetting != null)
+            //    validDetailResult = SPA_ScoringInfoModule3Validator.Valid(model.Module3List, sheetSetting, out tempMsgList);
+            //if (!validDetailResult)
+            //    msgList.AddRange(tempMsgList);
 
-            if (!validResult || !validDetailResult)
+            //if (!validResult || !validDetailResult
+            if (!validResult)
                 return BadRequest(JsonConvert.SerializeObject(msgList));
 
             try
