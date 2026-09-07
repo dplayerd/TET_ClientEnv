@@ -60,7 +60,6 @@ $(document).ready(function () {
     //--- Approval Log Table Events ---
     var approveTable = $(ApproveTableSelector);
     var approveTemplate = $(ApproveTemplateSelector);
-    var latestFormData = null;
 
     // 為簽核紀錄表格加入新資料
     var addApprovalLogToTable = function (objApproval) {
@@ -83,36 +82,6 @@ $(document).ready(function () {
         });
     }
 
-    var shouldShowApprovalPreview = function (objFormData) {
-        if (viewMode == "Detail")
-            return false;
-
-        var approveStatus = objFormData == null ? null : objFormData.ApproveStatus;
-        var hasApprovalList = objFormData != null && objFormData.ApprovalList != null && objFormData.ApprovalList.length > 0;
-        return !hasApprovalList && (approveStatus == undefined || approveStatus == null || approveStatus == "");
-    }
-
-    var refreshApprovalPreview = function () {
-        if (latestFormData == null || !shouldShowApprovalPreview(latestFormData))
-            return;
-
-        var inputData = getMainInput(mainForm);
-        inputData.ID = id;
-
-        $.ajax({
-            url: previewApprovalListApiUrl,
-            method: "POST",
-            type: "JSON",
-            data: JSON.stringify(inputData),
-            contentType: "application/json; charset=utf-8",
-            success: function (data) {
-                renderApprovalList(data);
-            },
-            error: function (data) {
-                console.log(data);
-            }
-        });
-    }
     //--- Approval Log Table Events ---
 
 
@@ -221,7 +190,6 @@ $(document).ready(function () {
             url: readDetailApiUrl,
             method: "GET",
             type: "JSON",
-            data: { id: supplierID, includeApprovalList: true },
             success: function (data) {
                 setMainInput(mainForm, data);
             },
@@ -443,7 +411,6 @@ $(document).ready(function () {
 
     // 將輸入內容還原至表單
     var setMainInput = function (jqObjArea, objFormData) {
-        latestFormData = objFormData;
         setFormInput(jqObjArea, objFormData);
         objFormData.ContactList.forEach(function (item, index) {
             addContactToTable(item);
@@ -452,9 +419,6 @@ $(document).ready(function () {
             addAttachmentToTable(item);
         });
         renderApprovalList(objFormData.ApprovalList);
-
-        if (shouldShowApprovalPreview(objFormData))
-            refreshApprovalPreview();
 
         // 如果是檢視模式，不顯示按鈕
         if (viewMode == "Detail") {
@@ -496,10 +460,6 @@ $(document).ready(function () {
             if (field.hasClass("selectpicker")) {
                 field.selectpicker('refresh');
             }
-        });
-
-        mainForm.find("[name=BankName], [name=BankCode], [name=BankBranchName], [name=BankBranchCode], [name=BankAccountNo], [name=BankAccountName], [name=Currency], [name=BankCountry], [name=BankAddress], [name=SwiftCode], [name=CompanyCity]").change(function () {
-            refreshApprovalPreview();
         });
 
         // 依模式調整按鈕

@@ -54,6 +54,24 @@ namespace Platform.WebSite.Controllers
         }
 
 
+        [Route("~/api/SupplierRevisionApi/Detail/{id}")]
+        [HttpGet]
+        public IHttpActionResult Detail(Guid id)
+        {
+            DateTime cDate = DateTime.Now;
+
+            var cUser = UserProfileService.GetCurrentUser();
+            if (string.IsNullOrWhiteSpace(cUser.ID))
+                throw new UnauthorizedAccessException();
+
+            var result = this._mgr.GetTET_SupplierRevisionDetail(id, cUser.ID, cDate);
+            if (result == null)
+                return BadRequest("Supplier is required.");
+
+            return Ok(result);
+        }
+
+
         [Route("~/api/SupplierRevisionApi/Modify/{id}")]
         [HttpPost]
         public IHttpActionResult Modify(Guid id)
@@ -130,28 +148,6 @@ namespace Platform.WebSite.Controllers
             // 送出
             var newid = this._mgr.CopyCurrentReversion(id, cUser.ID, cDate);
             return Ok(newid);
-        }
-
-
-        [Route("~/api/SupplierRevisionApi/PreviewApprovalList")]
-        [HttpPost]
-        public IHttpActionResult PreviewApprovalList([FromBody] TET_SupplierModel model)
-        {
-            DateTime cDate = DateTime.Now;
-
-            var cUser = UserProfileService.GetCurrentUser();
-            if (string.IsNullOrWhiteSpace(cUser.ID))
-                throw new UnauthorizedAccessException();
-
-            try
-            {
-                var result = this._mgr.GetRevisionApprovalPreviewList(model, cUser.ID, cDate);
-                return Ok(result);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(JsonConvert.SerializeObject(new string[] { ex.Message }));
-            }
         }
 
 

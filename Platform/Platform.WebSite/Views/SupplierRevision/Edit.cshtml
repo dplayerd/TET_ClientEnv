@@ -22,8 +22,7 @@
     var supplierID = this.ViewBag.SupplierID;
     var levelName = this.ViewBag.CurrentLevelName;
 
-    Uri readDetailApiUrl = new Uri("api/SupplierApi/Detail/" + id, UriKind.Relative);
-    Uri previewApprovalListApiUrl = new Uri("api/SupplierRevisionApi/PreviewApprovalList", UriKind.Relative);
+    Uri readDetailApiUrl = new Uri("api/SupplierRevisionApi/Detail/" + id, UriKind.Relative);
     Uri submitApiUrl = new Uri("api/SupplierRevisionApi/Submit/", UriKind.Relative);
     Uri modifyApiUrl = new Uri("api/SupplierRevisionApi/Modify/" + id, UriKind.Relative);
     Uri abordApiUrl = new Uri("api/SupplierApi/Abord/", UriKind.Relative);
@@ -690,7 +689,6 @@
             var submitApiUrl = platformEnvironment.hostUrl + '@submitApiUrl';
             var modifyApiUrl = platformEnvironment.hostUrl + '@modifyApiUrl';
             var readDetailApiUrl = platformEnvironment.hostUrl + '@readDetailApiUrl';
-            var previewApprovalListApiUrl = platformEnvironment.hostUrl + '@previewApprovalListApiUrl';
             var abordApiUrl = platformEnvironment.hostUrl + '@abordApiUrl';
             var deleteApiUrl = platformEnvironment.hostUrl + '@deleteApiUrl';
 

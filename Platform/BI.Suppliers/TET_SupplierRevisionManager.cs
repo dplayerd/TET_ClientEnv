@@ -180,6 +180,23 @@ namespace BI.Suppliers
                 throw;
             }
         }
+
+        /// <summary> 取得供應商改版明細，並由後端組審核預跑清單 </summary>
+        /// <param name="id">供應商改版資料 ID</param>
+        /// <param name="userID">目前登入者</param>
+        /// <param name="cDate">目前時間</param>
+        /// <returns></returns>
+        public TET_SupplierModel GetTET_SupplierRevisionDetail(Guid id, string userID, DateTime cDate)
+        {
+            var result = this._supplierMgr.GetTET_Supplier(id, true);
+            if (result == null)
+                return null;
+
+            if (ApprovalUtils.ParseApprovalStatus(result.ApproveStatus) == ApprovalStatus.Verify)
+                result.ApprovalList = this.GetRevisionApprovalPreviewList(result, userID, cDate);
+
+            return result;
+        }
         #endregion
 
         #region CUD
