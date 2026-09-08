@@ -648,8 +648,9 @@ namespace BI.PaymentSuppliers
                     item.ID != supplierModel.ID &&
                     !string.IsNullOrEmpty(item.VenderCode) &&
                     item.VenderCode == supplierModel.VenderCode &&
-                    item.ApproveStatus == completedStatusText &&
-                    item.IsLastVersion == "Y"
+                    item.CName != supplierModel.CName
+                    //item.ApproveStatus == completedStatusText &&
+                    //item.IsLastVersion == "Y"
                  select item);
 
             var isExist = query.Any();

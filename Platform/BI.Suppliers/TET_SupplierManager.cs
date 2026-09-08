@@ -922,8 +922,9 @@ namespace BI.Suppliers
                     item.ID != supplierModel.ID &&
                     !string.IsNullOrEmpty(item.VenderCode) &&
                     item.VenderCode == supplierModel.VenderCode &&
-                    item.ApproveStatus == completedStatusText &&
-                    item.IsLastVersion == "Y"
+                    item.TaxNo != supplierModel.TaxNo
+                    //item.ApproveStatus == completedStatusText &&
+                    //item.IsLastVersion == "Y"
                  select item);
 
             var isExist = query.Any();
