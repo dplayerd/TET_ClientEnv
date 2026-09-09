@@ -166,37 +166,37 @@ namespace BI.PaymentSuppliers
         /// <param name="cDate">目前時間</param>
         internal void CopyTET_PaymentSupplierAttachment(PlatformContextModel context, Guid psID, List<TET_PaymentSupplierAttachmentModel> currentModelList, string userID, DateTime cDate)
         {
-            //// 將前端傳入的檔案寫入檔案系統及資料表
-            //// 計算起始路徑，如果不是上傳資料夾根目錄，要附加在最前面
-            //string rootFolder = MediaFileManager.GetRootFolder();
-            //string filePath = Path.Combine(rootFolder, ModuleConfig.FolderPath);
+            // 將前端傳入的檔案寫入檔案系統及資料表
+            // 計算起始路徑，如果不是上傳資料夾根目錄，要附加在最前面
+            string rootFolder = MediaFileManager.GetRootFolder();
+            string filePath = Path.Combine(rootFolder, ModuleConfig.FolderPath);
 
-            //if (!filePath.StartsWith(rootFolder, StringComparison.OrdinalIgnoreCase))
-            //    filePath = Path.Combine(rootFolder, ModuleConfig.FolderPath);
+            if (!filePath.StartsWith(rootFolder, StringComparison.OrdinalIgnoreCase))
+                filePath = Path.Combine(rootFolder, ModuleConfig.FolderPath);
 
-            //string folderPath = HostingEnvironment.MapPath("~/" + filePath);
+            string folderPath = HostingEnvironment.MapPath("~/" + filePath);
 
-            //foreach (var model in currentModelList)
-            //{
-            //    string orgFilePath = Path.Combine(folderPath, model.FileName);
-            //    string newFileName = FileUtility.CopyAndRenameFile(orgFilePath, folderPath);
-            //    var entity = new TET_PaymentSupplierAttachments()
-            //    {
-            //        ID = Guid.NewGuid(),
-            //        PSID = PSID,
-            //        FileName = newFileName,
-            //        OrgFileName = model.OrgFileName,
-            //        FilePath = model.FilePath,
-            //        FileExtension = model.FileExtension,
-            //        FileSize = model.FileSize,
-            //        CreateUser = userID,
-            //        CreateDate = cDate,
-            //        ModifyUser = userID,
-            //        ModifyDate = cDate,
-            //    };
+            foreach (var model in currentModelList)
+            {
+                string orgFilePath = Path.Combine(folderPath, model.FileName);
+                string newFileName = FileUtility.CopyAndRenameFile(orgFilePath, folderPath);
+                var entity = new TET_PaymentSupplierAttachments()
+                {
+                    ID = Guid.NewGuid(),
+                    PSID = psID,
+                    FileName = newFileName,
+                    OrgFileName = model.OrgFileName,
+                    FilePath = model.FilePath,
+                    FileExtension = model.FileExtension,
+                    FileSize = model.FileSize,
+                    CreateUser = userID,
+                    CreateDate = cDate,
+                    ModifyUser = userID,
+                    ModifyDate = cDate,
+                };
 
-            //    context.TET_PaymentSupplierAttachments.Add(entity);
-            //}
+                context.TET_PaymentSupplierAttachments.Add(entity);
+            }
         }
 
         /// <summary> 刪除 付款單位附件 </summary>

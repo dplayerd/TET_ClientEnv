@@ -525,7 +525,7 @@ namespace BI.Suppliers
 
                     context.TET_Supplier.Add(entity);
                     _contactMgr.CopyTET_SupplierContact(context, entity.ID, model.ContactList, userID, cDate);                              // 複製供應商聯絡人
-                    //_attachmentMgr.CopyTET_SupplierAttachment(context, entity.ID, model.AttachmentList, userID, cDate);                     // 複製附件
+                    _attachmentMgr.CopyTET_SupplierAttachment(context, entity.ID, model.AttachmentList, userID, cDate);                     // 複製附件
 
                     context.SaveChanges();
                     return entity.ID;

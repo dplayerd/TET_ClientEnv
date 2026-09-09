@@ -320,6 +320,7 @@ namespace BI.PaymentSuppliers
 
                     context.TET_PaymentSupplier.Add(entity);
                     _contactMgr.CopyTET_PaymentSupplierContact(context, entity.ID, model.ContactList, userID, cDate);                              // 複製供應商聯絡人
+                    _attachmentMgr.CopyTET_PaymentSupplierAttachment(context, entity.ID, model.AttachmentList, userID, cDate);                     // 複製附件
 
                     context.SaveChanges();
                     return entity.ID;
