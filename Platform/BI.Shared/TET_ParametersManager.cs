@@ -108,6 +108,29 @@ namespace BI.Shared
             }
         }
 
+        public List<TET_ParametersModel> GetAllParametersKeyTextListQuery()
+        {
+            try
+            {
+                using (PlatformContextModel context = new PlatformContextModel())
+                {
+                    var baseQuery =
+                        from item in context.TET_Parameters
+                        orderby item.Seq ascending
+                        select item;
+
+                    var query = this.ConvertToModel(baseQuery);
+                    var list = query.ToList();
+                    return list;
+                }
+            }
+            catch (Exception ex)
+            {
+                this._logger.WriteError(ex);
+                return default;
+            }
+        }
+
         /// <summary> 取得 共用參數 清單 </summary>
         /// <param name="typeName"></param>
         /// <returns></returns>

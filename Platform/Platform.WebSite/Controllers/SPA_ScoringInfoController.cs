@@ -38,9 +38,9 @@ namespace Platform.WebSite.Controllers
                 return this.FindModuleAndRedirectToPage(BI.SPA_ScoringInfo.ModuleConfig.ModuleName);
             }
 
-            this.ViewBag.ParamList_BU = TET_ParameterService.GetTET_ParametersList1("SPA評鑑單位");
-            this.ViewBag.ParamList_ServiceFor = TET_ParameterService.GetTET_ParametersList1("SPA服務對象");
-            this.ViewBag.paramList_ServiceItem = TET_ParameterService.GetTET_ParametersList1("SPA評鑑項目");
+            this.ViewBag.ParamList_BU = TET_ParameterService.GetTET_ParametersList1Query("SPA評鑑單位");
+            this.ViewBag.ParamList_ServiceFor = TET_ParameterService.GetTET_ParametersList1Query("SPA服務對象");
+            this.ViewBag.paramList_ServiceItem = TET_ParameterService.GetTET_ParametersList1Query("SPA評鑑項目");
             this.ViewBag.ParamList_BelongTo = this._supplierMgr.GetBelongToList();
             this.ViewBag.ParamList_ApproveStatus = new List<KeyTextModel>()
             {
