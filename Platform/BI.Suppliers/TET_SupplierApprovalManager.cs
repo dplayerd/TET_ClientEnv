@@ -985,7 +985,7 @@ namespace BI.Suppliers
                 申請流程 : <br/>
                 申請者填寫申請內容、供應商及交易物情報 ⇒ 申請者部門主管承認 ⇒ SS確認申請內容及情報完整性 ⇒ QSM主管判定STQA實施方式⇒ STQA-L確認Assessment項目及執行團隊成員 (Type1 & Type2) ⇒ QSM主管確認實施結果&結案<br/>
                 <br/>
-                *相關表格請到公司首頁內的[各式表格]下載,SRI>Assessment 實施要求書(供應商認定申請書)<br/>
+                *相關表格請到公司首頁內的[各式表格]下載,SCM>Assessment 實施要求書(供應商認定申請書)<br/>
                 "
             };
 
