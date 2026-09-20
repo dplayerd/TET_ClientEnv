@@ -27,6 +27,7 @@ namespace BI.SPA_Evaluation
         private const string _fixText_DSS_non_startup = "Non-startup(DSS)";
         private const string _fixText_DSS_startup = "Startup(DSS)";
         private const string _fixText_Modification = "Modification";
+        private const string _fixText_DSS = "DSS";
         private const string _fixText_Local = "Local";
         const string _fixText_CT = "CT";
         private const string _fixText_EmpStatus1 = "在職";
@@ -234,7 +235,7 @@ namespace BI.SPA_Evaluation
                         result = 4;              
                 }
             }
-            else if (IsTextInArray(model.ServiceItem, new string[] { _fixText_DSS_startup, _fixText_DSS_non_startup, _fixText_Modification }))
+            else if (IsTextInArray(model.ServiceItem, new string[] { _fixText_DSS_startup, _fixText_DSS_non_startup, _fixText_Modification, _fixText_DSS }))
             {
                 // 施工正確性(Startup(DSS)、Non-startup(DSS)、Modification)([TET_SPA_Evaluation].[TScore1])
                 //  R=MO次數 ([TET_SPA_ScoringInfo].[MOCount]
@@ -415,7 +416,7 @@ namespace BI.SPA_Evaluation
             // 準時完工交付(Startup、Startup(DSS)、Non-startup(DSS)、Modification)([TET_SPA_Evaluation].[DScore2])
             //  R=施工達交狀況盤點: 是否準時交付=Yes筆數/總比數
             //  ([TET_SPA_ScoringInfoModule2].[OnTime]=Yes / [TET_SPA_ScoringInfoModule2].[OnTime]=Yes or No)
-            if (IsTextInArray(model.ServiceItem, new string[] { _fixText_Startup, _fixText_DSS_startup, _fixText_DSS_non_startup, _fixText_Modification }))
+            if (IsTextInArray(model.ServiceItem, new string[] { _fixText_Startup, _fixText_DSS_startup, _fixText_DSS_non_startup, _fixText_Modification, _fixText_DSS }))
             {
                 // POSource=Local
                 if (model.POSource == _fixText_Local)
@@ -477,7 +478,7 @@ namespace BI.SPA_Evaluation
             //無任何違規紀錄: 4分
             //有違規紀錄，但是無重大違規: 2分
             //有違規紀錄，且有PPE或PIP重大違規: 0分
-            if (IsTextInArray(model.ServiceItem, new string[] { _fixText_Startup, _fixText_FE, _fixText_Safety, _fixText_DSS_startup, _fixText_DSS_non_startup, _fixText_Modification }))
+            if (IsTextInArray(model.ServiceItem, new string[] { _fixText_Startup, _fixText_FE, _fixText_Safety, _fixText_DSS_startup, _fixText_DSS_non_startup, _fixText_Modification, _fixText_DSS }))
             {
                 if (!violationDetailModelList.Any())
                     result = 4;
@@ -537,7 +538,7 @@ namespace BI.SPA_Evaluation
             //依照Cost & Service資料，價格競爭力的值給分([TET_SPA_CostServiceDetail].[PriceDeflator])
             //    NA: NA
             //    其餘: 分數=常用參數設定中，該選項的Seq的值
-            if (IsTextInArray(model.ServiceItem, new string[] { _fixText_Startup, _fixText_FE, _fixText_Safety, _fixText_DSS_startup, _fixText_DSS_non_startup,_fixText_Modification }))
+            if (IsTextInArray(model.ServiceItem, new string[] { _fixText_Startup, _fixText_FE, _fixText_Safety, _fixText_DSS_startup, _fixText_DSS_non_startup,_fixText_Modification, _fixText_DSS }))
             {
                 if (costServiceDetailModelList.Count > 0)
                 {
@@ -568,7 +569,7 @@ namespace BI.SPA_Evaluation
             //依照Cost & Service資料，付款條件的值給分([TET_SPA_CostServiceDetail].[PaymentTerm])
             //NA: NA
             //其餘: 分數=常用參數設定中，該選項的Seq的值
-            if (IsTextInArray(model.ServiceItem, new string[] { _fixText_Startup, _fixText_FE, _fixText_Safety, _fixText_DSS_startup, _fixText_DSS_non_startup, _fixText_Modification }))
+            if (IsTextInArray(model.ServiceItem, new string[] { _fixText_Startup, _fixText_FE, _fixText_Safety, _fixText_DSS_startup, _fixText_DSS_non_startup, _fixText_Modification, _fixText_DSS }))
             {
                 if (costServiceDetailModelList.Count > 0)
                 {
@@ -602,7 +603,7 @@ namespace BI.SPA_Evaluation
             //  有抱怨，未造成客戶或TEL損失: 1分
             //  有抱怨，且造成客戶或TEL損失:0分
 
-            if (IsTextInArray(model.ServiceItem, new string[] { _fixText_Startup, _fixText_FE, _fixText_Safety, _fixText_DSS_startup, _fixText_DSS_non_startup, _fixText_Modification }))
+            if (IsTextInArray(model.ServiceItem, new string[] { _fixText_Startup, _fixText_FE, _fixText_Safety, _fixText_DSS_startup, _fixText_DSS_non_startup, _fixText_Modification, _fixText_DSS }))
             {
                 if (model.Complain == null || IsTextInArray(model.Complain, _fixTextComplain1))
                     result = 4;
@@ -629,7 +630,7 @@ namespace BI.SPA_Evaluation
             // 若兩值都=NA: 分數=NA
             // 若只有一值=NA: 分數=另一值在常用參數設定中，該選項的Seq的值；
             // 若沒有值=NA: 分數=兩個值在常用參數設定中，該選項的Seq的值 * 0.5的加總
-            if (IsTextInArray(model.ServiceItem, new string[] { _fixText_Startup, _fixText_FE, _fixText_Safety, _fixText_DSS_startup, _fixText_DSS_non_startup, _fixText_Modification }))
+            if (IsTextInArray(model.ServiceItem, new string[] { _fixText_Startup, _fixText_FE, _fixText_Safety, _fixText_DSS_startup, _fixText_DSS_non_startup, _fixText_Modification, _fixText_DSS }))
             {
                 var scoreList = this._paramMgr.GetTET_ParametersList("SPA配合度");
                 decimal? cooperationInScoringInfo = null;
