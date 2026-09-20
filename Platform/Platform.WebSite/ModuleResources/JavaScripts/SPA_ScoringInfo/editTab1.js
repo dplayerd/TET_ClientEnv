@@ -234,6 +234,43 @@ $(function () {
         //--- 檢查輸入值 ---
     }
 
+    function getNameDuplicateKey_Tab1(detailModel) {
+        return (detailModel.Supplier || "") + "___" + (detailModel.EmpName || "");
+    }
+
+    function getNameDuplicateConfirmMessages_Tab1(detailModel) {
+        if (!detailModel.EmpName)
+            return [];
+
+        var detailList = getDetailList_Tab1();
+        var keyCount = {};
+
+        detailList.forEach(function (item) {
+            if (detailModel.Mode == "Edit" && detailModel.Index == item.Index)
+                return;
+
+            var key = getNameDuplicateKey_Tab1(item);
+            keyCount[key] = (keyCount[key] || 0) + 1;
+        });
+
+        var detailKey = getNameDuplicateKey_Tab1(detailModel);
+        keyCount[detailKey] = (keyCount[detailKey] || 0) + 1;
+
+        if (keyCount[detailKey] <= 1)
+            return [];
+
+        return ["員工姓名" + detailKey.replace("___", " + ") + "重覆"];
+    }
+
+    function confirmNameDuplicate_Tab1(detailModel) {
+        var duplicateMessages = getNameDuplicateConfirmMessages_Tab1(detailModel);
+        if (duplicateMessages.length == 0)
+            return true;
+
+        var message = "明細資料有姓名重覆的情況：\n" + duplicateMessages.join('\n') + "\n\n是否仍要新增進去？";
+        return confirm(message);
+    }
+
     // 如果「本社/協力廠商」是「本社社員」，預設帶入「受評供應商」到「供應商名稱」
     function _setDefaultValue() {
         var selectedItem = $(divDetailEditor_tab1_Selector).find("[name=Type]").val();
@@ -290,6 +327,10 @@ $(function () {
             return;
         }
         //--- 檢查輸入值 ---
+
+        if (!confirmNameDuplicate_Tab1(detailModel)) {
+            return;
+        }
 
         // 如果是編輯
         if (detailModel.Mode == "Edit") {
