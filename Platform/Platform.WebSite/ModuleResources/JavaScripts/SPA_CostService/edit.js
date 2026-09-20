@@ -26,6 +26,16 @@ var divAbordReasonSelector = "#divAbordReason";   // 填寫中止原因的範例
 var $table = $(detailTableSelector);
 
 $(function () {
+    function isAssessmentItemDisabled(rowData) {
+        if (typeof disabledAssessmentItems === "undefined" || !Array.isArray(disabledAssessmentItems))
+            return false;
+
+        if (!rowData || !rowData.AssessmentItem)
+            return false;
+
+        return disabledAssessmentItems.indexOf(rowData.AssessmentItem) >= 0;
+    }
+
     // --- 明細表區域 ---
     // 初始化明細表
     function initTable() {
@@ -38,7 +48,7 @@ $(function () {
                     field: "",
                     title: "",
                     formatter: function (val, rowData) {
-                        if (viewMode == 'Create' || viewMode == "Edit") {
+                        if ((viewMode == 'Create' || viewMode == "Edit") && !isAssessmentItemDisabled(rowData)) {
                             var result =
                                 `<button type="button" name="editDetail" class="btn btn-sm btn-primary"> 編輯 </button>`;
 
@@ -159,7 +169,7 @@ $(function () {
                         }
 
                         // 如果是檢視模式，就不出現刪除鈕
-                        if (viewMode == 'Detail') {
+                        if (viewMode == 'Detail' || isAssessmentItemDisabled(rowData)) {
                             result.find("[name=deleteAttachment], [name=deleteFileUpload]").closest("td").replaceWith("");
                         }
 

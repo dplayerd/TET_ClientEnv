@@ -14,6 +14,7 @@ namespace Platform.WebSite.Services
     public class TET_ParameterService
     {
         private const string _parameterListKey = "__parameterListKey";
+        private const string _parameterListQueryKey = "__parameterListQueryKey";
         private static TET_ParametersManager _mgr = new TET_ParametersManager();
 
         /// <summary> 使用 ID 或是 Item 欄位做為 Key </summary>
@@ -106,15 +107,15 @@ namespace Platform.WebSite.Services
 
             List<TET_ParametersModel> sourceList;
 
-            if (HttpContext.Current.Items[_parameterListKey] == null)
+            if (HttpContext.Current.Items[_parameterListQueryKey] == null)
             {
                 var list = _mgr.GetAllParametersKeyTextListQuery();
-                HttpContext.Current.Items[_parameterListKey] = list;
+                HttpContext.Current.Items[_parameterListQueryKey] = list;
                 sourceList = list;
             }
             else
             {
-                sourceList = (List<TET_ParametersModel>)HttpContext.Current.Items[_parameterListKey];
+                sourceList = (List<TET_ParametersModel>)HttpContext.Current.Items[_parameterListQueryKey];
             }
 
             var retList = sourceList.Where(obj => string.Compare(typeName, obj.Type, true) == 0).ToList();
