@@ -1146,7 +1146,7 @@ namespace BI.Suppliers
                 mailBody +=
                 $@"
                     <tr>
-                        <td>{approverInfo?.FirstNameEN} {approverInfo?.LastNameEN}</td>
+                        <td>{approverInfo?.FirstNameEN} {approverInfo?.LastNameEN} ({approverInfo?.UserID})</td>
                         <td>{lvlName}</td>
                         <td>{item.CreateDate.ToString("yyyy/MM/dd HH:mm:ss")}</td>
                         <td>{item.ModifyDate.ToString("yyyy/MM/dd HH:mm:ss")}</td>
