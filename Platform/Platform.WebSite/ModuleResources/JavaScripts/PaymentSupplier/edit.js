@@ -178,6 +178,39 @@ $(document).ready(function () {
 
         approveTable.find("tbody").append(newContent);
     }
+
+    var groupSimulatedApprovalList = function (approvalList) {
+        var result = [];
+        var groupMap = {};
+
+        (approvalList || []).forEach(function (item) {
+            if (!item.IsSimulated || item.Result_Text !== "未來審核關卡") {
+                result.push(item);
+                return;
+            }
+
+            var key = item.Level_Text + "|" + item.Result_Text;
+            if (!groupMap[key]) {
+                groupMap[key] = $.extend({}, item, {
+                    Approver: [],
+                    CreateDate_Text: ""
+                });
+                result.push(groupMap[key]);
+            }
+
+            if (item.Approver) {
+                groupMap[key].Approver.push(item.Approver);
+            }
+        });
+
+        result.forEach(function (item) {
+            if ($.isArray(item.Approver)) {
+                item.Approver = item.Approver.join("<br />");
+            }
+        });
+
+        return result;
+    }
     //--- Approval Log Table Events ---
 
 
@@ -531,7 +564,7 @@ $(document).ready(function () {
         objFormData.AttachmentList.forEach(function (item, index) {
             addAttachmentToTable(item);
         });
-        objFormData.ApprovalList.forEach(function (item, index) {
+        groupSimulatedApprovalList(objFormData.ApprovalList).forEach(function (item, index) {
             addApprovalLogToTable(item);
         });
 
