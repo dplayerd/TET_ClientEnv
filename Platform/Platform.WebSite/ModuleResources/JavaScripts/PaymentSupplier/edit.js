@@ -193,7 +193,8 @@ $(document).ready(function () {
             if (!groupMap[key]) {
                 groupMap[key] = $.extend({}, item, {
                     Approver: [],
-                    CreateDate_Text: ""
+                    CreateDate_Text: "",
+                    ModifyDate_Text: ""
                 });
                 result.push(groupMap[key]);
             }

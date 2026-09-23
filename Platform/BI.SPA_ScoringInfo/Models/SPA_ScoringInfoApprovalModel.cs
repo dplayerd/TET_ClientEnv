@@ -70,7 +70,7 @@ namespace BI.SPA_ScoringInfo.Models
         public string CreateDate_Text { get { return this.CreateDate == DateTime.MinValue ? string.Empty : this.CreateDate.ToString("yyyy-MM-dd HH:mm:ss"); } }
 
         /// <summary> ModifyDate </summary>
-        public string ModifyDate_Text { get { return this.ModifyDate == DateTime.MinValue ? string.Empty : this.ModifyDate.ToString("yyyy-MM-dd HH:mm:ss"); } }
+        public string ModifyDate_Text { get { return string.IsNullOrWhiteSpace(this.Result) || this.ModifyDate == DateTime.MinValue ? string.Empty : this.ModifyDate.ToString("yyyy-MM-dd HH:mm:ss"); } }
         #endregion
     }
 }

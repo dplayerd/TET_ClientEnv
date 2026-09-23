@@ -65,7 +65,7 @@ namespace BI.STQA.Models
             set { this.STQAID = value; }
         }
 
-        public string ModifyDate_Text { get { return this.ModifyDate.ToString("yyyy/MM/dd HH:mm:ss"); } }
+        public string ModifyDate_Text { get { return string.IsNullOrWhiteSpace(this.Result) || this.ModifyDate == DateTime.MinValue ? string.Empty : this.ModifyDate.ToString("yyyy/MM/dd HH:mm:ss"); } }
         #endregion
     }
 }
