@@ -35,6 +35,7 @@
     var pairList_BU = this.ViewBag.ParamList_BU as List<KeyTextModel>;
     var pairList_BelongTo = this.ViewBag.ParamList_BelongTo as List<KeyTextModel>;
     var pairList_AssessmentItem = this.ViewBag.ParamList_AssessmentItem as List<KeyTextModel>;
+    var pairList_AssessmentItem_Disabled = this.ViewBag.ParamList_AssessmentItem_Disabled as List<KeyTextModel>;
     var pairList_PriceDeflator = this.ViewBag.ParamList_PriceDeflator as List<KeyTextModel>;
     var pairList_PaymentTerm = this.ViewBag.ParamList_PaymentTerm as List<KeyTextModel>;
     var pairList_Cooperation = this.ViewBag.ParamList_Cooperation as List<KeyTextModel>;
@@ -49,6 +50,7 @@
 
     // 欄位顯示和編輯設定
     var validConfig = JsonConvert.SerializeObject(BI.SPA_CostService.Validators.SPA_CostServiceValidator.GetValidConfigs());
+    var disabledAssessmentItems = JsonConvert.SerializeObject((pairList_AssessmentItem_Disabled ?? new List<KeyTextModel>()).ConvertAll(pair => pair.Key));
 }
 
 <style>
@@ -402,6 +404,7 @@
             var downloadFileUrl = platformEnvironment.hostUrl + '@downloadFileUrl';
 
             var validConfig = @Html.Raw(validConfig);
+            var disabledAssessmentItems = @Html.Raw(disabledAssessmentItems);
         </script>
     </text>
 , "customScripts")

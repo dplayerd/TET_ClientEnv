@@ -468,7 +468,13 @@ namespace BI.SPA_CostService
                         if (IsServiceItemEnable(item.AssessmentItem))
                             item.IsEvaluate = _isEvaluateText;
                         else
+                        {
                             item.IsEvaluate = _NotEvaluateText;
+                            item.PriceDeflator = "NA";
+                            item.PaymentTerm = "NA";
+                            item.Cooperation = "NA";
+                            item.Remark = "此評鑑項目已停用";
+                        }
                     }
 
                     return list;
