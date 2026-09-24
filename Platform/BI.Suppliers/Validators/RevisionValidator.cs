@@ -63,7 +63,7 @@ namespace BI.Suppliers.Validators
                 new ValidateConfig() { Required = false, CanEdit =  true, Name = "Contract",             Title = "合約(Y/N)" },
                 new ValidateConfig() { Required = false, CanEdit = false, Name = "KeySupplier",          Title = "主要供應商" },
                 new ValidateConfig() { Required = false, CanEdit = false, Name = "SignDate1",            Title = "行為準則承諾書簽屬日期" },
-                new ValidateConfig() { Required = false, CanEdit = false, Name = "SignDate2",            Title = "承攬商安全衛生環保承諾書簽屬日期" },
+                new ValidateConfig() { Required = false, CanEdit = false, Name = "SignDate2",            Title = "承攬商安全衛生環保規章保證書簽屬日期" },
         };
 
         /// <summary> 取得全部設定 </summary>

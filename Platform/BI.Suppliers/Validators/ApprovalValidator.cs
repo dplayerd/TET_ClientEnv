@@ -68,8 +68,8 @@ namespace BI.Suppliers.Validators
             new ApprovalValidConfig() { Disabled =  true, Required = false, EditAtLevel = _SRI_SS,     ColumnName = "KeySupplier",       ColumnTitle = "主要供應商" },
             new ApprovalValidConfig() { Disabled =  true, Required = false, EditAtLevel = _SRI_SS,     ColumnName = "IsSign1",           ColumnTitle = "行為準則承諾書" },
             new ApprovalValidConfig() { Disabled =  true, Required = false, EditAtLevel = _SRI_SS,     ColumnName = "SignDate1",         ColumnTitle = "行為準則承諾書簽屬日期" },
-            new ApprovalValidConfig() { Disabled =  true, Required = false, EditAtLevel = _SRI_SS,     ColumnName = "IsSign2",           ColumnTitle = "承攬商安全衛生環保承諾書" },
-            new ApprovalValidConfig() { Disabled =  true, Required = false, EditAtLevel = _SRI_SS,     ColumnName = "SignDate2",         ColumnTitle = "承攬商安全衛生環保承諾書簽屬日期" },
+            new ApprovalValidConfig() { Disabled =  true, Required = false, EditAtLevel = _SRI_SS,     ColumnName = "IsSign2",           ColumnTitle = "承攬商安全衛生環保規章保證書" },
+            new ApprovalValidConfig() { Disabled =  true, Required = false, EditAtLevel = _SRI_SS,     ColumnName = "SignDate2",         ColumnTitle = "承攬商安全衛生環保規章保證書簽屬日期" },
             new ApprovalValidConfig() { Disabled =  true, Required =  true, EditAtLevel = _SRI_SS_GL,  ColumnName = "STQAApplication",   ColumnTitle = "STQA Application" },
         };
 
@@ -152,4 +152,3 @@ namespace BI.Suppliers.Validators
         }
     }
 }
-
