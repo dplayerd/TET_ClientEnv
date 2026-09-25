@@ -737,12 +737,13 @@ namespace Platform.WebSite.Controllers
                 row.CreateCell(02).SetStyle(normalStyle).SetCellValue(item.ServiceFor);
                 row.CreateCell(03).SetStyle(normalStyle).SetCellValue(item.ServiceItem);
                 row.CreateCell(04).SetStyle(normalStyle).SetCellValue(item.BelongTo);
+                row.CreateCell(05).SetStyle(normalStyle).SetCellValue(item.ServiceFor2);
 
-                row.CreateCell(05).SetStyle(normalStyle).SetCellValue(item.WorkItem);
-                row.CreateCell(06).SetStyle(normalStyle).SetCellValue(item.MachineName);
-                row.CreateCell(07).SetStyle(normalStyle).SetCellValue(item.MachineNo);
-                row.CreateCell(08).SetStyle(normalStyle).SetCellValue(item.OnTime);
-                row.CreateCell(09).SetStyle(normalStyle).SetCellValue(item.Remark);
+                row.CreateCell(06).SetStyle(normalStyle).SetCellValue(item.WorkItem);
+                row.CreateCell(07).SetStyle(normalStyle).SetCellValue(item.MachineName);
+                row.CreateCell(08).SetStyle(normalStyle).SetCellValue(item.MachineNo);
+                row.CreateCell(09).SetStyle(normalStyle).SetCellValue(item.OnTime);
+                row.CreateCell(10).SetStyle(normalStyle).SetCellValue(item.Remark);
             }
 
 

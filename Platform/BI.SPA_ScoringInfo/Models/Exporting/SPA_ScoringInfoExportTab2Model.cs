@@ -11,7 +11,7 @@ namespace BI.SPA_ScoringInfo.Models.Exporting
     {
         public SPA_ScoringInfoExportTab2Model(SPA_ScoringInfoModule2Model item, SPA_ScoringInfoModel main) : base(main)
         {
-            this.ServiceFor = item.ServiceFor;
+            this.ServiceFor2 = item.ServiceFor;
             this.WorkItem = item.WorkItem;
             this.MachineName = item.MachineName;
             this.MachineNo = item.MachineNo;
@@ -21,7 +21,7 @@ namespace BI.SPA_ScoringInfo.Models.Exporting
 
         #region 原生欄位
         /// <summary> 服務對象 </summary>
-        public string ServiceFor { get; set; }
+        public string ServiceFor2 { get; set; }
 
         /// <summary> 作業項目 </summary>
         public string WorkItem { get; set; }
