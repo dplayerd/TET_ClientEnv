@@ -397,7 +397,7 @@ namespace BI.SPA_ScoringInfo
                             if (dic.ContainsKey(ApprovalLevel.SecondApproval))
                             {
                                 var accList = dic[ApprovalLevel.SecondApproval];
-                                var infofill = dic[ApprovalLevel.Applicant].ToList();
+                                var infofill = dic[ApprovalLevel.FirstApproval].ToList();
 
                                 nextApporverList.AddRange(accList);
                                 var qsm = this._userRoleMgr.GetUserListInRole(ApprovalRole.QSM.ToID().Value).ToList();
