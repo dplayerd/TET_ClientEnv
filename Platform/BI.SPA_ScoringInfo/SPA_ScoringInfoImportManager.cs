@@ -247,6 +247,7 @@ namespace BI.SPA_ScoringInfo
             }
 
             this.ValidImportValues_Tab2(result, sheetSetting, msgList);
+            this.ValidDuplicate_Tab2(result, msgList);
             return result;
         }
 
@@ -334,6 +335,20 @@ namespace BI.SPA_ScoringInfo
 
             if (sheetSetting.IsSheet3DescriptionFill && string.IsNullOrWhiteSpace(model.Description))
                 msgList.Add($"第{rowNo}筆資料 欄位 事件說明 為必填欄位");
+        }
+
+        /// <summary> 驗證承攬機台名稱、機台Serial No.是否重複 </summary>
+        private void ValidDuplicate_Tab2(List<SPA_ScoringInfoModule2Model> list, List<string> msgList)
+        {
+            var repeated = list.GroupBy(obj => obj.MachineName + "___" + obj.MachineNo)
+                .Where(obj => !string.IsNullOrWhiteSpace(obj.Key.Replace("___", string.Empty)) && obj.Count() > 1)
+                .ToList();
+
+            foreach (var item in repeated)
+            {
+                var parts = item.Key.Split(new[] { "___" }, StringSplitOptions.None);
+                msgList.Add($"承攬機台名稱{parts[0]} + 機台Serial No.{parts[1]} 重複");
+            }
         }
 
         /// <summary> 驗證工安事件頁籤時間、地點與事件說明是否重複 </summary>

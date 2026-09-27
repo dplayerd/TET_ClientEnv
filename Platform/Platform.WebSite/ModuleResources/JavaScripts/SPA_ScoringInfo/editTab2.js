@@ -170,8 +170,40 @@ $(function () {
         //    if (!validField(detailModel.WorkItem)) msgList.push("作業項目 " + reqText);
         //}
 
+        //檢查承攬機台名稱 + 機台Serial No.是否重複
+        var duplicateMessages = getNameDuplicateConfirmMessages_Tab2(detailModel);
+
+        if (duplicateMessages.length > 0) {
+            msgList.push(duplicateMessages);
+        }
+
         return msgList
         //--- 檢查輸入值 ---
+    }
+
+    function getNameDuplicateKey_Tab2(detailModel) {
+        return (detailModel.MachineName || "") + "___" + (detailModel.MachineNo || "");
+    }
+
+    function getNameDuplicateConfirmMessages_Tab2(detailModel) {
+        var detailList = getDetailList_Tab2();
+        var keyCount = {};
+
+        detailList.forEach(function (item) {
+            if (detailModel.Mode == "Edit" && detailModel.Index == item.Index)
+                return;
+
+            var key = getNameDuplicateKey_Tab2(item);
+            keyCount[key] = (keyCount[key] || 0) + 1;
+        });
+
+        var detailKey = getNameDuplicateKey_Tab2(detailModel);
+        keyCount[detailKey] = (keyCount[detailKey] || 0) + 1;
+
+        if (keyCount[detailKey] <= 1)
+            return [];
+
+        return ["承攬機台名稱 & 機台Serial No." + detailKey.replace("___", " + ") + "重覆"];
     }
 
     // 按下 Tab2 的確定鈕
