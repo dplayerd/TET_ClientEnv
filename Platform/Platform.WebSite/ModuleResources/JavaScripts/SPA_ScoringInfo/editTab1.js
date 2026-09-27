@@ -230,6 +230,9 @@ $(function () {
             if (isSheetFieldRequired("IsSheet1SkillLevelFill") && !validField(detailModel.SkillLevel)) msgList.push("Skill Level " + reqText);
         }
 
+        // 本社/協力廠商與供應商名稱檢查
+        if ((detailModel.Type == "本社社員" && mainModel.BelongTo != detailModel.Supplier) || (detailModel.Type != "本社社員" && mainModel.BelongTo == detailModel.Supplier)) msgList.push("供應商名稱 欄位值錯誤");
+
         return msgList
         //--- 檢查輸入值 ---
     }
