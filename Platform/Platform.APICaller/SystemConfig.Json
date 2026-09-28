@@ -1,0 +1,14 @@
+{
+    "JsonConfig": [
+        {
+          "Name": "GenerateApprovalReminder",
+          "Url": "http://localhost:58868/api/ScheduledMailApi/GenerateApprovalReminder?token=ChangeMe",
+          "Method": "GET"
+        },
+        {
+          "Name": "GenerateSPAScoringInfoReminder",
+          "Url": "http://localhost:58868/api/ScheduledMailApi/GenerateSPAScoringInfoReminder?token=ChangeMe",
+          "Method": "GET"
+        }
+    ]
+}
