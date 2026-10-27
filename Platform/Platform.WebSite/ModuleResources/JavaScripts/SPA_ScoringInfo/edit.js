@@ -41,11 +41,13 @@ var ApproveTemplateSelector = "#divApproveTemplate";    // 簽核紀錄範本
 
 var formMain = "#formMain"                        // 主要編輯區
 var btnSubmitSelector = "#btnSubmit";             // 送出鈕
-var btnAbordSelector = "#btnAbord";               // 不評鑑鈕
+var btnNotEvaluateSelector = "#btnNotEvaluate";   // 不評鑑鈕
+var btnAbordSelector = "#btnAbord";               // 中止鈕
 
 var divAddFileAreaSelector = "#divAddFileArea";   // 加入檔案區
 var btnAddFileSelector = "#btnAddFile"            // 加入檔案鈕
 
+var divAbordReasonSelector = "#divAbordReason";   // 填寫中止原因的範例區域
 var sheetSetting = null;                           // SPA評鑑計分資料頁籤顯示設定
 
 
@@ -187,7 +189,7 @@ $(function () {
     });
 
     // 不評鑑鈕
-    $(btnAbordSelector).click(function () {
+    $(btnNotEvaluateSelector).click(function () {
         if (id.trim() == "")
             return;
 
@@ -206,6 +208,58 @@ $(function () {
             error: function (data) {
                 alert(getApiErrorMessage(data, "失敗，請聯絡管理員。"));
             }
+        });
+    });
+
+    // 中止鈕
+    $(btnAbord).click(function () {
+        if (id.trim() == "")
+            return;
+
+        // eventAbordClick
+        function eventAbordClick(funcCallback) {
+            var reason = modal.find("[name=AbordReason]").val();
+            if (reason.trim() == "") {
+                alert("中止原因為必填");
+                return;
+            }
+
+            $.ajax({
+                url: abordApiUrl,
+                method: "POST",
+                type: "JSON",
+                data: { id: id, reason: reason },
+                success: function (data) {
+                    alert('中止完成');
+                    funcCallback(true);
+                    location.href = listPageUrl;
+                },
+                error: function (data) {
+                    if (data.responseJSON == undefined || data.responseJSON.Message == null) {
+                        alert("失敗，請聯絡管理員。");
+                        funcCallback(false);
+                    }
+                    else {
+                        try {
+                            var msg = JSON.parse(data.responseJSON.Message).join('\n');
+                            alert(msg);
+                            funcCallback(false);
+                        } catch (ex) {
+                            console.log(ex);
+                            alert(data.responseJSON.ExceptionMessage);
+                            funcCallback(false);
+                        }
+                    }
+                }
+            });
+        }
+
+        var modal = showModalUI({
+            bodyHtml: $(divAbordReasonSelector).html(),
+            title: "中止申請",
+            buttons: [
+                { style: "btn-sm btn-danger", text: "中止", onclick: function (funcCallback) { eventAbordClick(funcCallback); } },
+            ]
         });
     });
 
@@ -267,7 +321,7 @@ $(function () {
 
         // In tab6
         jqObjArea.find("[name=Cooperation]").find(`option[value=${objFormData.Cooperation}]`).prop("selected", true);
-        jqObjArea.find("[name=Cooperation]").trigger('change'); 
+        jqObjArea.find("[name=Cooperation]").trigger('change');
         jqObjArea.find("[name=Complain]").val(objFormData.Complain);
         jqObjArea.find("[name=Advantage]").val(objFormData.Advantage);
         jqObjArea.find("[name=Improved]").val(objFormData.Improved);
@@ -298,22 +352,27 @@ $(function () {
         if (objFormData.ApproveStatus == null || objFormData.ApproveStatus == "已退回") {
             if (canSubmit) {
                 $(btnSubmitSelector).show();
-                $(btnAbordSelector).show();
+                $(btnNotEvaluateSelector).show();
             }
             $(btnAddFileSelector).show();
         } else {
             $(btnSubmitSelector).hide();
-            $(btnAbordSelector).hide();
+            $(btnNotEvaluateSelector).hide();
             $(btnAddFileSelector).hide();
         }
 
         if (viewMode == 'Create' || viewMode == "Edit") {
-            if (!(objFormData.ApproveStatus == null || objFormData.ApproveStatus == "已退回") || !canSubmit)
+            if (objFormData.ApproveStatus == "審核中") {
+                if (canSubmit)
+                    $(btnAbordSelector).show();
+            } else {
                 $(btnAbordSelector).hide();
+            }
         }
         else if (viewMode == 'Detail') {
             $(btnAbordSelector).hide();
             $(btnSubmitSelector).hide();
+            $(btnNotEvaluateSelector).hide();
             $(btnAddFileSelector).hide();
         }
 
@@ -441,6 +500,7 @@ $(function () {
         $("[name=btnImportTab1], [name=btnImportTab2], [name=btnImportTab3]").prop("disabled", true);
         $("[name=ImportFile_Tab1], [name=ImportFile_Tab2], [name=ImportFile_Tab3]").prop("disabled", true);
         $(btnSubmitSelector).prop("disabled", true);
+        $(btnNotEvaluateSelector).prop("disabled", true);
     }
 
     // 初始化欄位行為
@@ -456,7 +516,7 @@ $(function () {
                 if (field.hasClass("selectpicker")) {
                     field.selectpicker('refresh');
                 } else if (field.hasClass("select2"))
-                    field.trigger('change'); 
+                    field.trigger('change');
             }
         });
 
@@ -481,6 +541,7 @@ $(function () {
 
         $(btnAbordSelector).hide();
         $(btnSubmitSelector).hide();
+        $(btnNotEvaluateSelector).hide();
 
         // 依模式調整按鈕
         if (viewMode == 'Create') {
@@ -494,13 +555,16 @@ $(function () {
                 $(obj).show();
             });
 
-            if (canSubmit)
+            if (canSubmit) {
                 $(btnSubmitSelector).show();
+                $(btnNotEvaluateSelector).show();
+            }
 
             $(ApproveTableSelector).show();
             $(ApproveTitleSelector).show();
         } else if (viewMode == "Detail") {
             $(btnSubmitSelector).hide();
+            $(btnNotEvaluateSelector).hide();
             $(".import-area").hide();
 
             $(ApproveTableSelector).show();
@@ -508,9 +572,10 @@ $(function () {
 
             // 尋找並停用所有 ID 為 tab 字頭裡，所有的表單元素
             $("[id^=tab").find("input, select, textarea").prop("disabled", true);
-            $("[id^=tab").find(".select2").trigger('change'); 
+            $("[id^=tab").find(".select2").trigger('change');
         } else {
             $(btnSubmitSelector).hide();
+            $(btnNotEvaluateSelector).hide();
         }
 
         if (isSheetSettingMissing) {
