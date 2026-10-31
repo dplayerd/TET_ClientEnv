@@ -1,4 +1,5 @@
 ﻿using BI.SPA_Violation.Enums;
+using BI.SPA_Violation.Models;
 using Platform.AbstractionClass;
 using Platform.Auth;
 using Platform.Auth.Models;
@@ -116,6 +117,29 @@ namespace BI.SPA_Violation.Utils
 
             //MailPoolManager.WriteMailWithCC(Email, qsmMailList, content, userID, cDate)
             MailPoolManager.WriteMailWithCC(Email, new List<string>(), content, userID, cDate);
+        }
+
+        internal static void SendQSMApprovalMail(string leveltext, List<UserAccountModel> receiverMailList, SPA_ViolationApprovalModel approvalModel, string userID, DateTime cDate)
+        {
+            var pageUrl = $"{ModuleConfig.EmailRootUrl}/SupplierApproval/Index";
+
+            EMailContent content = new EMailContent()
+            {
+                Title = $"[違規紀錄資料審核] {approvalModel.Description}",
+                Body =
+                $@"
+                您好,<br/>
+                請點擊「<a href=""{pageUrl}"" target=""_blank"">待審清單</a>」，謝謝 <br/>
+                <br/>
+                流程名稱: 違規紀錄資料審核 <br/>
+                流程發起時間: {cDate.ToString("yyyy-MM-dd HH:mm:ss")} <br/>
+                審核關卡: {leveltext} <br/>
+                審核開始時間: {approvalModel.CreateDate.ToString("yyyy-MM-dd HH:mm:ss")} <br/>
+                "
+            };
+
+            var mailList = receiverMailList.Select(obj => obj.EMail).ToList();
+            MailPoolManager.WriteMailWithCC(mailList, new List<string>(), content, userID, cDate);
         }
     }
 }

@@ -388,9 +388,11 @@ namespace BI.SPA_Violation
 
                                             context.TET_SPA_ViolationApproval.Add(entityApproval);
 
-                                            // 寄送通知信
-                                            ApprovalMailUtil.SendApprovalMail(ApprovalLevel.QSM.ToDisplayText(), item1, entityApproval, userID, cDate);
                                         }
+
+                                        // 寄送通知信
+                                        var qsm = this._roleMgr.GetUserListInRole(ApprovalRole.QSM.ToID().Value);
+                                        ApprovalMailUtil.SendQSMApprovalMail(ApprovalLevel.QSM.ToDisplayText(), qsm, model, userID, cDate);
                                     }
                                 }
                             }
@@ -415,16 +417,17 @@ namespace BI.SPA_Violation
                                 };
 
                                 context.TET_SPA_ViolationApproval.Add(entityApproval);
-
-                                // 寄送通知信
-                                ApprovalMailUtil.SendApprovalMail(ApprovalLevel.QSM.ToDisplayText(), item, entityApproval, userID, cDate);
                             }
+
+                            // 寄送通知信
+                            var qsm = this._roleMgr.GetUserListInRole(ApprovalRole.QSM.ToID().Value);
+                            ApprovalMailUtil.SendQSMApprovalMail(nextLevelName, qsm, model, userID, cDate);
                         }
                         //--- 檢查審核階段決定信件: (審核關卡= QSM、審核結果=同意) ---
                         else if (cLevelModel.Level == ApprovalLevel.QSM)
                         {
                             this.ClearNoneResultQSMLevelList(context, model);
-                            this.SendCompleteMail(nextLevelName, mainModel, model, userID, cDate);
+                            this.SendCompleteMail(ApprovalLevel.QSM.ToDisplayText(), mainModel, model, userID, cDate);
                         }
                     }
 
